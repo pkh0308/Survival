@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class SoccerBall : MonoBehaviour
 {
@@ -46,5 +44,4 @@ public class SoccerBall : MonoBehaviour
             rigid.AddForce(direction, ForceMode2D.Impulse);
         }
     }
-
 }

@@ -1,12 +1,13 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class UiManager : MonoBehaviour
 {
     [SerializeField] GameManager gameManager;
+    [SerializeField]  ObjectManager objectManager;
     [SerializeField] Weapons weaponLogic;
 
     //타이머 관련
@@ -37,9 +38,12 @@ public class UiManager : MonoBehaviour
     //무기 획득 관련
     [SerializeField] GameObject weaponSelectSet;
 
+    public static Action<int, Vector3> showDamage;
 
     void Awake()
     {
+        showDamage = (a, b) => { StartCoroutine(ShowDamage(a, b)); };
+
         hpPosOffset = new Vector3(0, -60, 0);
         hpBarScale = Vector3.one;
 
@@ -52,9 +56,14 @@ public class UiManager : MonoBehaviour
         UpdateGoldCount(0);
     }
 
-    void Update()
+    IEnumerator ShowDamage(int dmg, Vector3 pos)
     {
-        
+        Text dmgText = objectManager.MakeText();
+        dmgText.text = string.Format("{0:n0}", dmg);
+        dmgText.transform.position = Camera.main.WorldToScreenPoint(pos);
+
+        yield return new WaitForSeconds(1.0f);
+        dmgText.gameObject.SetActive(false);
     }
 
     void LateUpdate()

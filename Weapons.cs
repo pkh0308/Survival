@@ -17,6 +17,10 @@ public class Weapons : MonoBehaviour
     Coroutine soccerBall;
     WaitForSeconds soccerBallSec;
 
+    //수리검
+    Coroutine shuriken;
+    WaitForSeconds shurikenSec;
+
     void Awake()
     {
         weaponDic = new Dictionary<int, WeaponData[]>();
@@ -77,9 +81,13 @@ public class Weapons : MonoBehaviour
     {
         switch(id)
         {
-            case 1001:
+            case ObjectNames.soccerBall:
                 if (soccerBall != null) StopCoroutine(soccerBall);
                 soccerBall = StartCoroutine(SoccerBall(curWeapons[id].WeaponCooltime));
+                break;
+            case ObjectNames.shuriken:
+                if (shuriken != null) StopCoroutine(shuriken);
+                shuriken = StartCoroutine(Shuriken(curWeapons[id].WeaponCooltime));
                 break;
         }
     }
@@ -102,6 +110,23 @@ public class Weapons : MonoBehaviour
             yield return soccerBallSec;
             foreach(GameObject obj in ballList)
                 obj.SetActive(false);
+        }
+    }
+
+    IEnumerator Shuriken(float cooltime)
+    {
+        shurikenSec = new WaitForSeconds(cooltime);
+
+        while (!GameManager.IsPaused)
+        {
+            for (int i = 0; i < curWeapons[ObjectNames.shuriken].WeaponProjectileCount; i++)
+            {
+                GameObject shk = objectManager.MakeObj(ObjectNames.shuriken);
+                shk.transform.position = transform.position;
+                shk.GetComponent<Shuriken>().Initialize(curWeapons[ObjectNames.shuriken]);
+            }
+
+            yield return shurikenSec;
         }
     }
 }

@@ -60,6 +60,9 @@ public class Enemy : MonoBehaviour
     //전투 관련
     public void OnDamaged(int dmg)
     {
+        //데미지 표기
+        UiManager.showDamage(dmg, transform.position);
+
         if (dmg >= curHp)
             StartCoroutine(OnDie());
         else

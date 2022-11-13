@@ -3,12 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ObjectManager : MonoBehaviour
 {
     //무기 투사체
     [SerializeField] GameObject soccerBallPrefab;
     GameObject[] soccerBall;
+    [SerializeField] GameObject shurikenPrefab;
+    GameObject[] shuriken;
 
     //적
     [SerializeField] GameObject enemyMeleePrefab;
@@ -22,6 +25,11 @@ public class ObjectManager : MonoBehaviour
     GameObject[] expGemMiddle;
     GameObject[] expGemHigh;
 
+    //UI
+    [SerializeField] Canvas minorCanvas;
+    [SerializeField] Text textPrefab;
+    Text[] texts;
+
     GameObject[] targetPool;
 
     public static Func<int, GameObject> dropExp;
@@ -31,11 +39,15 @@ public class ObjectManager : MonoBehaviour
         dropExp = (a) => { return DropExp(a); };
 
         soccerBall = new GameObject[30];
+        shuriken = new GameObject[30];
+
         enemyMelee = new GameObject[100];
 
         expGemLow = new GameObject[1000];
         expGemMiddle = new GameObject[1000];
         expGemHigh = new GameObject[1000];
+
+        texts = new Text[1000];
 
         Generate();
     }
@@ -51,6 +63,11 @@ public class ObjectManager : MonoBehaviour
         {
             soccerBall[idx] = Instantiate(soccerBallPrefab);
             soccerBall[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < shuriken.Length; idx++)
+        {
+            shuriken[idx] = Instantiate(shurikenPrefab);
+            shuriken[idx].SetActive(false);
         }
 
         //경험치 젬
@@ -69,16 +86,26 @@ public class ObjectManager : MonoBehaviour
             expGemHigh[idx] = Instantiate(expHighPrefab);
             expGemHigh[idx].SetActive(false);
         }
+
+        //텍스트
+        for (int idx = 0; idx < texts.Length; idx++)
+        {
+            texts[idx] = Instantiate(textPrefab, minorCanvas.transform);
+            texts[idx].gameObject.SetActive(false);
+        }
     }
 
     public GameObject MakeObj(int id)
     {
         switch (id)
         {
-            case 1001:
+            case ObjectNames.soccerBall:
                 targetPool = soccerBall;
                 break;
-            case 100001:
+            case ObjectNames.shuriken:
+                targetPool = shuriken;
+                break;
+            case ObjectNames.enemyMelee:
                 targetPool = enemyMelee;
                 break;
         }
@@ -119,48 +146,17 @@ public class ObjectManager : MonoBehaviour
         }
         return null;
     }
-
-    public GameObject[] GetPool(string type)
+    
+    public Text MakeText()
     {
-        switch (type)
+        for (int idx = 0; idx < texts.Length; idx++)
         {
-            case "enemyMelee":
-                targetPool = enemyMelee;
-                break;
-        }
-        return targetPool;
-    }
-
-    public GameObject GetOne(string type)
-    {
-        switch (type)
-        {
-            case "enemyMelee":
-                targetPool = enemyMelee;
-                break;
-        }
-        return targetPool[0];
-    }
-
-    public int GetActiveCount(string type)
-    {
-        int count = 0;
-
-        switch (type)
-        {
-            case "enemyMelee":
-                targetPool = enemyMelee;
-                break;
-        }
-
-        for (int idx = 0; idx < targetPool.Length; idx++)
-        {
-            if (targetPool[idx].activeSelf)
+            if (!texts[idx].gameObject.activeSelf)
             {
-                count++;
+                texts[idx].gameObject.SetActive(true);
+                return texts[idx];
             }
         }
-        return count;
+        return null;
     }
-
 }
