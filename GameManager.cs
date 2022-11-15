@@ -87,9 +87,9 @@ public class GameManager : MonoBehaviour
     public void ExpUp(int exp)
     {
         curExp += exp;
-        if(maxExp[maxExpIdx] < curExp)
+        if(maxExp[maxExpIdx] <= curExp)
         {
-            while(maxExp[maxExpIdx] < curExp)
+            while(maxExp[maxExpIdx] <= curExp)
             {
                 curExp -= maxExp[maxExpIdx];
                 maxExpIdx++;

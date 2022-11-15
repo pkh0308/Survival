@@ -3,6 +3,7 @@
 public class Tags
 {
     public const string enemy = "Enemy";
+    public const string enemyBullet = "EnemyBullet";
     public const string player = "Player";
     public const string expGem = "ExpGem";
 }

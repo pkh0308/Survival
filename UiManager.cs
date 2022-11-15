@@ -37,6 +37,10 @@ public class UiManager : MonoBehaviour
 
     //무기 획득 관련
     [SerializeField] GameObject weaponSelectSet;
+    WeaponData[] weaponDatas;
+    int curWeaponIdx;
+    [SerializeField] Image[] weaponImages;
+    [SerializeField] TextMeshProUGUI[] weaponDesc;
 
     public static Action<int, Vector3> showDamage;
 
@@ -48,6 +52,8 @@ public class UiManager : MonoBehaviour
         hpBarScale = Vector3.one;
 
         expBarScale = Vector3.one;
+
+        weaponDatas = new WeaponData[3];
     }
 
     void Start()
@@ -58,7 +64,7 @@ public class UiManager : MonoBehaviour
 
     IEnumerator ShowDamage(int dmg, Vector3 pos)
     {
-        Text dmgText = objectManager.MakeText();
+        TextMeshProUGUI dmgText = objectManager.MakeText();
         dmgText.text = string.Format("{0:n0}", dmg);
         dmgText.transform.position = Camera.main.WorldToScreenPoint(pos);
 
@@ -138,12 +144,28 @@ public class UiManager : MonoBehaviour
 
     public void WeaponSelect()
     {
+        //3개의 버튼에 랜덤 무기 노출
+        for(int i = 0; i < weaponDatas.Length; i++)
+        {
+            weaponDatas[i] = weaponLogic.GetRandomWeaponData();
+            weaponImages[i].sprite = SpriteContainer.getSprite(weaponDatas[i].WeaponId);
+            weaponDesc[i].text = weaponDatas[i].WeaponName + "\n\n" + weaponDatas[i].WeaponDescription;
+        }
+
         weaponSelectSet.SetActive(true);
     }
 
-    public void Btn_WeaponSelectComplete(int id)
+    public void Btn_WeaponSelect(int idx)
     {
-        weaponLogic.GetWeapon(id);
+        curWeaponIdx = idx;
+    }
+
+    public void Btn_WeaponSelectComplete()
+    {
+        weaponLogic.GetWeapon(weaponDatas[curWeaponIdx].WeaponId);
+        weaponSelectSet.SetActive(false);
         gameManager.PauseOff();
+
+        weaponLogic.RestartWeapons();
     }
 }

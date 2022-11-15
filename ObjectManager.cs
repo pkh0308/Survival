@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class ObjectManager : MonoBehaviour
 {
@@ -12,6 +11,8 @@ public class ObjectManager : MonoBehaviour
     GameObject[] soccerBall;
     [SerializeField] GameObject shurikenPrefab;
     GameObject[] shuriken;
+    [SerializeField] GameObject defenderPrefab;
+    GameObject[] defender;
 
     //적
     [SerializeField] GameObject enemyMeleePrefab;
@@ -27,8 +28,8 @@ public class ObjectManager : MonoBehaviour
 
     //UI
     [SerializeField] Canvas minorCanvas;
-    [SerializeField] Text textPrefab;
-    Text[] texts;
+    [SerializeField] TextMeshProUGUI textPrefab;
+    TextMeshProUGUI[] texts;
 
     GameObject[] targetPool;
 
@@ -40,6 +41,7 @@ public class ObjectManager : MonoBehaviour
 
         soccerBall = new GameObject[30];
         shuriken = new GameObject[30];
+        defender = new GameObject[10];
 
         enemyMelee = new GameObject[100];
 
@@ -47,7 +49,7 @@ public class ObjectManager : MonoBehaviour
         expGemMiddle = new GameObject[1000];
         expGemHigh = new GameObject[1000];
 
-        texts = new Text[1000];
+        texts = new TextMeshProUGUI[1000];
 
         Generate();
     }
@@ -68,6 +70,11 @@ public class ObjectManager : MonoBehaviour
         {
             shuriken[idx] = Instantiate(shurikenPrefab);
             shuriken[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < defender.Length; idx++)
+        {
+            defender[idx] = Instantiate(defenderPrefab);
+            defender[idx].SetActive(false);
         }
 
         //경험치 젬
@@ -104,6 +111,9 @@ public class ObjectManager : MonoBehaviour
                 break;
             case ObjectNames.shuriken:
                 targetPool = shuriken;
+                break;
+            case ObjectNames.defender:
+                targetPool = defender;
                 break;
             case ObjectNames.enemyMelee:
                 targetPool = enemyMelee;
@@ -147,7 +157,7 @@ public class ObjectManager : MonoBehaviour
         return null;
     }
     
-    public Text MakeText()
+    public TextMeshProUGUI MakeText()
     {
         for (int idx = 0; idx < texts.Length; idx++)
         {

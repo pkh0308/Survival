@@ -5,6 +5,7 @@ public class ObjectNames
     //무기
     public const int soccerBall = 1001;
     public const int shuriken = 2001;
+    public const int defender = 3001;
 
     //적
     public const int enemyMelee = 100001;
