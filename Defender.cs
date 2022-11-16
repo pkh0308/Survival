@@ -18,6 +18,8 @@ public class Defender : MonoBehaviour
         weaponData = data;
 
         Invoke(nameof(TimeOver), weaponData.WeaponCooltime);
+
+        transform.RotateAround(Player.playerPos, Vector3.forward, 360.0f);
     }
 
     void OnTriggerEnter2D(Collider2D col)

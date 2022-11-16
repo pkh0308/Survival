@@ -6,6 +6,8 @@ public class ObjectNames
     public const int soccerBall = 1001;
     public const int shuriken = 2001;
     public const int defender = 3001;
+    public const int meet_50 = 9001;
+    public const int gold_70 = 9002;
 
     //적
     public const int enemyMelee = 100001;

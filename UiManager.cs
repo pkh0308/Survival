@@ -1,8 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System;
 
 public class UiManager : MonoBehaviour
 {
@@ -52,14 +53,12 @@ public class UiManager : MonoBehaviour
         hpBarScale = Vector3.one;
 
         expBarScale = Vector3.one;
-
-        weaponDatas = new WeaponData[3];
     }
 
     void Start()
     {
         UpdateKillCount(0);
-        UpdateGoldCount(0);
+        UpdateMoneyCount(0);
     }
 
     IEnumerator ShowDamage(int dmg, Vector3 pos)
@@ -125,7 +124,7 @@ public class UiManager : MonoBehaviour
         killCountText.text = string.Format("{0:n0}", count);
     }
 
-    public void UpdateGoldCount(int count)
+    public void UpdateMoneyCount(int count)
     {
         goldCountText.text = string.Format("{0:n0}", count);
     }
@@ -133,7 +132,7 @@ public class UiManager : MonoBehaviour
     //경험치 관련
     public void UpdateExp(int cur, int max)
     {
-        expBarScale.x = (float)cur / max;
+        expBarScale.x = cur > max ? 1 : (float)cur / max;
         expBar.rectTransform.localScale = expBarScale;
     }
 
@@ -145,9 +144,9 @@ public class UiManager : MonoBehaviour
     public void WeaponSelect()
     {
         //3개의 버튼에 랜덤 무기 노출
-        for(int i = 0; i < weaponDatas.Length; i++)
+        weaponDatas = weaponLogic.GetRandomWeaponData().ToArray();
+        for (int i = 0; i < weaponDatas.Length; i++)
         {
-            weaponDatas[i] = weaponLogic.GetRandomWeaponData();
             weaponImages[i].sprite = SpriteContainer.getSprite(weaponDatas[i].WeaponId);
             weaponDesc[i].text = weaponDatas[i].WeaponName + "\n\n" + weaponDatas[i].WeaponDescription;
         }

@@ -25,6 +25,12 @@ public class GameManager : MonoBehaviour
     int[] maxExp;
     int maxExpIdx;
 
+    //카운트 관련
+    public static Action killCountPlus;
+    int killCount;
+    public static Action<int> moneyCountPlus;
+    int moneyCount;
+
     void Awake()
     {
         oneSec = new WaitForSeconds(1.0f);
@@ -35,6 +41,9 @@ public class GameManager : MonoBehaviour
         isPaused = false;
 
         maxExp = Enumerable.Repeat<int>(100, 100).ToArray();
+
+        killCountPlus = () => { UpdateKillCount(); };
+        moneyCountPlus = (a) => { UpdateMoneyCount(a); };
     }
 
     void Start()
@@ -95,7 +104,6 @@ public class GameManager : MonoBehaviour
                 maxExpIdx++;
                 LevelUp();
             }
-            uiManager.UpdateLevel(maxExpIdx + 1);
         }
         uiManager.UpdateExp(curExp, maxExp[maxExpIdx]);
     }
@@ -103,7 +111,22 @@ public class GameManager : MonoBehaviour
     void LevelUp()
     {
         isPaused = true;
+        uiManager.UpdateLevel(maxExpIdx + 1);
+        uiManager.UpdateExp(curExp, maxExp[maxExpIdx]);
         uiManager.WeaponSelect();
+    }
+
+    //카운트 관련
+    void UpdateKillCount()
+    {
+        killCount++;
+        uiManager.UpdateKillCount(killCount);
+    }
+
+    void UpdateMoneyCount(int count)
+    {
+        moneyCount += count;
+        uiManager.UpdateMoneyCount(moneyCount);
     }
 
     //게임 오버

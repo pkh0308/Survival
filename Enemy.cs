@@ -74,6 +74,7 @@ public class Enemy : MonoBehaviour
         //anim.SetTrigger("OnDie");
         isDie = true;
         boxCol.enabled = false;
+        GameManager.killCountPlus();
         DropItem();
             
         yield return new WaitForSeconds(1.5f);

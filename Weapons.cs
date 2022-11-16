@@ -9,7 +9,6 @@ public class Weapons : MonoBehaviour
 
     //무기 정보
     Dictionary<int, WeaponData[]> weaponDic;
-    List<int> weaponIds;
 
     //보유중인 무기 슬롯
     Dictionary<int, WeaponData> curWeapons;
@@ -31,7 +30,6 @@ public class Weapons : MonoBehaviour
     {
         weaponDic = new Dictionary<int, WeaponData[]>();
         curWeapons = new Dictionary<int, WeaponData>();
-        weaponIds = new List<int>();
 
         ReadData();
     }
@@ -52,10 +50,12 @@ public class Weapons : MonoBehaviour
             while (line.Length > 1)
             {
                 int id = int.Parse(line.Split(',')[0]);
-                weaponIds.Add(id);
-                weaponDic.Add(id, new WeaponData[5]);
+                if(id == ObjectNames.meet_50 || id == ObjectNames.gold_70)
+                    weaponDic.Add(id, new WeaponData[1]);
+                else
+                    weaponDic.Add(id, new WeaponData[5]);
                 
-                for(int i = 0; i < 5; i++)
+                for(int i = 0; i < weaponDic[id].Length; i++)
                 {
                     string[] datas = line.Split(',');
                     // 0: id, 1: name, 2: level, 3: atk, 4: scale, 5:cooltime, 6:count, 7: projectileSpeed, 8:description
@@ -86,21 +86,35 @@ public class Weapons : MonoBehaviour
     }
 
     //레벨업, 상자 획득 시 호출
-    public WeaponData GetRandomWeaponData()
+    public List<WeaponData> GetRandomWeaponData()
     {
-        if(curMaxWeapons > 4)
+        List<WeaponData> datas = new List<WeaponData>();
+        List<int> keys = new List<int>(weaponDic.Keys);
+
+        if (curMaxWeapons >= 6)
         {
-            //체력 회복 or 골드 획득 옵션
+            //체력 회복, 골드 획득 옵션
+            datas.Add(weaponDic[ObjectNames.meet_50][0]);
+            datas.Add(weaponDic[ObjectNames.gold_70][0]);
+            return datas;
         }
 
-        int id = weaponIds[Random.Range(0, weaponIds.Count)];
-        if(curWeapons.TryGetValue(id, out WeaponData data) == false)
-            return weaponDic[id][0];
+        keys.Remove(ObjectNames.meet_50);
+        keys.Remove(ObjectNames.gold_70);
+        while (datas.Count < 3)
+        {
+            int id = keys[Random.Range(0, keys.Count)];
+            if (curWeapons.TryGetValue(id, out WeaponData data) == false)
+                datas.Add(weaponDic[id][0]);
+            else if (data.WeaponLevel < 5)
+                datas.Add(weaponDic[id][data.WeaponLevel]);
 
-        if (data.WeaponLevel < 5)
-            return weaponDic[id][data.WeaponLevel];
+            keys.Remove(id);
+            //레벨업 가능한 무기가 없을 경우 루프 탈출
+            if (keys.Count < 1) break;
+        }
 
-        return GetRandomWeaponData();
+        return datas;
     }
 
     //일시정지 종료 후 무기 코루틴 재시작용
@@ -136,7 +150,7 @@ public class Weapons : MonoBehaviour
     {
         soccerBallSec = new WaitForSeconds(cooltime);
         List<GameObject> ballList = new List<GameObject>();
-
+        
         while(!GameManager.IsPaused)
         {
             ballList.Clear();
