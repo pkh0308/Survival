@@ -75,7 +75,7 @@ public class Weapons : MonoBehaviour
     public void GetWeapon(int id)
     {
         if (curWeapons.TryGetValue(id, out WeaponData w))
-            curWeapons[id] = weaponDic[id][curWeapons[id].WeaponLevel + 1];
+            curWeapons[id] = weaponDic[id][curWeapons[id].WeaponLevel];
         else
             curWeapons.Add(id, weaponDic[id][0]);
 
@@ -203,5 +203,10 @@ public class Weapons : MonoBehaviour
             yield return defenderSec;
             yield return defenderSec;
         }
+    }
+
+    public void AllStop()
+    {
+        StopAllCoroutines();
     }
 }

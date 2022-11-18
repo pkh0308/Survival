@@ -69,6 +69,26 @@ public class Enemy : MonoBehaviour
             curHp -= dmg;
     }
 
+    //밀치는 효과가 있는 경우
+    public void OnDamaged(int dmg, Vector3 vec)
+    {
+        //데미지 표기
+        UiManager.showDamage(dmg, transform.position);
+
+        if (dmg >= curHp)
+            StartCoroutine(OnDie());
+        else
+            curHp -= dmg;
+
+        rigid.AddForce(vec, ForceMode2D.Impulse);
+        Invoke(nameof(StopForce), 0.3f);
+    }
+
+    void StopForce()
+    {
+        rigid.velocity = Vector3.zero;
+    }
+
     IEnumerator OnDie()
     {
         //anim.SetTrigger("OnDie");

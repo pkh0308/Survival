@@ -18,8 +18,13 @@ public class Defender : MonoBehaviour
         weaponData = data;
 
         Invoke(nameof(TimeOver), weaponData.WeaponCooltime);
+    }
 
-        transform.RotateAround(Player.playerPos, Vector3.forward, 360.0f);
+    void Update()
+    {
+        transform.RotateAround(Player.playerPos, Vector3.forward, weaponData.WeaponProjectileSpeed * Time.deltaTime);
+
+        if (GameManager.IsPaused) gameObject.SetActive(false);
     }
 
     void OnTriggerEnter2D(Collider2D col)
@@ -30,9 +35,7 @@ public class Defender : MonoBehaviour
         if(col.CompareTag(Tags.enemyBullet))
             col.gameObject.SetActive(false);
 
-        col.GetComponent<Enemy>().OnDamaged(weaponData.WeaponAtk);
-
-        gameObject.SetActive(false);
+        col.GetComponent<Enemy>().OnDamaged(weaponData.WeaponAtk, (col.transform.position - Player.playerPos).normalized * 5.0f);
     }
 
     void TimeOver()

@@ -94,7 +94,7 @@ public class Player : MonoBehaviour
         {
             curHp = 0;
             uiManager.UpdateHp(curHp, maxHp);
-            OnDie();
+            StartCoroutine(OnDie());
             return;
         }
 
@@ -105,7 +105,7 @@ public class Player : MonoBehaviour
     IEnumerator OnDie()
     {
         isDie = true;
-        anim.SetTrigger("OnDie");
+        //anim.SetTrigger("OnDie");
 
         yield return new WaitForSeconds(1.5f);
         gameManager.GameOver();

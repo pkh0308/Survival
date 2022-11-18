@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -81,6 +80,8 @@ public class GameManager : MonoBehaviour
     public void PauseOff()
     {
         isPaused = false;
+        timerRoutine = StartCoroutine(Timer());
+        spawnRoutine = StartCoroutine(Spawn());
     }
 
     //적 스폰 관련
@@ -132,6 +133,7 @@ public class GameManager : MonoBehaviour
     //게임 오버
     public void GameOver()
     {
-
+        isPaused = true;
+        uiManager.GameOver(killCount, moneyCount);
     }
 }

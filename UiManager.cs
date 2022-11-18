@@ -43,6 +43,11 @@ public class UiManager : MonoBehaviour
     [SerializeField] Image[] weaponImages;
     [SerializeField] TextMeshProUGUI[] weaponDesc;
 
+    //게임 오버 관련
+    [SerializeField] GameObject gameOverSet;
+    [SerializeField] Text killCountText_gameover;
+    [SerializeField] Text moneyCountText_gameover;
+
     public static Action<int, Vector3> showDamage;
 
     void Awake()
@@ -166,5 +171,20 @@ public class UiManager : MonoBehaviour
         gameManager.PauseOff();
 
         weaponLogic.RestartWeapons();
+    }
+
+    //게임 오버
+    public void GameOver(int kill, int money)
+    {
+        weaponLogic.AllStop();
+        killCountText_gameover.text = string.Format("{0:n0}", kill);
+        moneyCountText_gameover.text = string.Format("{0:n0}", money);
+        gameOverSet.SetActive(true);
+    }
+
+    public void Btn_GameOver()
+    {
+        gameOverSet.SetActive(false);
+        LoadingSceneManager.exitStage();
     }
 }

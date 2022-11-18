@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 public class ObjectManager : MonoBehaviour
 {
+    [SerializeField] Player player;
+
     //무기 투사체
     [SerializeField] GameObject soccerBallPrefab;
     GameObject[] soccerBall;
@@ -37,6 +38,8 @@ public class ObjectManager : MonoBehaviour
 
     void Awake()
     {
+        LoadingSceneManager.setActiveScene();
+
         dropExp = (a) => { return DropExp(a); };
 
         soccerBall = new GameObject[30];
@@ -73,7 +76,7 @@ public class ObjectManager : MonoBehaviour
         }
         for (int idx = 0; idx < defender.Length; idx++)
         {
-            defender[idx] = Instantiate(defenderPrefab);
+            defender[idx] = Instantiate(defenderPrefab, player.transform);
             defender[idx].SetActive(false);
         }
 
