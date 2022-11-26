@@ -59,6 +59,8 @@ public class GameManager : MonoBehaviour
             yield return oneSec;
             seconds++;
             uiManager.UpdateTimer(seconds);
+
+            if (seconds == 30) StartCoroutine(StageClear());
         }
     }
 
@@ -128,6 +130,16 @@ public class GameManager : MonoBehaviour
     {
         moneyCount += count;
         uiManager.UpdateMoneyCount(moneyCount);
+    }
+
+    //스테이지 클리어
+    IEnumerator StageClear()
+    {
+        //모든 적 사망처리
+
+        yield return new WaitForSeconds(3.0f);
+        isPaused = true;
+        uiManager.StageClear(killCount, moneyCount);
     }
 
     //게임 오버

@@ -43,6 +43,11 @@ public class UiManager : MonoBehaviour
     [SerializeField] Image[] weaponImages;
     [SerializeField] TextMeshProUGUI[] weaponDesc;
 
+    //스테이지 클리어 관련
+    [SerializeField] GameObject stageClearSet;
+    [SerializeField] Text killCountText_stageClear;
+    [SerializeField] Text moneyCountText_stageClear;
+
     //게임 오버 관련
     [SerializeField] GameObject gameOverSet;
     [SerializeField] Text killCountText_gameover;
@@ -171,6 +176,21 @@ public class UiManager : MonoBehaviour
         gameManager.PauseOff();
 
         weaponLogic.RestartWeapons();
+    }
+
+    //스테이지 클리어
+    public void StageClear(int kill, int money)
+    {
+        weaponLogic.AllStop();
+        killCountText_gameover.text = string.Format("{0:n0}", kill);
+        moneyCountText_gameover.text = string.Format("{0:n0}", money);
+        stageClearSet.SetActive(true);
+    }
+
+    public void Btn_StageClear()
+    {
+        stageClearSet.SetActive(false);
+        LoadingSceneManager.exitStage();
     }
 
     //게임 오버

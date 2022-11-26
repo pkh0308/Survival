@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
 
     public static Vector3 playerPos;
 
+    public int characterId;
     public float moveSpeed;
     Vector3 moveVec;
 
