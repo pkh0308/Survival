@@ -3,7 +3,7 @@
 public class EnhancementData
 {
     public enum enhanceType {
-        atkPower = 1, atkScale, projSpeed, coolTime, projCount, atkRemainTime, playerHealth, playerdef, playeMoveSpeed
+        atkPower = 1, atkScale, projSpeed, coolTime, projCount, atkRemainTime, playerHealth, playerdef, playerMoveSpeed
     }
 
     public readonly enhanceType type;
@@ -12,8 +12,9 @@ public class EnhancementData
     public readonly int spriteId;
     public readonly string nameText;
     public readonly string descText;
+    public readonly int price;
 
-    public EnhancementData(int id, int s_id, string name, string desc, int t, float val)
+    public EnhancementData(int id, int s_id, string name, string desc, int t, float val, int p)
     {
         type = (enhanceType)t;
         enhanceId = id;
@@ -21,5 +22,6 @@ public class EnhancementData
         nameText = name;
         descText = desc;
         enhanceVal = val;
+        price = p;
     }
 }

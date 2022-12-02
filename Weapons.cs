@@ -5,7 +5,10 @@ using UnityEngine;
 
 public class Weapons : MonoBehaviour
 {
-    [SerializeField] ObjectManager objectManager;
+    ObjectManager objectManager;
+
+    //캐릭터 스탯
+    PlayerStatus stat;
 
     //무기 정보
     Dictionary<int, WeaponData[]> weaponDic;
@@ -31,7 +34,10 @@ public class Weapons : MonoBehaviour
         weaponDic = new Dictionary<int, WeaponData[]>();
         curWeapons = new Dictionary<int, WeaponData>();
 
+        stat = PlayerStatusManager.getStatus();
+
         ReadData();
+        GetPlayerPrefers();
     }
 
     //csv파일에서 데이터를 읽어온 뒤 weaponDictionary에 저장
@@ -50,7 +56,7 @@ public class Weapons : MonoBehaviour
             while (line.Length > 1)
             {
                 int id = int.Parse(line.Split(',')[0]);
-                if(id == ObjectNames.meet_50 || id == ObjectNames.gold_70)
+                if(id == ObjectNames.meat_50 || id == ObjectNames.gold_70)
                     weaponDic.Add(id, new WeaponData[1]);
                 else
                     weaponDic.Add(id, new WeaponData[5]);
@@ -58,9 +64,9 @@ public class Weapons : MonoBehaviour
                 for(int i = 0; i < weaponDic[id].Length; i++)
                 {
                     string[] datas = line.Split(',');
-                    // 0: id, 1: name, 2: level, 3: atk, 4: scale, 5:cooltime, 6:count, 7: projectileSpeed, 8:description
+                    // 0: id, 1: name, 2: level, 3: atk, 4: scale, 5:cooltime, 6:count, 7: projectileSpeed, 8: remainTime, 9:description
                     weaponDic[id][i] = new WeaponData(id, datas[1], int.Parse(datas[2]), int.Parse(datas[3]), float.Parse(datas[4]), 
-                                                      float.Parse(datas[5]), int.Parse(datas[6]), float.Parse(datas[7]), datas[8]);
+                                                      float.Parse(datas[5]), int.Parse(datas[6]), float.Parse(datas[7]), float.Parse(datas[8]), datas[9]);
                     
                     line = weaponDataReader.ReadLine();
                     if (line == null) break;
@@ -69,6 +75,17 @@ public class Weapons : MonoBehaviour
             }
         }
         weaponDataReader.Close();
+    }
+
+    //Prefers 에서 플레이어 데이터 가져옴
+    void GetPlayerPrefers()
+    {
+
+    }
+
+    public void SetObjectManager(ObjectManager manager)
+    {
+        objectManager = manager;
     }
 
     //무기 획득 or 레벨업
@@ -94,12 +111,12 @@ public class Weapons : MonoBehaviour
         if (curMaxWeapons >= 6)
         {
             //체력 회복, 골드 획득 옵션
-            datas.Add(weaponDic[ObjectNames.meet_50][0]);
+            datas.Add(weaponDic[ObjectNames.meat_50][0]);
             datas.Add(weaponDic[ObjectNames.gold_70][0]);
             return datas;
         }
 
-        keys.Remove(ObjectNames.meet_50);
+        keys.Remove(ObjectNames.meat_50);
         keys.Remove(ObjectNames.gold_70);
         while (datas.Count < 3)
         {
@@ -146,19 +163,22 @@ public class Weapons : MonoBehaviour
         }
     }
 
-    IEnumerator SoccerBall(float cooltime)
+    // 축구공
+    IEnumerator SoccerBall(float cooldown)
     {
-        soccerBallSec = new WaitForSeconds(cooltime);
+        soccerBallSec = new WaitForSeconds(cooldown * stat.CoolTimeVal);
         List<GameObject> ballList = new List<GameObject>();
         
         while(!GameManager.IsPaused)
         {
             ballList.Clear();
-            for (int i = 0; i < curWeapons[ObjectNames.soccerBall].WeaponProjectileCount; i++)
+            int maxProj = curWeapons[ObjectNames.soccerBall].WeaponProjectileCount + stat.ProjCountVal;
+            for (int i = 0; i < maxProj; i++)
             {
                 ballList.Add(objectManager.MakeObj(ObjectNames.soccerBall));
                 ballList[i].transform.position = transform.position;
-                ballList[i].GetComponent<SoccerBall>().Initialize(curWeapons[ObjectNames.soccerBall]);
+                ballList[i].GetComponent<SoccerBall>().Initialize(curWeapons[ObjectNames.soccerBall], 
+                                                                  stat.AtkPowerVal, stat.AtkScaleVal, stat.ProjSpeedVal, stat.AtkRemainTimeVal);
             }
             
             yield return soccerBallSec;
@@ -167,37 +187,43 @@ public class Weapons : MonoBehaviour
         }
     }
 
-    IEnumerator Shuriken(float cooltime)
+    // 수리검
+    IEnumerator Shuriken(float cooldown)
     {
-        shurikenSec = new WaitForSeconds(cooltime);
+        shurikenSec = new WaitForSeconds(cooldown * stat.CoolTimeVal);
 
         while (!GameManager.IsPaused)
         {
-            for (int i = 0; i < curWeapons[ObjectNames.shuriken].WeaponProjectileCount; i++)
+            int maxProj = curWeapons[ObjectNames.shuriken].WeaponProjectileCount + stat.ProjCountVal;
+            for (int i = 0; i < maxProj; i++)
             {
                 GameObject shk = objectManager.MakeObj(ObjectNames.shuriken);
                 shk.transform.position = transform.position;
-                shk.GetComponent<Shuriken>().Initialize(curWeapons[ObjectNames.shuriken]);
+                shk.GetComponent<Shuriken>().Initialize(curWeapons[ObjectNames.shuriken], 
+                                                        stat.AtkPowerVal, stat.AtkScaleVal, stat.ProjSpeedVal, stat.AtkRemainTimeVal);
             }
 
             yield return shurikenSec;
         }
     }
 
-    IEnumerator Defender(float cooltime)
+    // 수호자
+    IEnumerator Defender(float cooldown)
     {
-        defenderSec = new WaitForSeconds(cooltime);
+        defenderSec = new WaitForSeconds(cooldown * stat.CoolTimeVal);
 
         while (!GameManager.IsPaused)
         {
             float rotateOffset = 360 / curWeapons[ObjectNames.defender].WeaponProjectileCount;
 
-            for (int i = 0; i < curWeapons[ObjectNames.defender].WeaponProjectileCount; i++)
+            int maxProj = curWeapons[ObjectNames.defender].WeaponProjectileCount + stat.ProjCountVal;
+            for (int i = 0; i < maxProj; i++)
             {
                 GameObject def = objectManager.MakeObj(ObjectNames.defender);
                 def.transform.position = transform.position + (Vector3.up * 2);
                 def.transform.RotateAround(transform.position, Vector3.forward, rotateOffset * i);
-                def.GetComponent<Defender>().Initialize(curWeapons[ObjectNames.defender]);
+                def.GetComponent<Defender>().Initialize(curWeapons[ObjectNames.defender], 
+                                                        stat.AtkPowerVal, stat.AtkScaleVal, stat.ProjSpeedVal, stat.AtkRemainTimeVal);
             }
 
             yield return defenderSec;

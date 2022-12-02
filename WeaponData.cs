@@ -28,11 +28,14 @@ public class WeaponData
     //투사체 속도
     float weaponProjectileSpeed;
     public float WeaponProjectileSpeed { get { return weaponProjectileSpeed; } }
+    //지속 시간
+    float weaponRemainTime;
+    public float WeaponRemainTime { get { return weaponRemainTime; } }
     //설명
     string weaponDescription;
     public string WeaponDescription { get { return weaponDescription; } }
 
-    public WeaponData(int id, string name, int lv, int atk, float cooltime, float scale, int count, float speed, string desc)
+    public WeaponData(int id, string name, int lv, int atk, float cooltime, float scale, int count, float speed, float remain, string desc)
     {
         weaponId = id;
         weaponName = name;
@@ -42,8 +45,7 @@ public class WeaponData
         weaponScale = scale;
         weaponProjectileCount = count;
         weaponProjectileSpeed = speed;
+        weaponRemainTime = remain;
         weaponDescription = desc;
     }
-
-    public virtual void Initialize() { }
 }

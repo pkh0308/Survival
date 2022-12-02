@@ -1,25 +1,13 @@
 ﻿using UnityEngine;
 
-public class Defender : MonoBehaviour
+public class Defender : WeaponBase
 {
-    WeaponData weaponData;
-
-    Rigidbody2D rigid;
-    Vector3 offset;
-
-    void Awake()
+    protected override void IndividualInitialize()
     {
-        rigid = GetComponent<Rigidbody2D>();
-        offset = Vector3.zero;
+        
     }
 
-    public void Initialize(WeaponData data)
-    {
-        weaponData = data;
-
-        Invoke(nameof(TimeOver), weaponData.WeaponCooltime);
-    }
-
+    //회전을 위해 update 함수 사용
     void Update()
     {
         transform.RotateAround(Player.playerPos, Vector3.forward, weaponData.WeaponProjectileSpeed * Time.deltaTime);
@@ -35,11 +23,7 @@ public class Defender : MonoBehaviour
         if(col.CompareTag(Tags.enemyBullet))
             col.gameObject.SetActive(false);
 
-        col.GetComponent<Enemy>().OnDamaged(weaponData.WeaponAtk, (col.transform.position - Player.playerPos).normalized * 5.0f);
-    }
-
-    void TimeOver()
-    {
-        gameObject.SetActive(false);
+        col.GetComponent<Enemy>().OnDamaged((int)(weaponData.WeaponAtk * atkPower), 
+                                            (col.transform.position - Player.playerPos).normalized * 5.0f);
     }
 }

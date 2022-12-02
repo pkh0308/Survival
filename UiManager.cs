@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -8,8 +7,8 @@ using TMPro;
 public class UiManager : MonoBehaviour
 {
     [SerializeField] GameManager gameManager;
-    [SerializeField]  ObjectManager objectManager;
-    [SerializeField] Weapons weaponLogic;
+    [SerializeField] ObjectManager objectManager;
+    Weapons weaponLogic;
 
     //타이머 관련
     [SerializeField] TextMeshProUGUI timerText;
@@ -54,6 +53,11 @@ public class UiManager : MonoBehaviour
     [SerializeField] Text moneyCountText_gameover;
 
     public static Action<int, Vector3> showDamage;
+
+    public void GetWeaponLogic(Weapons weaponLogic)
+    {
+        this.weaponLogic = weaponLogic;
+    }
 
     void Awake()
     {

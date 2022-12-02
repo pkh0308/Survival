@@ -1,23 +1,9 @@
 ﻿using UnityEngine;
 
-public class SoccerBall : MonoBehaviour
+public class SoccerBall : WeaponBase
 {
-    Rigidbody2D rigid;
-
-    Vector3 direction;
-
-    WeaponData weaponData;
-
-    void Awake()
+    protected override void IndividualInitialize()
     {
-        rigid = GetComponent<Rigidbody2D>();
-        direction = Vector3.zero;
-    }
-
-    public void Initialize(WeaponData data)
-    {
-        weaponData = data;
-
         direction.x = Random.Range(-5.0f, 5.0f);
         direction.y = Random.Range(-5.0f, 5.0f);
         direction = direction.normalized * weaponData.WeaponProjectileSpeed;
@@ -28,7 +14,7 @@ public class SoccerBall : MonoBehaviour
     {
         if (!col.CompareTag(Tags.enemy)) return;
 
-        col.GetComponent<Enemy>().OnDamaged(weaponData.WeaponAtk);
+        col.GetComponent<Enemy>().OnDamaged((int)(weaponData.WeaponAtk * atkPower));
 
         Vector3 diff = col.transform.position - transform.position;
         if (Mathf.Abs(diff.x) > Mathf.Abs(diff.y))

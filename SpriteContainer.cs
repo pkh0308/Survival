@@ -22,7 +22,7 @@ public class SpriteContainer : MonoBehaviour
                 return sprites[1];
             case ObjectNames.defender:
                 return sprites[2];
-            case ObjectNames.meet_50:
+            case ObjectNames.meat_50:
                 return sprites[3];
             case ObjectNames.gold_70:
                 return sprites[4];

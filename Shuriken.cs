@@ -1,27 +1,8 @@
 ﻿using UnityEngine;
 
-public class Shuriken : MonoBehaviour
+public class Shuriken : WeaponBase
 {
-    WeaponData weaponData;
-
-    Rigidbody2D rigid;
-    Vector3 direction;
-
-    void Awake()
-    {
-        rigid = GetComponent<Rigidbody2D>();
-        direction = Vector3.one;
-    }
-
-    public void Initialize(WeaponData data)
-    {
-        weaponData = data;
-
-        SearchTarget();
-        Invoke(nameof(TimeOver), weaponData.WeaponCooltime);
-    }
-
-    void SearchTarget()
+    protected override void IndividualInitialize()
     {
         Collider2D[] cols = Physics2D.OverlapCircleAll(transform.position, 15.0f, LayerMask.GetMask("Enemy"));
         if (cols.Length > 0)
@@ -29,20 +10,15 @@ public class Shuriken : MonoBehaviour
         else
             direction = Vector3.right;
 
-        rigid.AddForce(direction * weaponData.WeaponProjectileSpeed, ForceMode2D.Impulse);
+        rigid.AddForce(direction * weaponData.WeaponProjectileSpeed * projSpeed, ForceMode2D.Impulse);
     }
 
     void OnTriggerEnter2D(Collider2D col)
     {
         if (!col.CompareTag(Tags.enemy)) return;
 
-        col.GetComponent<Enemy>().OnDamaged(weaponData.WeaponAtk);
+        col.GetComponent<Enemy>().OnDamaged((int)(weaponData.WeaponAtk * atkPower));
 
-        gameObject.SetActive(false);
-    }
-
-    void TimeOver()
-    {
         gameObject.SetActive(false);
     }
 }

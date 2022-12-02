@@ -8,7 +8,8 @@ public class LoadingSceneManager : MonoBehaviour
     [SerializeField] GameObject loadingScene;
 
     public static Action<int> enterStage;
-    public static Action setActiveScene;
+    public static Action setActiveSceneToCurStage;
+    public static Action setActiveSceneToPlayerScene;
     public static Action exitStage;
 
     int curStageIdx;
@@ -24,7 +25,8 @@ public class LoadingSceneManager : MonoBehaviour
     void Awake()
     {
         enterStage = (a) => { EnterStage(a); };
-        setActiveScene = () => { SetActiveScene(); };
+        setActiveSceneToCurStage = () => { SetActiveSceneToCurStage(); };
+        setActiveSceneToPlayerScene = () => { SetActiveSceneToPlayerScene(); };
         exitStage = () => { ExitStage(); };
 
         LoadLobby();
@@ -35,9 +37,14 @@ public class LoadingSceneManager : MonoBehaviour
         SceneManager.LoadScene((int)SceneIndex.LOBBY, LoadSceneMode.Additive);
     }
 
-    public void SetActiveScene()
+    public void SetActiveSceneToCurStage()
     {
         SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(curStageIdx));
+    }
+
+    public void SetActiveSceneToPlayerScene()
+    {
+        SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex((int)SceneIndex.PLAYER));
     }
 
     //스테이지 입장 시

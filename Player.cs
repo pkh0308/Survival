@@ -1,48 +1,61 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] GameManager gameManager;
-    [SerializeField] UiManager uiManager;
-
+    //플레이어 위치 추적용
     public static Vector3 playerPos;
 
-    public int characterId;
-    public float moveSpeed;
-    Vector3 moveVec;
+    GameManager gameManager;
+    UiManager uiManager;
+    CharacterData characterData;
 
     Weapons weaponLogic;
     SpriteRenderer spriteRender;
     Animator anim;
 
+    float moveSpeed;
+    Vector3 moveVec;
+
+    //캐릭터 스탯
+    PlayerStatus stat;
+
     //전투 관련
     int curHp;
-    public int maxHp;
+    int baseHp;
+    int maxHp;
     bool isDie;
     public bool IsDie { get { return isDie; } }
 
-    float powerRate;
-    public float PowerRate { get { return powerRate; } }
-
     //기본 무기 타입
     [SerializeField] int basicWeaponId;
+
+    //ObjectManager에 호출하여 필요한 레퍼런스 제공
+    public void Initialize(GameManager gameManager, UiManager uiManager, CharacterData data)
+    {
+        this.gameManager = gameManager;
+        this.uiManager = uiManager;
+        characterData = data;
+
+        baseHp = characterData.playerHealth;
+        moveSpeed = characterData.playerMoveSpeed;
+    }
 
     void Awake()
     {
         spriteRender = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         weaponLogic = GetComponent<Weapons>();
-
+        
+        stat = PlayerStatusManager.getStatus();
         moveVec = Vector3.zero;
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        maxHp = (int)(baseHp * stat.PlayerHealthVal);
         curHp = maxHp;
-        powerRate = 1.0f;
         weaponLogic.GetWeapon(basicWeaponId);
     }
 
@@ -75,8 +88,8 @@ public class Player : MonoBehaviour
 
         if (moveVec.x < 0) spriteRender.flipX = true;
         else if(moveVec.x > 0) spriteRender.flipX = false;
-
-        transform.position += moveSpeed * Time.deltaTime * moveVec;
+        
+        transform.position += moveSpeed * stat.PlayerMoveSpeedVal * Time.deltaTime * moveVec;
     }
 
     //전투 관련
@@ -91,6 +104,8 @@ public class Player : MonoBehaviour
 
     public void OnDamaged(int dmg)
     {
+        dmg -= stat.PlayerdefVal;
+
         if(curHp <= dmg)
         {
             curHp = 0;
