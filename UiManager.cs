@@ -40,17 +40,18 @@ public class UiManager : MonoBehaviour
     WeaponData[] weaponDatas;
     int curWeaponIdx;
     [SerializeField] Image[] weaponImages;
+    [SerializeField] TextMeshProUGUI[] weaponName;
     [SerializeField] TextMeshProUGUI[] weaponDesc;
 
     //스테이지 클리어 관련
     [SerializeField] GameObject stageClearSet;
-    [SerializeField] Text killCountText_stageClear;
-    [SerializeField] Text moneyCountText_stageClear;
+    [SerializeField] TextMeshProUGUI killCountText_stageClear;
+    [SerializeField] TextMeshProUGUI moneyCountText_stageClear;
 
     //게임 오버 관련
     [SerializeField] GameObject gameOverSet;
-    [SerializeField] Text killCountText_gameover;
-    [SerializeField] Text moneyCountText_gameover;
+    [SerializeField] TextMeshProUGUI killCountText_gameover;
+    [SerializeField] TextMeshProUGUI moneyCountText_gameover;
 
     public static Action<int, Vector3> showDamage;
 
@@ -162,7 +163,8 @@ public class UiManager : MonoBehaviour
         for (int i = 0; i < weaponDatas.Length; i++)
         {
             weaponImages[i].sprite = SpriteContainer.getSprite(weaponDatas[i].WeaponId);
-            weaponDesc[i].text = weaponDatas[i].WeaponName + "\n\n" + weaponDatas[i].WeaponDescription;
+            weaponName[i].text = weaponDatas[i].WeaponName;
+            weaponDesc[i].text = weaponDatas[i].WeaponDescription;
         }
 
         weaponSelectSet.SetActive(true);
@@ -180,14 +182,15 @@ public class UiManager : MonoBehaviour
         gameManager.PauseOff();
 
         weaponLogic.RestartWeapons();
+        gameManager.LevelUp();
     }
 
     //스테이지 클리어
     public void StageClear(int kill, int money)
     {
         weaponLogic.AllStop();
-        killCountText_gameover.text = string.Format("{0:n0}", kill);
-        moneyCountText_gameover.text = string.Format("{0:n0}", money);
+        killCountText_stageClear.text = string.Format("{0:n0}", kill);
+        moneyCountText_stageClear.text = string.Format("{0:n0}", money);
         stageClearSet.SetActive(true);
     }
 

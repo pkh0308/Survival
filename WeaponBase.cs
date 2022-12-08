@@ -5,9 +5,14 @@ public class WeaponBase : MonoBehaviour
     protected WeaponData weaponData;
 
     protected Rigidbody2D rigid;
-    protected  Sprite sprite;
+    protected Sprite sprite;
+    protected SpriteRenderer spriteRenderer;
     protected Collider2D coll;
     protected Vector3 direction;
+
+    //기본 스케일
+    protected Vector3 initialScale;
+    protected Vector3 initialColliderScale;
 
     //캐릭터 스탯
     protected float atkPower;
@@ -19,10 +24,25 @@ public class WeaponBase : MonoBehaviour
     {
         rigid = GetComponent<Rigidbody2D>();
         sprite = GetComponent<Sprite>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
         coll = GetComponent<Collider2D>();
         direction = Vector3.one;
     }
-    
+
+    void OnEnable()
+    {
+        initialScale = transform.localScale;
+        initialColliderScale = coll.transform.localScale;
+        
+    }
+
+    void OnDisable()
+    {
+        transform.localScale = initialScale;
+        coll.transform.localScale = initialColliderScale;
+        transform.rotation = Quaternion.identity;
+    }
+
     public void Initialize(WeaponData data, float power, float scale, float speed, float time) 
     {
         weaponData = data;

@@ -8,7 +8,6 @@ public class Player : MonoBehaviour
 
     GameManager gameManager;
     UiManager uiManager;
-    CharacterData characterData;
 
     Weapons weaponLogic;
     SpriteRenderer spriteRender;
@@ -18,6 +17,7 @@ public class Player : MonoBehaviour
     Vector3 moveVec;
 
     //캐릭터 스탯
+    CharacterData characterData;
     PlayerStatus stat;
 
     //전투 관련
@@ -54,9 +54,24 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        StatusMerge();
+        weaponLogic.SetStatus(stat);
         maxHp = (int)(baseHp * stat.PlayerHealthVal);
         curHp = maxHp;
         weaponLogic.GetWeapon(basicWeaponId);
+    }
+
+    //캐릭터 기본 스탯(CharacterData)와 강화 수치(PlayerStatus)를 합산
+    //최대 체력과 이동속도는 제외
+    void StatusMerge()
+    {
+        stat.AddStatus(nameof(stat.AtkPowerVal), characterData.atkPower);
+        stat.AddStatus(nameof(stat.AtkScaleVal), characterData.atkScale); 
+        stat.AddStatus(nameof(stat.ProjSpeedVal), characterData.projSpeed);
+        stat.AddStatus(nameof(stat.CoolTimeVal), characterData.coolTime);
+        stat.AddStatus(nameof(stat.ProjCountVal), characterData.projCount);
+        stat.AddStatus(nameof(stat.AtkRemainTimeVal), characterData.atkRemainTime);
+        stat.AddStatus(nameof(stat.PlayerdefVal), characterData.playerdef);
     }
 
     // Update is called once per frame
@@ -77,7 +92,7 @@ public class Player : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Escape))
         {
-            gameManager.Pause();
+            gameManager.Pause_Exit();
         }
     }
 

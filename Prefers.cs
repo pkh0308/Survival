@@ -21,8 +21,8 @@ public class Prefers
     public int AtkScale { get { return atkScale; } }
     int projSpeed;
     public int ProjSpeed { get { return projSpeed; } }
-    int coolTime;
-    public int CoolTime { get { return coolTime; } }
+    int cooltime;
+    public int Cooltime { get { return cooltime; } }
     int projCount;
     public int ProjCount { get { return projCount; } }
     int atkRemainTime;
@@ -40,7 +40,7 @@ public class Prefers
         atkPower = PlayerPrefs.HasKey(nameof(atkPower)) ? PlayerPrefs.GetInt(nameof(atkPower)) : 100;
         atkScale = PlayerPrefs.HasKey(nameof(atkScale)) ? PlayerPrefs.GetInt(nameof(atkScale)) : 200;
         projSpeed = PlayerPrefs.HasKey(nameof(projSpeed)) ? PlayerPrefs.GetInt(nameof(projSpeed)) : 300;
-        coolTime = PlayerPrefs.HasKey(nameof(coolTime)) ? PlayerPrefs.GetInt(nameof(coolTime)) : 400;
+        cooltime = PlayerPrefs.HasKey(nameof(cooltime)) ? PlayerPrefs.GetInt(nameof(cooltime)) : 400;
         projCount = PlayerPrefs.HasKey(nameof(projCount)) ? PlayerPrefs.GetInt(nameof(projCount)) : 500;
         atkRemainTime = PlayerPrefs.HasKey(nameof(atkRemainTime)) ? PlayerPrefs.GetInt(nameof(atkRemainTime)) : 600;
         playerHealth = PlayerPrefs.HasKey(nameof(playerHealth)) ? PlayerPrefs.GetInt(nameof(playerHealth)) : 700;
@@ -54,7 +54,7 @@ public class Prefers
         PlayerPrefs.SetInt(nameof(atkPower), atkPower);
         PlayerPrefs.SetInt(nameof(atkScale), atkScale);
         PlayerPrefs.SetInt(nameof(projSpeed), projSpeed);
-        PlayerPrefs.SetInt(nameof(coolTime), coolTime);
+        PlayerPrefs.SetInt(nameof(cooltime), cooltime);
         PlayerPrefs.SetInt(nameof(projCount), projCount);
         PlayerPrefs.SetInt(nameof(atkRemainTime), atkRemainTime);
         PlayerPrefs.SetInt(nameof(playerHealth), playerHealth);
@@ -63,43 +63,43 @@ public class Prefers
     }
 
     //밸류 갱신
-    public void UpdatePref(string name)
+    public void UpdatePref(string type)
     {
-        switch(name)
+        switch(type)
         {
-            case nameof(atkPower):
+            case ObjectNames.atkPowerName:
                 atkPower++;
                 PlayerPrefs.SetInt(nameof(atkPower), atkPower);
                 break;
-            case nameof(atkScale):
+            case ObjectNames.atkScaleName:
                 atkScale++;
                 PlayerPrefs.SetInt(nameof(atkScale), atkScale);
                 break;
-            case nameof(projSpeed):
+            case ObjectNames.projSpeedName:
                 projSpeed++;
                 PlayerPrefs.SetInt(nameof(projSpeed), projSpeed);
                 break;
-            case nameof(coolTime):
-                coolTime++;
-                PlayerPrefs.SetInt(nameof(coolTime), coolTime);
+            case ObjectNames.cooltimeName:
+                cooltime++;
+                PlayerPrefs.SetInt(nameof(cooltime), cooltime);
                 break;
-            case nameof(projCount):
+            case ObjectNames.projCountName:
                 projCount++;
                 PlayerPrefs.SetInt(nameof(projCount), projCount);
                 break;
-            case nameof(atkRemainTime):
+            case ObjectNames.atkRemainTimeName:
                 atkRemainTime++;
                 PlayerPrefs.SetInt(nameof(atkRemainTime), atkRemainTime);
                 break;
-            case nameof(playerHealth):
+            case ObjectNames.playerHealthName:
                 playerHealth++;
                 PlayerPrefs.SetInt(nameof(playerHealth), playerHealth);
                 break;
-            case nameof(playerdef):
+            case ObjectNames.playerDefName:
                 playerdef++;
                 PlayerPrefs.SetInt(nameof(playerdef), playerdef);
                 break;
-            case nameof(playerMoveSpeed):
+            case ObjectNames.playerMoveSpeedName:
                 playerMoveSpeed++;
                 PlayerPrefs.SetInt(nameof(playerMoveSpeed), playerMoveSpeed);
                 break;
@@ -115,7 +115,7 @@ public class Prefers
         arr[0] = atkPower;
         arr[1] = atkScale;
         arr[2] = projSpeed;
-        arr[3] = coolTime;
+        arr[3] = cooltime;
         arr[4] = projCount;
         arr[5] = atkRemainTime;
         arr[6] = playerHealth;
@@ -123,5 +123,28 @@ public class Prefers
         arr[8] = playerMoveSpeed;
 
         return arr;
+    }
+
+    public void Reset()
+    {
+        atkPower = 100;
+        atkScale = 200;
+        projSpeed = 300;
+        cooltime = 400;
+        projCount = 500;
+        atkRemainTime = 600;
+        playerHealth = 700;
+        playerdef = 800;
+        playerMoveSpeed = 900;
+
+        PlayerPrefs.SetInt(nameof(atkPower), atkPower);
+        PlayerPrefs.SetInt(nameof(atkScale), atkScale);
+        PlayerPrefs.SetInt(nameof(projSpeed), projSpeed);
+        PlayerPrefs.SetInt(nameof(cooltime), cooltime);
+        PlayerPrefs.SetInt(nameof(projCount), projCount);
+        PlayerPrefs.SetInt(nameof(atkRemainTime), atkRemainTime);
+        PlayerPrefs.SetInt(nameof(playerHealth), playerHealth);
+        PlayerPrefs.SetInt(nameof(playerdef), playerdef);
+        PlayerPrefs.SetInt(nameof(playerMoveSpeed), playerMoveSpeed);
     }
 }

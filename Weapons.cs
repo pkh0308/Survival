@@ -34,10 +34,7 @@ public class Weapons : MonoBehaviour
         weaponDic = new Dictionary<int, WeaponData[]>();
         curWeapons = new Dictionary<int, WeaponData>();
 
-        stat = PlayerStatusManager.getStatus();
-
         ReadData();
-        GetPlayerPrefers();
     }
 
     //csv파일에서 데이터를 읽어온 뒤 weaponDictionary에 저장
@@ -78,9 +75,9 @@ public class Weapons : MonoBehaviour
     }
 
     //Prefers 에서 플레이어 데이터 가져옴
-    void GetPlayerPrefers()
+    public void SetStatus(PlayerStatus stat)
     {
-
+        this.stat = stat;
     }
 
     public void SetObjectManager(ObjectManager manager)
@@ -190,17 +187,20 @@ public class Weapons : MonoBehaviour
     // 수리검
     IEnumerator Shuriken(float cooldown)
     {
-        shurikenSec = new WaitForSeconds(cooldown * stat.CoolTimeVal);
+        WaitForSeconds projInterval = new WaitForSeconds(0.1f);
 
         while (!GameManager.IsPaused)
         {
             int maxProj = curWeapons[ObjectNames.shuriken].WeaponProjectileCount + stat.ProjCountVal;
+            shurikenSec = new WaitForSeconds(cooldown * stat.CoolTimeVal - (0.1f * maxProj));
             for (int i = 0; i < maxProj; i++)
             {
                 GameObject shk = objectManager.MakeObj(ObjectNames.shuriken);
                 shk.transform.position = transform.position;
-                shk.GetComponent<Shuriken>().Initialize(curWeapons[ObjectNames.shuriken], 
+                shk.GetComponent<Shuriken>().Initialize(curWeapons[ObjectNames.shuriken],
                                                         stat.AtkPowerVal, stat.AtkScaleVal, stat.ProjSpeedVal, stat.AtkRemainTimeVal);
+
+                yield return projInterval;
             }
 
             yield return shurikenSec;

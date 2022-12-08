@@ -14,6 +14,17 @@ public class ObjectNames
     public const int meat_50 = 9001;
     public const int gold_70 = 9002;
 
+    //스테이터스 이름
+    public const string atkPowerName = "데미지 증가";
+    public const string atkScaleName = "범위 증가";
+    public const string projSpeedName = "투사체 속도 증가";
+    public const string cooltimeName = "쿨타임 감소";
+    public const string projCountName = "투사체 수 증가";
+    public const string atkRemainTimeName = "지속 시간 증가";
+    public const string playerHealthName = "최대 체력 증가";
+    public const string playerDefName = "방어력 증가";
+    public const string playerMoveSpeedName = "이동속도 증가";
+
     //적
     public const int enemyMelee = 100001;
 

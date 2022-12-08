@@ -1,4 +1,4 @@
-﻿
+﻿//캐릭터 스테이터스 저장용 클래스
 public class PlayerStatus
 {
     float atkPowerVal;
@@ -31,5 +31,40 @@ public class PlayerStatus
         playerHealthVal = health;
         playerdefVal = def;
         playerMoveSpeedVal = moveSpeed;
+    }
+
+    public void AddStatus(string name, float val)
+    {
+        switch(name)
+        {
+            case nameof(atkPowerVal):
+                atkPowerVal += val;
+                break;
+            case nameof(atkScaleVal):
+                atkScaleVal += val;
+                break;
+            case nameof(projSpeedVal):
+                projSpeedVal += val;
+                break;
+            case nameof(coolTimeVal):
+                coolTimeVal += val;
+                break;
+            case nameof(atkRemainTimeVal):
+                atkRemainTimeVal += val;
+                break;
+        }
+    }
+
+    public void AddStatus(string name, int val)
+    {
+        switch (name)
+        {
+            case nameof(projCountVal):
+                projCountVal += val;
+                break;
+            case nameof(playerdefVal):
+                playerdefVal += val;
+                break;
+        }
     }
 }

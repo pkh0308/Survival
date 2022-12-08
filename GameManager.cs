@@ -24,6 +24,11 @@ public class GameManager : MonoBehaviour
     int[] maxExp;
     int maxExpIdx;
 
+    //레벨업 관련
+    [SerializeField] float levelUpInterval;
+    WaitForSeconds levelUpSeconds;
+    Coroutine levelUpRoutine;
+
     //카운트 관련
     public static Action killCountPlus;
     int killCount;
@@ -36,6 +41,8 @@ public class GameManager : MonoBehaviour
         seconds = 0;
 
         spawnSec = new WaitForSeconds(0.3f);
+
+        levelUpSeconds = new WaitForSeconds(levelUpInterval);
 
         isPaused = false;
 
@@ -64,7 +71,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void Pause()
+    public void Pause_Exit()
     {
         isPaused = uiManager.Pause(isPaused);
         if (isPaused)
@@ -77,6 +84,13 @@ public class GameManager : MonoBehaviour
             timerRoutine = StartCoroutine(Timer());
             spawnRoutine = StartCoroutine(Spawn());
         }
+    }
+
+    public void Pause()
+    {
+        isPaused = true;
+        StopCoroutine(timerRoutine);
+        StopCoroutine(spawnRoutine);
     }
 
     public void PauseOff()
@@ -100,20 +114,26 @@ public class GameManager : MonoBehaviour
     {
         curExp += exp;
         if(maxExp[maxExpIdx] <= curExp)
-        {
-            while(maxExp[maxExpIdx] <= curExp)
-            {
-                curExp -= maxExp[maxExpIdx];
-                maxExpIdx++;
-                LevelUp();
-            }
-        }
+            levelUpRoutine = StartCoroutine(LevelUpRoutine());
+
         uiManager.UpdateExp(curExp, maxExp[maxExpIdx]);
     }
 
-    void LevelUp()
+    //LevelUp 루틴 외부 호출용
+    public void LevelUp()
     {
-        isPaused = true;
+        if (maxExp[maxExpIdx] > curExp) return;
+
+        levelUpRoutine = StartCoroutine(LevelUpRoutine());
+    }
+    
+    IEnumerator LevelUpRoutine()
+    {
+        curExp -= maxExp[maxExpIdx];
+        maxExpIdx++;
+
+        yield return levelUpSeconds;
+        Pause();
         uiManager.UpdateLevel(maxExpIdx + 1);
         uiManager.UpdateExp(curExp, maxExp[maxExpIdx]);
         uiManager.WeaponSelect();

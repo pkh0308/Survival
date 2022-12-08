@@ -130,7 +130,7 @@ public class LobbyManager : MonoBehaviour
             enhanceDic[Prefers.Instance.AtkPower].enhanceVal,
             enhanceDic[Prefers.Instance.AtkScale].enhanceVal,
             enhanceDic[Prefers.Instance.ProjSpeed].enhanceVal,
-            enhanceDic[Prefers.Instance.CoolTime].enhanceVal,
+            enhanceDic[Prefers.Instance.Cooltime].enhanceVal,
             (int)enhanceDic[Prefers.Instance.ProjCount].enhanceVal,
             enhanceDic[Prefers.Instance.AtkRemainTime].enhanceVal,
             enhanceDic[Prefers.Instance.PlayerHealth].enhanceVal,
@@ -154,10 +154,10 @@ public class LobbyManager : MonoBehaviour
         int[] ids = Prefers.Instance.GetPrefers();
         for(int i = 0; i < enhanceSlots.Length; i++)
         {
-            if (enhanceDic.TryGetValue(ids[i] + 1, out _))
+            if (enhanceDic.ContainsKey(ids[i] + 1))
                 enhanceSlots[i].SetEnhanceId(ids[i] + 1);
             else
-                enhanceSlots[i].SetEnhanceId(ids[i] / 100 * 100);
+                enhanceSlots[i].SetEnhanceId(ids[i]);
         }
     }
 
@@ -203,18 +203,9 @@ public class LobbyManager : MonoBehaviour
         //UI, Prefs 변수 갱신
         UpdateGold();
         Prefers.Instance.UpdatePref(enhanceDic[curEnhanceId].nameText);
-
-        //최대 레벨 분기
-        if (enhanceDic.ContainsKey(curEnhanceId + 1))
-        {
-            enhanceSlots[curEnhanceIdx].SetEnhanceId(++curEnhanceId);
-            Btn_EnhanceSelect(curEnhanceIdx);
-        }
-        else
-        {
-            enhanceSlots[curEnhanceIdx].SetEnhanceId(curEnhanceId / 100 * 100);
-            Btn_EnhanceSelect(curEnhanceIdx);
-        }
+        
+        enhanceSlots[curEnhanceIdx].SetEnhanceId(++curEnhanceId);
+        Btn_EnhanceSelect(curEnhanceIdx);
     }
 
     public void Btn_PurchaseFail()
@@ -234,16 +225,23 @@ public class LobbyManager : MonoBehaviour
     public void Btn_ExitYes()
     {
 #if UNITY_EDITOR
+        Prefers.Instance.UpdateAllPref();
         UnityEditor.EditorApplication.isPlaying = false;
 #else
     Application.Quit();
 #endif
     }
 
+    //종료 시 Prefers 저장
+    void OnApplicationQuit()
+    {
+        Prefers.Instance.UpdateAllPref();
+    }
+
     ///////////////////////////////////
     //치트 관련
     //빌드 전 반드시 삭제 요망
-    
+
     public void Cheat_On()
     {
         cheatSet.SetActive(!cheatSet.activeSelf);
@@ -261,9 +259,8 @@ public class LobbyManager : MonoBehaviour
         UpdateGold();
     }
 
-    //종료 시 Prefers 저장
-    void OnApplicationQuit()
+    public void Cheat_EnhancementReset()
     {
-        Prefers.Instance.UpdateAllPref();
+        Prefers.Instance.Reset();
     }
 }
