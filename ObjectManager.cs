@@ -109,7 +109,12 @@ public class ObjectManager : MonoBehaviour
     // 오퍼레이터의 경우 operatorStatus 파일을 읽어와서 스테이터스 설정
     void Generate()
     {
-        //파일에서 데이터 읽어오기
+        //적
+        for (int idx = 0; idx < enemyMelee.Length; idx++)
+        {
+            enemyMelee[idx] = Instantiate(enemyMeleePrefab);
+            enemyMelee[idx].SetActive(false);
+        }
 
         //무기 투사체
         for (int idx = 0; idx < soccerBall.Length; idx++)

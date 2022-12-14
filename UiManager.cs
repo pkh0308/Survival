@@ -8,6 +8,7 @@ public class UiManager : MonoBehaviour
 {
     [SerializeField] GameManager gameManager;
     [SerializeField] ObjectManager objectManager;
+    [SerializeField] StageSoundManager soundManager;
     Weapons weaponLogic;
 
     //타이머 관련
@@ -37,6 +38,7 @@ public class UiManager : MonoBehaviour
 
     //무기 획득 관련
     [SerializeField] GameObject weaponSelectSet;
+    [SerializeField] GameObject[] weaponSelectSlots;
     WeaponData[] weaponDatas;
     int curWeaponIdx;
     [SerializeField] Image[] weaponImages;
@@ -156,6 +158,7 @@ public class UiManager : MonoBehaviour
         levelText.text = "Lv." + level;
     }
 
+    //무기 획득 관련
     public void WeaponSelect()
     {
         //3개의 버튼에 랜덤 무기 노출
@@ -165,6 +168,12 @@ public class UiManager : MonoBehaviour
             weaponImages[i].sprite = SpriteContainer.getSprite(weaponDatas[i].WeaponId);
             weaponName[i].text = weaponDatas[i].WeaponName;
             weaponDesc[i].text = weaponDatas[i].WeaponDescription;
+            weaponSelectSlots[i].SetActive(true);
+        }
+        //획득 또는 업그레이드 가능한 무기가 3개 미만일 경우
+        for (int i = weaponDatas.Length; i < 3; i++)
+        {
+            weaponSelectSlots[i].SetActive(false);
         }
 
         weaponSelectSet.SetActive(true);
@@ -188,6 +197,7 @@ public class UiManager : MonoBehaviour
     //스테이지 클리어
     public void StageClear(int kill, int money)
     {
+        soundManager.PlaySfx((int)StageSoundManager.StageSfx.stageClear);
         weaponLogic.AllStop();
         killCountText_stageClear.text = string.Format("{0:n0}", kill);
         moneyCountText_stageClear.text = string.Format("{0:n0}", money);
@@ -203,6 +213,7 @@ public class UiManager : MonoBehaviour
     //게임 오버
     public void GameOver(int kill, int money)
     {
+        soundManager.PlaySfx((int)StageSoundManager.StageSfx.gameOver);
         weaponLogic.AllStop();
         killCountText_gameover.text = string.Format("{0:n0}", kill);
         moneyCountText_gameover.text = string.Format("{0:n0}", money);

@@ -4,7 +4,7 @@ public class Defender : WeaponBase
 {
     protected override void IndividualInitialize()
     {
-        
+        StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.defender);
     }
 
     //회전을 위해 update 함수 사용

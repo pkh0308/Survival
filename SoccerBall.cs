@@ -8,6 +8,8 @@ public class SoccerBall : WeaponBase
         direction.y = Random.Range(-5.0f, 5.0f);
         direction = direction.normalized * weaponData.WeaponProjectileSpeed;
         rigid.AddForce(direction, ForceMode2D.Impulse);
+
+        StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.soccerBall);
     }
 
     void OnTriggerEnter2D(Collider2D col)
@@ -15,6 +17,7 @@ public class SoccerBall : WeaponBase
         if (!col.CompareTag(Tags.enemy)) return;
 
         col.GetComponent<Enemy>().OnDamaged((int)(weaponData.WeaponAtk * atkPower));
+        StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.soccerBall);
 
         Vector3 diff = col.transform.position - transform.position;
         if (Mathf.Abs(diff.x) > Mathf.Abs(diff.y))

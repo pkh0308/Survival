@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
@@ -7,6 +6,7 @@ public class Enemy : MonoBehaviour
     Rigidbody2D rigid;
     Animator anim;
     BoxCollider2D boxCol;
+    SpriteRenderer spriteRenderer;
 
     bool isDie;
 
@@ -28,6 +28,7 @@ public class Enemy : MonoBehaviour
         rigid = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         boxCol = GetComponent<BoxCollider2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void OnEnable()
@@ -44,17 +45,24 @@ public class Enemy : MonoBehaviour
     void Update()
     {
         if (isDie) return;
-
-        if(GameManager.IsPaused != true)
-        {
-            Move();
-        }
+        if (GameManager.IsPaused) return;
+        
+        Move();
+        Flip();
     }
 
     void Move()
     {
         moveDelta = moveSpeed * Time.deltaTime;
         transform.position = Vector3.MoveTowards(transform.position, Player.playerPos, moveDelta);
+    }
+
+    void Flip()
+    {
+        if (Player.playerPos.x < transform.position.x && !spriteRenderer.flipX)
+            spriteRenderer.flipX = true;
+        else if(Player.playerPos.x > transform.position.x && spriteRenderer.flipX)
+            spriteRenderer.flipX = false;
     }
 
     //전투 관련

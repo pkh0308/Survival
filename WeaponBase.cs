@@ -26,7 +26,7 @@ public class WeaponBase : MonoBehaviour
         sprite = GetComponent<Sprite>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         coll = GetComponent<Collider2D>();
-        direction = Vector3.one;
+        direction = Vector3.zero;
     }
 
     void OnEnable()
@@ -41,6 +41,8 @@ public class WeaponBase : MonoBehaviour
         transform.localScale = initialScale;
         coll.transform.localScale = initialColliderScale;
         transform.rotation = Quaternion.identity;
+
+        spriteRenderer.flipY = false;
     }
 
     public void Initialize(WeaponData data, float power, float scale, float speed, float time) 

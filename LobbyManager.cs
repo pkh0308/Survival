@@ -6,6 +6,7 @@ using TMPro;
 
 public class LobbyManager : MonoBehaviour
 {
+    [SerializeField] LobbySoundManager soundManager;
     [SerializeField] ImageContainer imgContainer;
 
     [SerializeField] GameObject enhancementSet;
@@ -25,6 +26,7 @@ public class LobbyManager : MonoBehaviour
 
     //강화 화면 관련
     [SerializeField] EnhanceSlot[] enhanceSlots;
+    [SerializeField] TextMeshProUGUI[] enhanceValueTexts;
     Dictionary<int, EnhancementData> enhanceDic;
 
     int curEnhanceId, curEnhanceIdx;
@@ -86,6 +88,7 @@ public class LobbyManager : MonoBehaviour
     //게임 시작 버튼 관련
     public void Btn_GameStart()
     {
+        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
         characterSelectSet.SetActive(true);
     }
 
@@ -93,6 +96,7 @@ public class LobbyManager : MonoBehaviour
     {
         if (charId == 0) return;
 
+        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
         characterSelectSet.SetActive(false);
         stageSelectSet.SetActive(true);
     }
@@ -104,12 +108,14 @@ public class LobbyManager : MonoBehaviour
 
     public void Btn_characterSelectExit()
     {
+        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
         characterSelectSet.SetActive(false);
         charId = 0;
     }
 
     public void Btn_StageSelectExit()
     {
+        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
         stageSelectSet.SetActive(false);
         charId = 0;
         stageId = 0;
@@ -124,6 +130,7 @@ public class LobbyManager : MonoBehaviour
     {
         if (stageId == 0) return;
 
+        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
         //플레이어 스탯 전달
         //0: atkPower, 1:atkScale, 2:projSpeed, 3: cooltime, 4: projCount, 5: atkRemainTime, 6:playerHealth, 7: playerDef, 8: playerMoveSpeed
         PlayerStatus status = new PlayerStatus(
@@ -166,13 +173,32 @@ public class LobbyManager : MonoBehaviour
         enhanceIcon.sprite = imgContainer.GetSprite(enhanceDic[id].spriteId);
         enhanceNameText.text = enhanceDic[id].nameText;
         enhanceDescText.text = enhanceDic[id].descText;
-        enhancePriceText.text = enhanceDic[id].price == 0 ? "---" : string.Format("{0:n0}", enhanceDic[id].price);
+        enhancePriceText.text = enhanceDic[id].price == 0 ? "Max" : string.Format("{0:n0}", enhanceDic[id].price);
         enhanceBtn.SetActive(enhanceDic[id].price > 0);
+
+        int offset;
+        for (int i = 0; i < enhanceValueTexts.Length; i++)
+        {
+            offset = i == curEnhanceIdx ? 0 : 1;
+            float val = Mathf.Round(enhanceDic[enhanceSlots[i].EnhanceId - offset].enhanceVal * 100);
+            int idx = enhanceSlots[i].EnhanceId / 100;
+            //4: 쿨타임 감소, 5: 투사체 수, 8: 방어력
+            if (idx == 4)
+                enhanceValueTexts[i].text = "- " + (100 - val) + "%";
+            else if (idx == 5 || idx == 8)
+                enhanceValueTexts[i].text = "+ " + val / 100;
+            else
+                enhanceValueTexts[i].text = "+ " + (val - 100) + "%";
+
+            enhanceValueTexts[i].color = Color.white;
+        }
+        enhanceValueTexts[curEnhanceIdx].color = Color.green;
     }
 
     public void Btn_EnhancementOpen()
     {
-        if(enhancementSet.activeSelf)
+        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
+        if (enhancementSet.activeSelf)
         {
             enhancementSet.SetActive(false);
             UpdateEnhanceInfo(enhanceSlots[0].EnhanceId);
@@ -194,13 +220,15 @@ public class LobbyManager : MonoBehaviour
         if (curEnhanceId == 0) return;
 
         //구매 실패 처리
-        if(GoldManager.Instance.Purchase(enhanceDic[curEnhanceId].price) == false)
+        if (GoldManager.Instance.Purchase(enhanceDic[curEnhanceId].price) == false)
         {
+            soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
             purchaseFailSet.SetActive(true);
             return;
         }
 
         //UI, Prefs 변수 갱신
+        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.upgrade);
         UpdateGold();
         Prefers.Instance.UpdatePref(enhanceDic[curEnhanceId].nameText);
         
@@ -210,13 +238,15 @@ public class LobbyManager : MonoBehaviour
 
     public void Btn_PurchaseFail()
     {
+        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
         purchaseFailSet.SetActive(false);
     }
 
     //종료 버튼 관련
     public void Btn_Exit()
     {
-        if(exitSet.activeSelf)
+        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
+        if (exitSet.activeSelf)
             exitSet.SetActive(false);
         else
             exitSet.SetActive(true);
