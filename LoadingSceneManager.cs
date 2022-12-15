@@ -11,6 +11,7 @@ public class LoadingSceneManager : MonoBehaviour
     public static Action setActiveSceneToCurStage;
     public static Action setActiveSceneToPlayerScene;
     public static Action exitStage;
+    public static Func<int> getCurStageIdx;
 
     int curStageIdx;
 
@@ -19,7 +20,10 @@ public class LoadingSceneManager : MonoBehaviour
         LOADING = 0,
         LOBBY = 1,
         PLAYER = 2,
-        STAGE_1 = 3
+        STAGE_1 = 3,
+        STAGE_2,
+        STAGE_3,
+        STAGE_4
     }
 
     void Awake()
@@ -28,6 +32,7 @@ public class LoadingSceneManager : MonoBehaviour
         setActiveSceneToCurStage = () => { SetActiveSceneToCurStage(); };
         setActiveSceneToPlayerScene = () => { SetActiveSceneToPlayerScene(); };
         exitStage = () => { ExitStage(); };
+        getCurStageIdx = () => { return curStageIdx; };
 
         LoadLobby();
     }

@@ -97,13 +97,16 @@ public class Enemy : MonoBehaviour
         rigid.velocity = Vector3.zero;
     }
 
-    IEnumerator OnDie()
+    IEnumerator OnDie(bool timeOver = false)
     {
         //anim.SetTrigger("OnDie");
         isDie = true;
         boxCol.enabled = false;
-        GameManager.killCountPlus();
-        DropItem();
+        if(!timeOver) //타임 오버 외 사망(타임 오버는 드랍 x, 킬 카운트 x)
+        {
+            GameManager.killCountPlus();
+            DropItem();
+        }
             
         yield return new WaitForSeconds(1.5f);
         gameObject.SetActive(false);
@@ -127,7 +130,15 @@ public class Enemy : MonoBehaviour
         if(col.gameObject.CompareTag(Tags.player))
         {
             if (col.TryGetComponent<Player>(out target))
+            {
                 atkRoutine = StartCoroutine(Attack());
+                return;
+            }
+        }
+
+        if (col.gameObject.CompareTag(Tags.stageEnder))
+        {
+            StartCoroutine(OnDie(true));
         }
     }
 

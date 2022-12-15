@@ -8,4 +8,5 @@ public class Tags
     public const string expGem = "ExpGem";
     public const string ground = "Ground";
     public const string area = "Area";
+    public const string stageEnder = "StageEnder";
 }

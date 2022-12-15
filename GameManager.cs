@@ -10,9 +10,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] ObjectManager objectManager;
     [SerializeField] UiManager uiManager;
     [SerializeField] StageSoundManager soundManager;
+    [SerializeField] GameObject stageEnder;
 
     static bool isPaused;
     public static bool IsPaused { get { return isPaused; } }
+    bool gameOver;
 
     //타이머 관련
     WaitForSeconds oneSec;
@@ -20,10 +22,12 @@ public class GameManager : MonoBehaviour
     Coroutine timerRoutine;
 
     //적 스폰 관련
-    WaitForSeconds spawnSec;
+    int curStageIdx;
     Coroutine spawnRoutine;
     List<EnemySpawnData> spawnList;
     int curSpawnIdx;
+    Vector3 spawnOffset;
+    [SerializeField] float spawnDistance;
 
     //경험치 관련
     int curExp;
@@ -46,8 +50,6 @@ public class GameManager : MonoBehaviour
         oneSec = new WaitForSeconds(1.0f);
         seconds = 0;
 
-        spawnSec = new WaitForSeconds(0.3f);
-
         levelUpSeconds = new WaitForSeconds(levelUpInterval);
 
         isPaused = false;
@@ -58,6 +60,7 @@ public class GameManager : MonoBehaviour
         moneyCountPlus = (a) => { UpdateMoneyCount(a); };
 
         spawnList = new List<EnemySpawnData>();
+        curStageIdx = LoadingSceneManager.getCurStageIdx();
         curSpawnIdx = 0;
         ReadSpawnData();
     }
@@ -68,22 +71,32 @@ public class GameManager : MonoBehaviour
         TextAsset spawnDatas = Resources.Load("SpawnDatas") as TextAsset;
         StringReader spawnDataReader = new StringReader(spawnDatas.text);
 
-        while (spawnDataReader != null)
+        if (spawnDataReader == null)
         {
-            string line = spawnDataReader.ReadLine();
-            if (line == null) break;
+            Debug.Log("spawnDataReader is null");
+            return;
+        }
+        //첫줄 스킵(변수 이름 라인)
+        string line = spawnDataReader.ReadLine();
+        if (line == null) return;
+
+        line = spawnDataReader.ReadLine();
+        while (line.Length > 1)
+        {
+            string[] datas = line.Split(',');
+            if (int.Parse(datas[0]) < curStageIdx)
+            {
+                line = spawnDataReader.ReadLine();
+                continue;
+            }
+            if (int.Parse(datas[0]) > curStageIdx)
+                break;
+
+            //1: id, 2: interval
+            spawnList.Add(new EnemySpawnData(int.Parse(datas[1]), float.Parse(datas[2])));
 
             line = spawnDataReader.ReadLine();
-            while (line.Length > 1)
-            {
-                string[] datas = line.Split(',');
-
-                //0: id, 1: interval
-                spawnList.Add(new EnemySpawnData(int.Parse(datas[0]), float.Parse(datas[1])));
-
-                line = spawnDataReader.ReadLine();
-                if (line == null) break;
-            }
+            if (line == null) break;
         }
         spawnDataReader.Close();
     }
@@ -97,7 +110,7 @@ public class GameManager : MonoBehaviour
     //타이머 관련
     IEnumerator Timer()
     {
-        while(isPaused == false)
+        while (isPaused == false)
         {
             yield return oneSec;
             seconds++;
@@ -114,26 +127,34 @@ public class GameManager : MonoBehaviour
         {
             if (timerRoutine != null) StopCoroutine(timerRoutine);
             if (spawnRoutine != null) StopCoroutine(spawnRoutine);
+            Time.timeScale = 0;
         }
         else
         {
             timerRoutine = StartCoroutine(Timer());
-                spawnRoutine = StartCoroutine(Spawn());
+            spawnRoutine = StartCoroutine(Spawn());
+            Time.timeScale = 1;
         }
     }
 
     public void Pause()
     {
+        if(isPaused) return;
+
         isPaused = true;
         if (timerRoutine != null) StopCoroutine(timerRoutine);
         if (spawnRoutine != null) StopCoroutine(spawnRoutine);
+        Time.timeScale = 0;
     }
 
     public void PauseOff()
     {
+        if (!isPaused) return;
+
         isPaused = false;
         timerRoutine = StartCoroutine(Timer());
         spawnRoutine = StartCoroutine(Spawn());
+        Time.timeScale = 1;
     }
 
     //적 스폰 관련
@@ -142,12 +163,14 @@ public class GameManager : MonoBehaviour
         GameObject curEnemy;
         while (!isPaused)
         {
+            if (curSpawnIdx >= spawnList.Count) break;
+
             EnemySpawnData curData = spawnList[curSpawnIdx];
-            if(curData.enemyId != 0)
+            if (curData.enemyId != 0)
             {
                 curEnemy = objectManager.MakeObj(curData.enemyId);
-                Vector3 dir = Vector3.RotateTowards(Vector3.right, Vector3.zero, UnityEngine.Random.Range(0, 360), 100); 
-                curEnemy.transform.position = dir;
+                spawnOffset = Quaternion.Euler(0, 0, UnityEngine.Random.Range(0, 360)) * Vector3.right * spawnDistance; //랜덤 벡터값 생성
+                curEnemy.transform.position = Player.playerPos + spawnOffset; // 플레이어로부터 일정 거리 떨어진 곳에서 스폰
             }
             curSpawnIdx++;
 
@@ -160,7 +183,7 @@ public class GameManager : MonoBehaviour
     {
         soundManager.PlaySfx((int)StageSoundManager.StageSfx.getExp);
         curExp += exp;
-        if(maxExp[maxExpIdx] <= curExp)
+        if (maxExp[maxExpIdx] <= curExp)
             levelUpRoutine = StartCoroutine(LevelUpRoutine());
 
         uiManager.UpdateExp(curExp, maxExp[maxExpIdx]);
@@ -169,6 +192,7 @@ public class GameManager : MonoBehaviour
     //LevelUp 루틴 외부 호출용
     public void LevelUp()
     {
+        if (isPaused || gameOver) return;
         if (maxExp[maxExpIdx] > curExp) return;
 
         levelUpRoutine = StartCoroutine(LevelUpRoutine());
@@ -203,7 +227,9 @@ public class GameManager : MonoBehaviour
     //스테이지 클리어
     IEnumerator StageClear()
     {
+        gameOver = true;
         //모든 적 사망처리
+        stageEnder.SetActive(true);
 
         yield return new WaitForSeconds(3.0f);
         isPaused = true;
@@ -214,6 +240,7 @@ public class GameManager : MonoBehaviour
     public void GameOver()
     {
         isPaused = true;
+        gameOver = true;
         uiManager.GameOver(killCount, moneyCount);
     }
 }
