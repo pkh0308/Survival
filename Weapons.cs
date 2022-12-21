@@ -1,7 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+
+using Random = UnityEngine.Random; //System.Random 과 혼선 방지용
 
 public class Weapons : MonoBehaviour
 {
@@ -17,15 +21,25 @@ public class Weapons : MonoBehaviour
     Dictionary<int, WeaponData> curWeapons;
     int curMaxWeapons;
 
+    //누적 데미지
+    Dictionary<int, int> acmDmgDic;
+    int totalDmg;
+    public static Action<int, int> accumulateDmg;
+    public static Func<int[,]> getAccumulatedDmg;
+    public static Func<int> getTotalDmg;
+
     //축구공
+    [Header("축구공")]
     Coroutine soccerBall;
     WaitForSeconds soccerBallSec;
 
     //수리검
+    [Header("수리검")]
     Coroutine shuriken;
     WaitForSeconds shurikenSec;
 
     //수호자
+    [Header("수호자")]
     Coroutine defender;
     WaitForSeconds defenderSec;
 
@@ -33,6 +47,12 @@ public class Weapons : MonoBehaviour
     {
         weaponDic = new Dictionary<int, WeaponData[]>();
         curWeapons = new Dictionary<int, WeaponData>();
+        acmDmgDic = new Dictionary<int, int>();
+        totalDmg = 0;
+
+        accumulateDmg = (a, b) => { AccumulateDmg(a, b); };
+        getAccumulatedDmg = () => { return GetAccumulatedDmg(); };
+        getTotalDmg = () => { return totalDmg; };
 
         ReadData();
     }
@@ -88,10 +108,13 @@ public class Weapons : MonoBehaviour
     //무기 획득 or 레벨업
     public void GetWeapon(int id)
     {
-        if (curWeapons.TryGetValue(id, out WeaponData w))
+        if (curWeapons.ContainsKey(id))
             curWeapons[id] = weaponDic[id][curWeapons[id].WeaponLevel];
         else
+        {
             curWeapons.Add(id, weaponDic[id][0]);
+            acmDmgDic.Add(id, 0);
+        }
 
         if (curWeapons[id].WeaponLevel == 5)
             curMaxWeapons++;
@@ -137,6 +160,31 @@ public class Weapons : MonoBehaviour
         List<int> keys = new List<int>(curWeapons.Keys);
         for(int i = 0; i < keys.Count; i++)
             StartWeaponRoutine(keys[i]);
+    }
+
+    //데미지 누적
+    public void AccumulateDmg(int id, int val)
+    {
+        //Dictionary 등록은 무기 획득 시 실행, 등록되지 않은 id라면 디버그 로그 실행
+        if (acmDmgDic.ContainsKey(id))
+            acmDmgDic[id] += val;
+        else
+            Debug.Log("해당 id의 무기가 등록되지 않았습니다 : " + id);
+
+        totalDmg += val;
+    }
+
+    public int[,] GetAccumulatedDmg()
+    {
+        List<int> keys = acmDmgDic.Keys.ToList();
+        int[,] arr = new int[keys.Count, 2];
+
+        for(int i = 0; i < keys.Count; i++)
+        {
+            arr[i, 0] = keys[i];
+            arr[i, 1] = acmDmgDic[keys[i]];
+        }
+        return arr;
     }
 
     //신규 무기 획득 시 호출

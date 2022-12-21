@@ -1,30 +1,43 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
 public class UiManager : MonoBehaviour
 {
+    [Header("컴포넌트 연결")]
     [SerializeField] GameManager gameManager;
     [SerializeField] ObjectManager objectManager;
     [SerializeField] StageSoundManager soundManager;
     Weapons weaponLogic;
 
     //타이머 관련
+    [Header("타이머")]
     [SerializeField] TextMeshProUGUI timerText;
+    int mm = 0;
+    int ss = 0;
 
     //카운트 관련
+    [Header("카운트")]
     [SerializeField] TextMeshProUGUI killCountText;
     [SerializeField] TextMeshProUGUI goldCountText;
 
     //일시정지 관련
+    [Header("일시정지")]
     [SerializeField] GameObject pauseSet;
     [SerializeField] GameObject exitPopupSet;
-    int mm = 0;
-    int ss = 0;
+    [SerializeField] Image[] weaponIcons;
+    [SerializeField] Image[] accessoryIcons;
+    [SerializeField] GameObject statisticsSet;
+    [SerializeField] Image[] statisticsIcons;
+    [SerializeField] Image[] statisticsBars;
+    [SerializeField] TextMeshProUGUI[] statisticsTexts;
+    [SerializeField] GameObject[] statisticsSlots;
 
     //전투 관련
+    [Header("전투")]
     [SerializeField] Image hpBarSet;
     [SerializeField] Image hpBar;
     Vector3 hpPos;
@@ -32,11 +45,13 @@ public class UiManager : MonoBehaviour
     Vector3 hpBarScale;
 
     //경험치 관련
+    [Header("경험치")]
     [SerializeField] Image expBar;
     [SerializeField] TextMeshProUGUI levelText;
     Vector3 expBarScale;
 
     //무기 획득 관련
+    [Header("무기 획득")]
     [SerializeField] GameObject weaponSelectSet;
     [SerializeField] GameObject[] weaponSelectSlots;
     WeaponData[] weaponDatas;
@@ -46,11 +61,13 @@ public class UiManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI[] weaponDesc;
 
     //스테이지 클리어 관련
+    [Header("스테이지 클리어")]
     [SerializeField] GameObject stageClearSet;
     [SerializeField] TextMeshProUGUI killCountText_stageClear;
     [SerializeField] TextMeshProUGUI moneyCountText_stageClear;
 
     //게임 오버 관련
+    [Header("게임 오버")]
     [SerializeField] GameObject gameOverSet;
     [SerializeField] TextMeshProUGUI killCountText_gameover;
     [SerializeField] TextMeshProUGUI moneyCountText_gameover;
@@ -107,6 +124,7 @@ public class UiManager : MonoBehaviour
         timerText.text = string.Format("{0:00}:{1:00}", mm, ss);
     }
 
+    //일시정지 관련
     public bool Pause(bool pause)
     {
         if(exitPopupSet.activeSelf)
@@ -126,6 +144,34 @@ public class UiManager : MonoBehaviour
     public void Btn_ExitYes()
     {
         LoadingSceneManager.exitStage();
+    }
+
+    public void Btn_Statics()
+    {
+        if (!statisticsSet.activeSelf)
+            UpdateAccumulatedDmg();
+
+        statisticsSet.SetActive(!statisticsSet.activeSelf);
+    }
+
+    //누적데미지 통계 갱신
+    void UpdateAccumulatedDmg()
+    {
+        int total = Weapons.getTotalDmg();
+        int[,] arr = Weapons.getAccumulatedDmg();
+
+        for(int i = 0; i < arr.GetLength(0); i++)
+        {
+            statisticsBars[i].rectTransform.localScale = total == 0 ? Vector3.one : new Vector3((float)arr[i, 1] / total, 1, 1);
+            statisticsIcons[i].sprite = SpriteContainer.getSprite(arr[i, 0]);
+            statisticsTexts[i].text = string.Format("{0:n0}", arr[i, 1]);
+            statisticsSlots[i].SetActive(true);
+        }
+        //남는 슬롯은 비활성화
+        for (int i = arr.GetLength(0); i < 6; i++)
+        {
+            statisticsSlots[i].SetActive(false);
+        }
     }
 
     //전투 관련

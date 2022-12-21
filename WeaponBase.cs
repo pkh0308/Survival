@@ -33,7 +33,6 @@ public class WeaponBase : MonoBehaviour
     {
         initialScale = transform.localScale;
         initialColliderScale = coll.transform.localScale;
-        
     }
 
     void OnDisable()
@@ -59,6 +58,11 @@ public class WeaponBase : MonoBehaviour
         IndividualInitialize();
 
         Invoke(nameof(TimeOver), weaponData.WeaponRemainTime * atkRemainTime);
+    }
+
+    protected void AcmDmg(int val)
+    {
+        Weapons.accumulateDmg(weaponData.WeaponId, val);
     }
 
     //필수 개별 구현 함수

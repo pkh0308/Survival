@@ -17,6 +17,7 @@ public class SoccerBall : WeaponBase
         if (!col.CompareTag(Tags.enemy)) return;
 
         col.GetComponent<Enemy>().OnDamaged((int)(weaponData.WeaponAtk * atkPower));
+        AcmDmg((int)(weaponData.WeaponAtk * atkPower));
         StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.soccerBall);
 
         Vector3 diff = col.transform.position - transform.position;

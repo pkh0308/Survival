@@ -31,9 +31,11 @@ public class Enemy : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    private void OnEnable()
+    void OnEnable()
     {
         boxCol.enabled = true;
+        curHp = maxHp;
+        isDie = false;
     }
 
     void Start()
@@ -102,6 +104,7 @@ public class Enemy : MonoBehaviour
         //anim.SetTrigger("OnDie");
         isDie = true;
         boxCol.enabled = false;
+        StopCoroutine(atkRoutine);
         if(!timeOver) //타임 오버 외 사망(타임 오버는 드랍 x, 킬 카운트 x)
         {
             GameManager.killCountPlus();

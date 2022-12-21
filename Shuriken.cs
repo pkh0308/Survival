@@ -52,6 +52,7 @@ public class Shuriken : WeaponBase
         if (!col.CompareTag(Tags.enemy)) return;
 
         col.GetComponent<Enemy>().OnDamaged((int)(weaponData.WeaponAtk * atkPower));
+        AcmDmg((int)(weaponData.WeaponAtk * atkPower));
 
         gameObject.SetActive(false);
     }

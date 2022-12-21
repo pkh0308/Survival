@@ -4,6 +4,7 @@ public class Reposition : MonoBehaviour
 {
     void OnTriggerExit2D(Collider2D coll)
     {
+        Debug.Log(coll.name);
         if (!coll.CompareTag(Tags.area)) return; 
 
         float diff_x = Player.playerPos.x - transform.position.x;

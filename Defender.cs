@@ -17,7 +17,7 @@ public class Defender : WeaponBase
 
     void OnTriggerEnter2D(Collider2D col)
     {
-        if (!col.CompareTag(Tags.enemy)) return;
+        if (!col.CompareTag(Tags.enemy) && !col.CompareTag(Tags.enemyBullet)) return;
 
         //적 탄환 제거
         if(col.CompareTag(Tags.enemyBullet))
@@ -25,5 +25,6 @@ public class Defender : WeaponBase
 
         col.GetComponent<Enemy>().OnDamaged((int)(weaponData.WeaponAtk * atkPower), 
                                             (col.transform.position - Player.playerPos).normalized * 5.0f);
+        AcmDmg((int)(weaponData.WeaponAtk * atkPower));
     }
 }
