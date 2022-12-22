@@ -105,7 +105,8 @@ public class UiManager : MonoBehaviour
         dmgText.gameObject.SetActive(false);
     }
 
-    void LateUpdate()
+    //플레이어가 FixedUpdate 주기로 움직이므로 체력바 위치도 FixedUpdate로 갱신
+    void FixedUpdate()
     {
         HpBarPosUpdate();
     }

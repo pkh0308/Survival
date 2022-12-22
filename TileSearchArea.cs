@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class TileSearchArea : MonoBehaviour
 {
-    void Update()
+    void FixedUpdate()
     {
         transform.position = Player.playerPos;
     }

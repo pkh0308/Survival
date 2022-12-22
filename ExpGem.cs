@@ -8,11 +8,8 @@ public class ExpGem : MonoBehaviour
     float moveDelta;
     bool touched;
 
-    Rigidbody2D rigid;
-
-    void Start()
+    void OnDisable()
     {
-        rigid = GetComponent<Rigidbody2D>();
         touched = false;
     }
 

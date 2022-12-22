@@ -82,10 +82,6 @@ public class Player : MonoBehaviour
         if (isDie) return;
 
         InputCheck();
-        if (GameManager.IsPaused == false)
-        {
-            Move();
-        }
     }
 
     void InputCheck()
@@ -93,6 +89,16 @@ public class Player : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Escape))
         {
             gameManager.Pause_Exit();
+        }
+    }
+
+    void FixedUpdate()
+    {
+        if (isDie) return;
+
+        if (GameManager.IsPaused == false)
+        {
+            Move();
         }
     }
 
@@ -104,7 +110,7 @@ public class Player : MonoBehaviour
         if (moveVec.x < 0) spriteRender.flipX = true;
         else if(moveVec.x > 0) spriteRender.flipX = false;
         
-        transform.position += moveSpeed * stat.PlayerMoveSpeedVal * Time.deltaTime * moveVec;
+        transform.position += moveSpeed * stat.PlayerMoveSpeedVal * Time.fixedDeltaTime * moveVec;
     }
 
     //전투 관련

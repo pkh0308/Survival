@@ -9,6 +9,7 @@ public class Enemy : MonoBehaviour
     SpriteRenderer spriteRenderer;
 
     bool isDie;
+    WaitForSeconds dieSec;
 
     //스탯 관련
     int curHp;
@@ -29,6 +30,8 @@ public class Enemy : MonoBehaviour
         anim = GetComponent<Animator>();
         boxCol = GetComponent<BoxCollider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        dieSec = new WaitForSeconds(1.0f);
     }
 
     void OnEnable()
@@ -101,7 +104,7 @@ public class Enemy : MonoBehaviour
 
     IEnumerator OnDie(bool timeOver = false)
     {
-        //anim.SetTrigger("OnDie");
+        anim.SetTrigger("OnDie");
         isDie = true;
         boxCol.enabled = false;
         if(atkRoutine != null) StopCoroutine(atkRoutine);
@@ -111,8 +114,8 @@ public class Enemy : MonoBehaviour
             GameManager.killCountPlus();
             DropItem();
         }
-            
-        yield return new WaitForSeconds(1.5f);
+
+        yield return dieSec;
         gameObject.SetActive(false);
     }
 
