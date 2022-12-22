@@ -104,7 +104,8 @@ public class Enemy : MonoBehaviour
         //anim.SetTrigger("OnDie");
         isDie = true;
         boxCol.enabled = false;
-        StopCoroutine(atkRoutine);
+        if(atkRoutine != null) StopCoroutine(atkRoutine);
+
         if(!timeOver) //타임 오버 외 사망(타임 오버는 드랍 x, 킬 카운트 x)
         {
             GameManager.killCountPlus();

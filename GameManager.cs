@@ -38,6 +38,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] float levelUpInterval;
     WaitForSeconds levelUpSeconds;
     Coroutine levelUpRoutine;
+    bool isWaitingForLevelUp;
 
     //카운트 관련
     public static Action killCountPlus;
@@ -53,6 +54,7 @@ public class GameManager : MonoBehaviour
         levelUpSeconds = new WaitForSeconds(levelUpInterval);
 
         isPaused = false;
+        isWaitingForLevelUp = false;
 
         maxExp = Enumerable.Repeat<int>(100, 100).ToArray();
 
@@ -194,12 +196,14 @@ public class GameManager : MonoBehaviour
     {
         if (isPaused || gameOver) return;
         if (maxExp[maxExpIdx] > curExp) return;
+        if (isWaitingForLevelUp) return;
 
         levelUpRoutine = StartCoroutine(LevelUpRoutine());
     }
     
     IEnumerator LevelUpRoutine()
     {
+        isWaitingForLevelUp = true;
         soundManager.PlaySfx((int)StageSoundManager.StageSfx.levelUp);
         curExp -= maxExp[maxExpIdx];
         maxExpIdx++;
@@ -209,6 +213,7 @@ public class GameManager : MonoBehaviour
         uiManager.UpdateLevel(maxExpIdx + 1);
         uiManager.UpdateExp(curExp, maxExp[maxExpIdx]);
         uiManager.WeaponSelect();
+        isWaitingForLevelUp = false;
     }
 
     //카운트 관련

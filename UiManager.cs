@@ -99,7 +99,7 @@ public class UiManager : MonoBehaviour
     {
         TextMeshProUGUI dmgText = objectManager.MakeText();
         dmgText.text = string.Format("{0:n0}", dmg);
-        dmgText.transform.position = Camera.main.WorldToScreenPoint(pos);
+        dmgText.transform.position = pos;
 
         yield return new WaitForSeconds(1.0f);
         dmgText.gameObject.SetActive(false);
