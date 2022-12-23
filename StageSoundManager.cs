@@ -9,7 +9,7 @@ public class StageSoundManager : MonoBehaviour
     
     //재생 함수 호출용 열거형
     public enum StageBgm { stage_1 = 100 }
-    public enum StageSfx { getExp = 1000, levelUp, stageClear, gameOver }
+    public enum StageSfx { getExp = 1000, levelUp, stageClear, gameOver, meat_or_magnet, gold, bomb }
     public enum WeaponSfx { soccerBall = 1100, shuriken, defender }
 
     //bgm
@@ -20,6 +20,9 @@ public class StageSoundManager : MonoBehaviour
     [SerializeField] AudioClip levelUp;
     [SerializeField] AudioClip stageClear;
     [SerializeField] AudioClip gameOver;
+    [SerializeField] AudioClip meat_or_magnet;
+    [SerializeField] AudioClip gold;
+    [SerializeField] AudioClip bomb;
 
     //weapon
     public static Action<int> playWeaponSfx; 
@@ -88,6 +91,18 @@ public class StageSoundManager : MonoBehaviour
                 curSfxSource.clip = gameOver;
                 curSfxSource.Play();
                 break;
+            case (int)StageSfx.meat_or_magnet:
+                curSfxSource.clip = meat_or_magnet;
+                curSfxSource.Play();
+                break;
+            case (int)StageSfx.gold:
+                curSfxSource.clip = gold;
+                curSfxSource.Play();
+                break;
+            case (int)StageSfx.bomb:
+                curSfxSource.clip = bomb;
+                curSfxSource.Play();
+                break;
         }
         curSfxSource = null; //재생 후 null로 초기화
     }
@@ -110,7 +125,7 @@ public class StageSoundManager : MonoBehaviour
         {
             case (int)WeaponSfx.soccerBall:
                 curSfxSource.clip = soccerBallSfx;
-                curSfxSource.volume = 0.7f;
+                curSfxSource.volume = 0.5f;
                 curSfxSource.Play();
                 break;
             case (int)WeaponSfx.shuriken:
@@ -119,7 +134,7 @@ public class StageSoundManager : MonoBehaviour
                 break;
             case (int)WeaponSfx.defender:
                 curSfxSource.clip = defenderSfx;
-                curSfxSource.volume = 0.8f;
+                curSfxSource.volume = 0.7f;
                 curSfxSource.Play();
                 break;
         }

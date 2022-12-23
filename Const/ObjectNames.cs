@@ -11,8 +11,18 @@ public class ObjectNames
     public const int soccerBall = 1001;
     public const int shuriken = 2001;
     public const int defender = 3001;
+
+    //아이템
+    public const int exp_10 = 8001;
+    public const int exp_50 = 8002;
+    public const int exp_250 = 8003;
     public const int meat_50 = 9001;
-    public const int gold_70 = 9002;
+    public const int gold_70 = 9011;
+    public const int gold_10 = 9012;
+    public const int gold_50 = 9013;
+    public const int gold_100 = 9014;
+    public const int magnet = 9021;
+    public const int bomb = 9031;
 
     //스테이터스 이름
     public const string atkPowerName = "데미지 증가";

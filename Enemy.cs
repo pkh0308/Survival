@@ -142,10 +142,17 @@ public class Enemy : MonoBehaviour
                 return;
             }
         }
-
+        //스테이지 클리어 시 처리(타임 아웃)
         if (col.gameObject.CompareTag(Tags.stageEnder))
         {
             StartCoroutine(OnDie(true));
+            return;
+        }
+        //폭탄 습득 시 처리
+        if (col.gameObject.CompareTag(Tags.bomb))
+        {
+            StartCoroutine(OnDie());
+            return;
         }
     }
 

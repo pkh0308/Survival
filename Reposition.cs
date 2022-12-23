@@ -2,6 +2,8 @@
 
 public class Reposition : MonoBehaviour
 {
+    [SerializeField] float posVal;
+
     void OnTriggerExit2D(Collider2D coll)
     {
         if (!coll.CompareTag(Tags.area)) return;
@@ -20,11 +22,11 @@ public class Reposition : MonoBehaviour
             case Tags.ground:
                 if (abs_x > abs_y)
                 {
-                    transform.Translate(Vector3.right * diff_x * 40);
+                    transform.Translate(Vector3.right * diff_x * posVal);
                 }
                 else if (abs_x < abs_y)
                 {
-                    transform.Translate(Vector3.up * diff_y * 40);
+                    transform.Translate(Vector3.up * diff_y * posVal);
                 }
                 break;
             case Tags.enemy:

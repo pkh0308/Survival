@@ -34,6 +34,12 @@ public class GameManager : MonoBehaviour
     int[] maxExp;
     int maxExpIdx;
 
+    //아이템 관련
+    Dictionary<int, int> itemDic;
+    [SerializeField] GameObject magnetArea;
+    [SerializeField] GameObject bombArea;
+    WaitForSeconds onoffInterval;
+
     //레벨업 관련
     [SerializeField] float levelUpInterval;
     WaitForSeconds levelUpSeconds;
@@ -58,13 +64,18 @@ public class GameManager : MonoBehaviour
 
         maxExp = Enumerable.Repeat<int>(100, 100).ToArray();
 
+        itemDic = new Dictionary<int, int>();
+        onoffInterval = new WaitForSeconds(0.1f);
+
         killCountPlus = () => { UpdateKillCount(); };
         moneyCountPlus = (a) => { UpdateMoneyCount(a); };
 
         spawnList = new List<EnemySpawnData>();
         curStageIdx = LoadingSceneManager.getCurStageIdx();
         curSpawnIdx = 0;
+
         ReadSpawnData();
+        ReadItemData();
     }
 
     void ReadSpawnData()
@@ -101,6 +112,33 @@ public class GameManager : MonoBehaviour
             if (line == null) break;
         }
         spawnDataReader.Close();
+    }
+
+    void ReadItemData()
+    {
+        //csv 파일에서 데이터 읽어오기
+        TextAsset itemDatas = Resources.Load("ItemDatas") as TextAsset;
+        StringReader itemDataReader = new StringReader(itemDatas.text);
+
+        if (itemDataReader == null)
+        {
+            Debug.Log("itemDataReader is null");
+            return;
+        }
+        //첫줄 스킵(변수 이름 라인)
+        string line = itemDataReader.ReadLine();
+        if (line == null) return;
+
+        line = itemDataReader.ReadLine();
+        while (line.Length > 1)
+        {
+            string[] datas = line.Split(',');
+            itemDic.Add(int.Parse(datas[0]), int.Parse(datas[1]));
+
+            line = itemDataReader.ReadLine();
+            if (line == null) break;
+        }
+        itemDataReader.Close();
     }
 
     void Start()
@@ -180,15 +218,60 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    //경험치 관련
-    public void ExpUp(int exp)
+    //아이템 소비
+    public void GetItem(int id)
     {
-        soundManager.PlaySfx((int)StageSoundManager.StageSfx.getExp);
-        curExp += exp;
-        if (maxExp[maxExpIdx] <= curExp)
-            levelUpRoutine = StartCoroutine(LevelUpRoutine());
+        switch(id)
+        {
+            case ObjectNames.exp_10:
+            case ObjectNames.exp_50:
+            case ObjectNames.exp_250:
+                {
+                    soundManager.PlaySfx((int)StageSoundManager.StageSfx.getExp);
+                    curExp += itemDic[id];
 
-        uiManager.UpdateExp(curExp, maxExp[maxExpIdx]);
+                    if (maxExp[maxExpIdx] <= curExp)
+                        levelUpRoutine = StartCoroutine(LevelUpRoutine());
+                    uiManager.UpdateExp(curExp, maxExp[maxExpIdx]);
+
+                    break;
+                }
+            case ObjectNames.meat_50:
+                {
+                    soundManager.PlaySfx((int)StageSoundManager.StageSfx.meat_or_magnet);
+                    Player.getHeal(itemDic[id]);
+                    break;
+                }
+            case ObjectNames.gold_70:
+            case ObjectNames.gold_10:
+            case ObjectNames.gold_50:
+            case ObjectNames.gold_100:
+                {
+                    soundManager.PlaySfx((int)StageSoundManager.StageSfx.gold);
+                    GoldManager.Instance.PlusGold(itemDic[id]);
+                    uiManager.UpdateMoneyCount(GoldManager.Instance.Gold);
+                    break;
+                }
+            case ObjectNames.magnet:
+                {
+                    soundManager.PlaySfx((int)StageSoundManager.StageSfx.meat_or_magnet);
+                    StartCoroutine(OnOff(magnetArea));
+                    break;
+                }
+            case ObjectNames.bomb:
+                {
+                    soundManager.PlaySfx((int)StageSoundManager.StageSfx.bomb);
+                    StartCoroutine(OnOff(bombArea));
+                    break;
+                }
+        }
+    }
+
+    IEnumerator OnOff(GameObject obj)
+    {
+        obj.SetActive(true);
+        yield return onoffInterval;
+        obj.SetActive(false);
     }
 
     //LevelUp 루틴 외부 호출용

@@ -9,4 +9,7 @@ public class Tags
     public const string ground = "Ground";
     public const string area = "Area";
     public const string stageEnder = "StageEnder";
+    public const string item = "Item";
+    public const string magnet = "Magnet";
+    public const string bomb = "Bomb";
 }

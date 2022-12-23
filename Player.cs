@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -24,6 +25,7 @@ public class Player : MonoBehaviour
     int curHp;
     int baseHp;
     int maxHp;
+    public static Action<int> getHeal;
     bool isDie;
     public bool IsDie { get { return isDie; } }
 
@@ -46,7 +48,9 @@ public class Player : MonoBehaviour
         spriteRender = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         weaponLogic = GetComponent<Weapons>();
-        
+
+        getHeal = (a) => { GetHeal(a); };
+
         stat = PlayerStatusManager.getStatus();
         moveVec = Vector3.zero;
     }
@@ -116,11 +120,18 @@ public class Player : MonoBehaviour
     //전투 관련
     void OnTriggerEnter2D(Collider2D col)
     {
-        if (col.CompareTag(Tags.expGem))
+        if (col.CompareTag(Tags.item))
         {
-            gameManager.ExpUp(col.GetComponent<ExpGem>().GetExp());
+            gameManager.GetItem(col.GetComponent<Item>().Consume());
             return;
         }
+    }
+
+    public void GetHeal(int healVal)
+    {
+        healVal += curHp;
+        curHp = healVal > maxHp ? maxHp : healVal;
+        uiManager.UpdateHp(curHp, maxHp);
     }
 
     public void OnDamaged(int dmg)
