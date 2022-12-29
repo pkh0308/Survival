@@ -10,6 +10,7 @@ public class ObjectManager : MonoBehaviour
     [SerializeField] UiManager uiManager;
 
     //플레이어 캐릭터
+    [Header("플레이어 캐릭터")]
     int playerCharacterId;
     Player player;
     [SerializeField] GameObject player_1101Prefab;
@@ -18,18 +19,46 @@ public class ObjectManager : MonoBehaviour
     Dictionary<int, CharacterData> characterDic;
 
     //무기 투사체
+    [Header("무기 투사체")]
     [SerializeField] GameObject soccerBallPrefab;
     GameObject[] soccerBall;
     [SerializeField] GameObject shurikenPrefab;
     GameObject[] shuriken;
     [SerializeField] GameObject defenderPrefab;
     GameObject[] defender;
+    [SerializeField] GameObject missilePrefab;
+    GameObject[] missile;
+    [SerializeField] GameObject thunderPrefab;
+    GameObject[] thunder;
+    [SerializeField] GameObject explodeMinePrefab;
+    GameObject[] explodeMine;
 
-    //적
+    //업그레이드 무기 투사체
+    [Header("업그레이드 무기 투사체")]
+    [SerializeField] GameObject quantumBallPrefab;
+    GameObject[] quantumBall;
+    [SerializeField] GameObject shadowEdgePrefab;
+    GameObject[] shadowEdge;
+    [SerializeField] GameObject guardianPrefab;
+    GameObject[] guardian;
+    [SerializeField] GameObject sharkMissilePrefab;
+    GameObject[] sharkMissile;
+    [SerializeField] GameObject judgementPrefab;
+    GameObject[] judgement;
+    [SerializeField] GameObject hellfireMinePrefab;
+    GameObject[] hellfireMine;
+
+    [Header("PlayerBullet")]
+    [SerializeField] GameObject playerBulletPrefab;
+    GameObject[] playerBullet;
+
+    //몬스터
+    [Header("몬스터")]
     [SerializeField] GameObject enemyMeleePrefab;
     GameObject[] enemyMelee;
 
     //경험치 젬
+    [Header("경험치 젬")]
     [SerializeField] GameObject expLowPrefab;
     [SerializeField] GameObject expMiddlePrefab;
     [SerializeField] GameObject expHighPrefab;
@@ -37,7 +66,28 @@ public class ObjectManager : MonoBehaviour
     GameObject[] expGemMiddle;
     GameObject[] expGemHigh;
 
+    //아이템
+    [Header("아이템")]
+    [SerializeField] GameObject gold_10Prefab;
+    [SerializeField] GameObject gold_50Prefab;
+    [SerializeField] GameObject gold_100Prefab;
+    [SerializeField] GameObject meat_50Prefab;
+    [SerializeField] GameObject magnetPrefab;
+    [SerializeField] GameObject bombPrefab;
+    GameObject[] gold_10;
+    GameObject[] gold_50;
+    GameObject[] gold_100;
+    GameObject[] meat_50;
+    GameObject[] magnet;
+    GameObject[] bomb;
+
+    //아이템 박스
+    [Header("아이템 박스")]
+    [SerializeField] GameObject itemBoxPrefab;
+    GameObject[] itemBox;
+
     //UI
+    [Header("UI")]
     [SerializeField] Canvas minorCanvas;
     [SerializeField] TextMeshProUGUI textPrefab;
     TextMeshProUGUI[] texts;
@@ -45,6 +95,7 @@ public class ObjectManager : MonoBehaviour
     GameObject[] targetPool;
 
     public static Func<int, GameObject> dropExp;
+    public static Func<int, GameObject> makeObj;
 
     void Awake()
     {
@@ -52,17 +103,47 @@ public class ObjectManager : MonoBehaviour
         characterDic = new Dictionary<int, CharacterData>();
 
         dropExp = (a) => { return DropExp(a); };
+        makeObj = (id) => { return MakeObj(id); };
 
+        //무기 투사체
         soccerBall = new GameObject[30];
         shuriken = new GameObject[30];
         defender = new GameObject[10];
+        missile = new GameObject[30];
+        thunder = new GameObject[30];
+        explodeMine = new GameObject[30];
 
+        //업그레이드 무기 투사체
+        quantumBall = new GameObject[30];
+        shadowEdge = new GameObject[30];
+        guardian = new GameObject[10];
+        sharkMissile = new GameObject[30];
+        judgement = new GameObject[30];
+        hellfireMine = new GameObject[30];
+
+        //폭발 판정 콜라이더(PlayerBullet)
+        playerBullet = new GameObject[100];
+
+        //몬스터
         enemyMelee = new GameObject[100];
 
+        //경험치 젬
         expGemLow = new GameObject[1000];
         expGemMiddle = new GameObject[1000];
         expGemHigh = new GameObject[1000];
 
+        //아이템
+        gold_10 = new GameObject[1000];
+        gold_50 = new GameObject[1000];
+        gold_100 = new GameObject[1000];
+        meat_50 = new GameObject[1000];
+        magnet = new GameObject[1000];
+        bomb = new GameObject[1000];
+
+        //아이템 박스
+        itemBox = new GameObject[300];
+
+        //UI_텍스트
         texts = new TextMeshProUGUI[1000];
 
         ReadCharacterData();
@@ -132,6 +213,59 @@ public class ObjectManager : MonoBehaviour
             defender[idx] = Instantiate(defenderPrefab, player.transform);
             defender[idx].SetActive(false);
         }
+        for (int idx = 0; idx < missile.Length; idx++)
+        {
+            missile[idx] = Instantiate(missilePrefab);
+            missile[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < thunder.Length; idx++)
+        {
+            thunder[idx] = Instantiate(thunderPrefab);
+            thunder[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < explodeMine.Length; idx++)
+        {
+            explodeMine[idx] = Instantiate(explodeMinePrefab);
+            explodeMine[idx].SetActive(false);
+        }
+        //업그레이드 무기 투사체
+        for (int idx = 0; idx < quantumBall.Length; idx++)
+        {
+            quantumBall[idx] = Instantiate(quantumBallPrefab);
+            quantumBall[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < shadowEdge.Length; idx++)
+        {
+            shadowEdge[idx] = Instantiate(shadowEdgePrefab);
+            shadowEdge[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < guardian.Length; idx++)
+        {
+            guardian[idx] = Instantiate(guardianPrefab, player.transform);
+            guardian[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < sharkMissile.Length; idx++)
+        {
+            sharkMissile[idx] = Instantiate(sharkMissilePrefab);
+            sharkMissile[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < judgement.Length; idx++)
+        {
+            judgement[idx] = Instantiate(judgementPrefab);
+            judgement[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < hellfireMine.Length; idx++)
+        {
+            hellfireMine[idx] = Instantiate(hellfireMinePrefab);
+            hellfireMine[idx].SetActive(false);
+        }
+
+        //폭발 판정 콜라이더(playerBullet)
+        for (int idx = 0; idx < playerBullet.Length; idx++)
+        {
+            playerBullet[idx] = Instantiate(playerBulletPrefab);
+            playerBullet[idx].SetActive(false);
+        }
 
         //경험치 젬
         for (int idx = 0; idx < expGemLow.Length; idx++)
@@ -148,6 +282,45 @@ public class ObjectManager : MonoBehaviour
         {
             expGemHigh[idx] = Instantiate(expHighPrefab);
             expGemHigh[idx].SetActive(false);
+        }
+
+        //아이템
+        for (int idx = 0; idx < gold_10.Length; idx++)
+        {
+            gold_10[idx] = Instantiate(gold_10Prefab);
+            gold_10[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < gold_50.Length; idx++)
+        {
+            gold_50[idx] = Instantiate(gold_50Prefab);
+            gold_50[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < gold_100.Length; idx++)
+        {
+            gold_100[idx] = Instantiate(gold_100Prefab);
+            gold_100[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < meat_50.Length; idx++)
+        {
+            meat_50[idx] = Instantiate(meat_50Prefab);
+            meat_50[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < magnet.Length; idx++)
+        {
+            magnet[idx] = Instantiate(magnetPrefab);
+            magnet[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < bomb.Length; idx++)
+        {
+            bomb[idx] = Instantiate(bombPrefab);
+            bomb[idx].SetActive(false);
+        }
+
+        //아이템 박스
+        for (int idx = 0; idx < itemBox.Length; idx++)
+        {
+            itemBox[idx] = Instantiate(itemBoxPrefab);
+            itemBox[idx].SetActive(false);
         }
 
         //텍스트
@@ -187,6 +360,7 @@ public class ObjectManager : MonoBehaviour
     {
         switch (id)
         {
+            //무기 투사체
             case ObjectNames.soccerBall:
                 targetPool = soccerBall;
                 break;
@@ -196,8 +370,64 @@ public class ObjectManager : MonoBehaviour
             case ObjectNames.defender:
                 targetPool = defender;
                 break;
+            case ObjectNames.missile:
+                targetPool = missile;
+                break;
+            case ObjectNames.thunder:
+                targetPool = thunder;
+                break;
+            case ObjectNames.explodeMine:
+                targetPool = explodeMine;
+                break;
+            //업그레이드 무기 투사체
+            case ObjectNames.quantumBall:
+                targetPool = quantumBall;
+                break;
+            case ObjectNames.shadowEdge:
+                targetPool = shadowEdge;
+                break;
+            case ObjectNames.guardian:
+                targetPool = guardian;
+                break;
+            case ObjectNames.sharkMissile:
+                targetPool = sharkMissile;
+                break;
+            case ObjectNames.judgement:
+                targetPool = judgement;
+                break;
+            case ObjectNames.hellfireMine:
+                targetPool = hellfireMine;
+                break;
+            //폭발 판정 콜라이더
+            case ObjectNames.playerBullet:
+                targetPool = playerBullet;
+                break;
+            //몬스터
             case ObjectNames.enemyMelee:
                 targetPool = enemyMelee;
+                break;
+            //아이템
+            case ObjectNames.gold_10:
+                targetPool = gold_10;
+                break;
+            case ObjectNames.gold_50:
+                targetPool = gold_50;
+                break;
+            case ObjectNames.gold_100:
+                targetPool = gold_100;
+                break;
+            case ObjectNames.meat_50:
+                targetPool = meat_50;
+                break;
+            case ObjectNames.magnet:
+                targetPool = magnet;
+                break;
+            case ObjectNames.bomb:
+                targetPool = bomb;
+                break;
+            //아이템 박스
+            case ObjectNames.itemBox:
+                targetPool = itemBox;
                 break;
         }
 
@@ -205,7 +435,8 @@ public class ObjectManager : MonoBehaviour
         {
             if (!targetPool[idx].activeSelf)
             {
-                targetPool[idx].SetActive(true);
+                if(targetPool != playerBullet)  //playerBullet은 비활성화 상태로 전달
+                    targetPool[idx].SetActive(true);
                 return targetPool[idx];
             }
         }

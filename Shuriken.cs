@@ -32,21 +32,6 @@ public class Shuriken : WeaponBase
         StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.shuriken);
     }
 
-    //타겟과 플레이어간 각도를 arctan로 계산하여 회전
-    void Rotate(Vector3 target)
-    {
-        float diff_x = target.x - transform.position.x;
-        float diff_y = target.y - transform.position.y;
-        if (diff_x == 0) diff_x = 0.01f; // DevideByZero 방지
-        
-        float angle = Mathf.Atan(diff_x / diff_y) * Mathf.Rad2Deg * -1;
-        Vector3 rotationVec = Vector3.forward * angle;
-        transform.Rotate(rotationVec);
-
-        //타겟의 y좌표가 플레이어보다 아래쪽일 경우 뒤집기
-        if (diff_y < 0) spriteRenderer.flipY = true;
-    }
-
     void OnTriggerEnter2D(Collider2D col)
     {
         if (!col.CompareTag(Tags.enemy)) return;

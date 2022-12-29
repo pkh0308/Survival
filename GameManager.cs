@@ -7,6 +7,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    [Header("컴포넌트")]
     [SerializeField] ObjectManager objectManager;
     [SerializeField] UiManager uiManager;
     [SerializeField] StageSoundManager soundManager;
@@ -22,12 +23,14 @@ public class GameManager : MonoBehaviour
     Coroutine timerRoutine;
 
     //적 스폰 관련
+    [Header("적 스폰")]
     int curStageIdx;
     Coroutine spawnRoutine;
     List<EnemySpawnData> spawnList;
     int curSpawnIdx;
     Vector3 spawnOffset;
     [SerializeField] float spawnDistance;
+    [SerializeField] float maxStageTime;
 
     //경험치 관련
     int curExp;
@@ -35,12 +38,22 @@ public class GameManager : MonoBehaviour
     int maxExpIdx;
 
     //아이템 관련
+    [Header("아이템")]
     Dictionary<int, int> itemDic;
     [SerializeField] GameObject magnetArea;
     [SerializeField] GameObject bombArea;
     WaitForSeconds onoffInterval;
 
+    //아이템 박스 스폰 관련
+    [Header("아이템 박스")]
+    Coroutine spawnItemBoxRoutine;
+    WaitForSeconds spawnItemBoxInterval;
+    Vector3 spawnItemBoxOffset;
+    [SerializeField] float spawnItemBoxDistance;
+    [SerializeField] float spawnItemBoxTime;
+
     //레벨업 관련
+    [Header("레벨업")]
     [SerializeField] float levelUpInterval;
     WaitForSeconds levelUpSeconds;
     Coroutine levelUpRoutine;
@@ -73,6 +86,8 @@ public class GameManager : MonoBehaviour
         spawnList = new List<EnemySpawnData>();
         curStageIdx = LoadingSceneManager.getCurStageIdx();
         curSpawnIdx = 0;
+
+        spawnItemBoxInterval = new WaitForSeconds(spawnItemBoxTime);
 
         ReadSpawnData();
         ReadItemData();
@@ -143,8 +158,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        timerRoutine = StartCoroutine(Timer());
-        spawnRoutine = StartCoroutine(Spawn());
+        StartMyCoroutines();
     }
 
     //타이머 관련
@@ -156,7 +170,7 @@ public class GameManager : MonoBehaviour
             seconds++;
             uiManager.UpdateTimer(seconds);
 
-            if (seconds == 30) StartCoroutine(StageClear());
+            if (seconds == maxStageTime) StartCoroutine(StageClear());
         }
     }
 
@@ -165,14 +179,12 @@ public class GameManager : MonoBehaviour
         isPaused = uiManager.Pause(isPaused);
         if (isPaused)
         {
-            if (timerRoutine != null) StopCoroutine(timerRoutine);
-            if (spawnRoutine != null) StopCoroutine(spawnRoutine);
+            StopMyCoroutines();
             Time.timeScale = 0;
         }
         else
         {
-            timerRoutine = StartCoroutine(Timer());
-            spawnRoutine = StartCoroutine(Spawn());
+            StartMyCoroutines();
             Time.timeScale = 1;
         }
     }
@@ -182,8 +194,7 @@ public class GameManager : MonoBehaviour
         if(isPaused) return;
 
         isPaused = true;
-        if (timerRoutine != null) StopCoroutine(timerRoutine);
-        if (spawnRoutine != null) StopCoroutine(spawnRoutine);
+        StopMyCoroutines();
         Time.timeScale = 0;
     }
 
@@ -192,9 +203,22 @@ public class GameManager : MonoBehaviour
         if (!isPaused) return;
 
         isPaused = false;
+        StartMyCoroutines();
+        Time.timeScale = 1;
+    }
+
+    void StartMyCoroutines()
+    {
         timerRoutine = StartCoroutine(Timer());
         spawnRoutine = StartCoroutine(Spawn());
-        Time.timeScale = 1;
+        spawnItemBoxRoutine = StartCoroutine(SpawnItemBox());
+    }
+
+    void StopMyCoroutines()
+    {
+        if (timerRoutine != null) StopCoroutine(timerRoutine);
+        if (spawnRoutine != null) StopCoroutine(spawnRoutine);
+        if (spawnItemBoxRoutine != null) StopCoroutine(spawnItemBoxRoutine);
     }
 
     //적 스폰 관련
@@ -215,6 +239,22 @@ public class GameManager : MonoBehaviour
             curSpawnIdx++;
 
             yield return new WaitForSeconds(curData.interval);
+        }
+    }
+
+    //아이템 박스 스폰
+    IEnumerator SpawnItemBox()
+    {
+        yield return spawnItemBoxInterval;
+
+        GameObject itemBox;
+        while(!isPaused)
+        {
+            itemBox = objectManager.MakeObj(ObjectNames.itemBox);
+            spawnItemBoxOffset = Quaternion.Euler(0, 0, UnityEngine.Random.Range(0, 360)) * Vector3.right * spawnItemBoxDistance; //랜덤 벡터값 생성
+            itemBox.transform.position = Player.playerPos + spawnItemBoxOffset; // 플레이어로부터 일정 거리 떨어진 곳에서 스폰
+
+            yield return spawnItemBoxInterval;
         }
     }
 
@@ -255,19 +295,19 @@ public class GameManager : MonoBehaviour
             case ObjectNames.magnet:
                 {
                     soundManager.PlaySfx((int)StageSoundManager.StageSfx.meat_or_magnet);
-                    StartCoroutine(OnOff(magnetArea));
+                    StartCoroutine(AreaOnOff(magnetArea));
                     break;
                 }
             case ObjectNames.bomb:
                 {
                     soundManager.PlaySfx((int)StageSoundManager.StageSfx.bomb);
-                    StartCoroutine(OnOff(bombArea));
+                    StartCoroutine(AreaOnOff(bombArea));
                     break;
                 }
         }
     }
 
-    IEnumerator OnOff(GameObject obj)
+    IEnumerator AreaOnOff(GameObject obj)
     {
         obj.SetActive(true);
         yield return onoffInterval;

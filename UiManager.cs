@@ -35,6 +35,8 @@ public class UiManager : MonoBehaviour
     [SerializeField] Image[] statisticsBars;
     [SerializeField] TextMeshProUGUI[] statisticsTexts;
     [SerializeField] GameObject[] statisticsSlots;
+    Dictionary<int, int> weaponIconDic;
+    public static Action<int> updateWeaponAccList;
 
     //전투 관련
     [Header("전투")]
@@ -43,6 +45,7 @@ public class UiManager : MonoBehaviour
     Vector3 hpPos;
     Vector3 hpPosOffset;
     Vector3 hpBarScale;
+    public static Action<int, Vector3> showDamage;
 
     //경험치 관련
     [Header("경험치")]
@@ -54,11 +57,19 @@ public class UiManager : MonoBehaviour
     [Header("무기 획득")]
     [SerializeField] GameObject weaponSelectSet;
     [SerializeField] GameObject[] weaponSelectSlots;
-    WeaponData[] weaponDatas;
+    DataForLevelUp[] levelupDatas;
     int curWeaponIdx;
     [SerializeField] Image[] weaponImages;
     [SerializeField] TextMeshProUGUI[] weaponName;
     [SerializeField] TextMeshProUGUI[] weaponDesc;
+
+    //보물상자 획득 관련
+    [Header("보물 상자")]
+    [SerializeField] GameObject lotterySet;
+    [SerializeField] GameObject lotteryStartBtn;
+    [SerializeField] Image[] lotterySlot;
+    [SerializeField] Image lotteryHighlight;
+    [SerializeField] TextMeshProUGUI lotteryGoldText;
 
     //스테이지 클리어 관련
     [Header("스테이지 클리어")]
@@ -72,8 +83,6 @@ public class UiManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI killCountText_gameover;
     [SerializeField] TextMeshProUGUI moneyCountText_gameover;
 
-    public static Action<int, Vector3> showDamage;
-
     public void GetWeaponLogic(Weapons weaponLogic)
     {
         this.weaponLogic = weaponLogic;
@@ -81,7 +90,10 @@ public class UiManager : MonoBehaviour
 
     void Awake()
     {
-        showDamage = (a, b) => { StartCoroutine(ShowDamage(a, b)); };
+        showDamage = (dmg, positioon) => { StartCoroutine(ShowDamage(dmg, positioon)); };
+        updateWeaponAccList = (id) => { UpdateWeaponAccList(id); };
+
+        weaponIconDic = new Dictionary<int, int>();
 
         hpPosOffset = new Vector3(0, -60, 0);
         hpBarScale = Vector3.one;
@@ -209,16 +221,16 @@ public class UiManager : MonoBehaviour
     public void WeaponSelect()
     {
         //3개의 버튼에 랜덤 무기 노출
-        weaponDatas = weaponLogic.GetRandomWeaponData().ToArray();
-        for (int i = 0; i < weaponDatas.Length; i++)
+        levelupDatas = weaponLogic.GetRandomWeaponData().ToArray();
+        for (int i = 0; i < levelupDatas.Length; i++)
         {
-            weaponImages[i].sprite = SpriteContainer.getSprite(weaponDatas[i].WeaponId);
-            weaponName[i].text = weaponDatas[i].WeaponName;
-            weaponDesc[i].text = weaponDatas[i].WeaponDescription;
+            weaponImages[i].sprite = SpriteContainer.getSprite(levelupDatas[i].id);
+            weaponName[i].text = levelupDatas[i].name;
+            weaponDesc[i].text = levelupDatas[i].description;
             weaponSelectSlots[i].SetActive(true);
         }
         //획득 또는 업그레이드 가능한 무기가 3개 미만일 경우
-        for (int i = weaponDatas.Length; i < 3; i++)
+        for (int i = levelupDatas.Length; i < 3; i++)
         {
             weaponSelectSlots[i].SetActive(false);
         }
@@ -233,12 +245,49 @@ public class UiManager : MonoBehaviour
 
     public void Btn_WeaponSelectComplete()
     {
-        weaponLogic.GetWeapon(weaponDatas[curWeaponIdx].WeaponId);
+        weaponLogic.GetWeapon(levelupDatas[curWeaponIdx].id);
         weaponSelectSet.SetActive(false);
         gameManager.PauseOff();
 
         weaponLogic.RestartWeapons();
         gameManager.LevelUp();
+    }
+
+    //무기, 악세사리 목록 업데이트
+    public void UpdateWeaponAccList(int id)
+    {
+        if(id < 3000) //무기
+        {
+            if(id % 10 == 9) //업그레이드 무기일 경우
+            {
+                int beforeId = id / 10 * 10 + 1;
+                weaponIcons[weaponIconDic[beforeId]].sprite = SpriteContainer.getSprite(id);
+                return;
+            }
+
+            for (int i = 0; i < weaponIcons.Length; i++)
+            {
+                if (weaponIcons[i].gameObject.activeSelf)
+                    continue;
+
+                weaponIcons[i].sprite = SpriteContainer.getSprite(id);
+                weaponIconDic.Add(id, i);
+                weaponIcons[i].gameObject.SetActive(true);
+                break;
+            }
+        }
+        else //악세사리
+        {
+            for (int i = 0; i < accessoryIcons.Length; i++)
+            {
+                if (accessoryIcons[i].gameObject.activeSelf)
+                    continue;
+
+                accessoryIcons[i].sprite = SpriteContainer.getSprite(id);
+                accessoryIcons[i].gameObject.SetActive(true);
+                break;
+            }
+        }
     }
 
     //스테이지 클리어

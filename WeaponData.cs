@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿//무기 정보를 csv 파일에서 읽어들인 뒤 저장하기 위한 클래스
 public class WeaponData
 {
     //아이디

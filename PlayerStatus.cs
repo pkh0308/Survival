@@ -67,4 +67,39 @@ public class PlayerStatus
                 break;
         }
     }
+
+    //악세사리 습득 시 호출
+    public void SetStatus(int id, PlayerStatus basic, float val)
+    {
+        switch (id)
+        {
+            case ObjectNames.acc_bullet:
+                atkPowerVal = basic.AtkPowerVal + val;
+                break;
+            case ObjectNames.acc_fuel:
+                atkScaleVal = basic.AtkScaleVal + val;
+                break;
+            case ObjectNames.acc_accelerator:
+                projSpeedVal = basic.ProjSpeedVal + val;
+                break;
+            case ObjectNames.acc_energyCube:
+                coolTimeVal = basic.CoolTimeVal + val;
+                break;
+            case ObjectNames.acc_extraBullet:
+                projCountVal = basic.ProjCountVal + (int)val;
+                break;
+            case ObjectNames.acc_exoskeleton:
+                atkRemainTimeVal = basic.AtkRemainTimeVal + val;
+                break;
+            case ObjectNames.acc_heart:
+                playerHealthVal = basic.PlayerHealthVal + val;
+                break;
+            case ObjectNames.acc_armor:
+                playerdefVal = basic.PlayerdefVal + (int)val;
+                break;
+            case ObjectNames.acc_sneakers:
+                playerMoveSpeedVal = basic.PlayerMoveSpeedVal + val;
+                break;
+        }
+    }
 }

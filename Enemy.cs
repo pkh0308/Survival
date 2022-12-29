@@ -10,6 +10,7 @@ public class Enemy : MonoBehaviour
 
     bool isDie;
     WaitForSeconds dieSec;
+    [SerializeField] float timeForDie;
 
     //스탯 관련
     int curHp;
@@ -31,7 +32,7 @@ public class Enemy : MonoBehaviour
         boxCol = GetComponent<BoxCollider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        dieSec = new WaitForSeconds(1.0f);
+        dieSec = new WaitForSeconds(timeForDie);
     }
 
     void OnEnable()

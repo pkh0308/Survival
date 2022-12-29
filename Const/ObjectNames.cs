@@ -3,14 +3,39 @@
 public class ObjectNames
 {
     //플레이어블 캐릭터
-    public const int kkurugi = 1101;
-    public const int ninja = 1201;
-    public const int knight = 1301;
+    public const int kkurugi = 1001;
+    public const int ninja = 1002;
+    public const int knight = 1003;
 
-    //무기
-    public const int soccerBall = 1001;
-    public const int shuriken = 2001;
-    public const int defender = 3001;
+    //무기 투사체
+    public const int soccerBall = 2001;
+    public const int shuriken = 2011;
+    public const int defender = 2021;
+    public const int missile = 2031;
+    public const int thunder = 2041;
+    public const int explodeMine = 2051;
+
+    //폭발 판정 콜라이더(playerBullet)
+    public const int playerBullet = 2901;
+
+    //악세사리
+    public const int acc_bullet = 3001;
+    public const int acc_fuel = 3011;
+    public const int acc_accelerator = 3021;
+    public const int acc_energyCube = 3031;
+    public const int acc_extraBullet = 3041;
+    public const int acc_exoskeleton = 3051;
+    public const int acc_heart = 3061;
+    public const int acc_armor = 3071;
+    public const int acc_sneakers = 3081;
+
+    //업그레이드 무기
+    public const int quantumBall = 2009;
+    public const int shadowEdge = 2019;
+    public const int guardian = 2029;
+    public const int sharkMissile = 2039;
+    public const int judgement = 2049;
+    public const int hellfireMine = 2059;
 
     //아이템
     public const int exp_10 = 8001;
@@ -23,6 +48,9 @@ public class ObjectNames
     public const int gold_100 = 9014;
     public const int magnet = 9021;
     public const int bomb = 9031;
+
+    //아이템 박스
+    public const int itemBox = 9901;
 
     //스테이터스 이름
     public const string atkPowerName = "데미지 증가";
