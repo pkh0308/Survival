@@ -52,6 +52,10 @@ public class ObjectNames
     //아이템 박스
     public const int itemBox = 9901;
 
+    //보물상자
+    public const int treasureBox = 9991;
+    public const int maxLotterySlot = 16;
+
     //스테이터스 이름
     public const string atkPowerName = "데미지 증가";
     public const string atkScaleName = "범위 증가";
@@ -63,8 +67,12 @@ public class ObjectNames
     public const string playerDefName = "방어력 증가";
     public const string playerMoveSpeedName = "이동속도 증가";
 
-    //적
-    public const int enemyMelee = 100001;
+    //몬스터
+    public const int zombie = 100001;
+    public const int monsterTree = 120001;
+
+    //몬스터 투사체
+    public const int stone = 200001;
 
     //기타
     public const string text = "Text";

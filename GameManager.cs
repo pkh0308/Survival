@@ -180,12 +180,10 @@ public class GameManager : MonoBehaviour
         if (isPaused)
         {
             StopMyCoroutines();
-            Time.timeScale = 0;
         }
         else
         {
             StartMyCoroutines();
-            Time.timeScale = 1;
         }
     }
 
@@ -195,7 +193,6 @@ public class GameManager : MonoBehaviour
 
         isPaused = true;
         StopMyCoroutines();
-        Time.timeScale = 0;
     }
 
     public void PauseOff()
@@ -204,7 +201,6 @@ public class GameManager : MonoBehaviour
 
         isPaused = false;
         StartMyCoroutines();
-        Time.timeScale = 1;
     }
 
     void StartMyCoroutines()
@@ -266,44 +262,49 @@ public class GameManager : MonoBehaviour
             case ObjectNames.exp_10:
             case ObjectNames.exp_50:
             case ObjectNames.exp_250:
-                {
-                    soundManager.PlaySfx((int)StageSoundManager.StageSfx.getExp);
-                    curExp += itemDic[id];
+            {
+                soundManager.PlaySfx((int)StageSoundManager.StageSfx.getExp);
+                curExp += itemDic[id];
 
-                    if (maxExp[maxExpIdx] <= curExp)
-                        levelUpRoutine = StartCoroutine(LevelUpRoutine());
-                    uiManager.UpdateExp(curExp, maxExp[maxExpIdx]);
+                if (maxExp[maxExpIdx] <= curExp)
+                    levelUpRoutine = StartCoroutine(LevelUpRoutine());
+                uiManager.UpdateExp(curExp, maxExp[maxExpIdx]);
 
-                    break;
-                }
+                break;
+            }
             case ObjectNames.meat_50:
-                {
-                    soundManager.PlaySfx((int)StageSoundManager.StageSfx.meat_or_magnet);
-                    Player.getHeal(itemDic[id]);
-                    break;
-                }
+            {
+                soundManager.PlaySfx((int)StageSoundManager.StageSfx.meat_or_magnet);
+                Player.getHeal(itemDic[id]);
+                break;
+            }
             case ObjectNames.gold_70:
             case ObjectNames.gold_10:
             case ObjectNames.gold_50:
             case ObjectNames.gold_100:
-                {
-                    soundManager.PlaySfx((int)StageSoundManager.StageSfx.gold);
-                    GoldManager.Instance.PlusGold(itemDic[id]);
-                    uiManager.UpdateMoneyCount(GoldManager.Instance.Gold);
-                    break;
-                }
+            {
+                soundManager.PlaySfx((int)StageSoundManager.StageSfx.gold);
+                GoldManager.Instance.PlusGold(itemDic[id]);
+                uiManager.UpdateMoneyCount(GoldManager.Instance.Gold);
+                break;
+            }
             case ObjectNames.magnet:
-                {
-                    soundManager.PlaySfx((int)StageSoundManager.StageSfx.meat_or_magnet);
-                    StartCoroutine(AreaOnOff(magnetArea));
-                    break;
-                }
+            {
+                soundManager.PlaySfx((int)StageSoundManager.StageSfx.meat_or_magnet);
+                StartCoroutine(AreaOnOff(magnetArea));
+                break;
+            }
             case ObjectNames.bomb:
-                {
-                    soundManager.PlaySfx((int)StageSoundManager.StageSfx.bomb);
-                    StartCoroutine(AreaOnOff(bombArea));
-                    break;
-                }
+            {
+                soundManager.PlaySfx((int)StageSoundManager.StageSfx.bomb);
+                StartCoroutine(AreaOnOff(bombArea));
+                break;
+            }
+            case ObjectNames.treasureBox:
+            {
+                GetTreasureBox();
+                break;
+            }  
         }
     }
 
@@ -312,6 +313,13 @@ public class GameManager : MonoBehaviour
         obj.SetActive(true);
         yield return onoffInterval;
         obj.SetActive(false);
+    }
+
+    //보물 상자 획득
+    public void GetTreasureBox()
+    {
+        Pause();
+        uiManager.ShowLottery();
     }
 
     //LevelUp 루틴 외부 호출용
@@ -327,12 +335,12 @@ public class GameManager : MonoBehaviour
     IEnumerator LevelUpRoutine()
     {
         isWaitingForLevelUp = true;
-        soundManager.PlaySfx((int)StageSoundManager.StageSfx.levelUp);
         curExp -= maxExp[maxExpIdx];
         maxExpIdx++;
 
         yield return levelUpSeconds;
         Pause();
+        soundManager.PlaySfx((int)StageSoundManager.StageSfx.levelUp);
         uiManager.UpdateLevel(maxExpIdx + 1);
         uiManager.UpdateExp(curExp, maxExp[maxExpIdx]);
         uiManager.WeaponSelect();

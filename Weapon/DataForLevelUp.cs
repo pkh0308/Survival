@@ -10,6 +10,7 @@ public class DataForLevelUp
     {
         id = data.WeaponId;
         name = data.WeaponName;
+        level = data.WeaponLevel;
         description = data.WeaponDescription;
     }
 
@@ -17,6 +18,7 @@ public class DataForLevelUp
     {
         id = data.AccesoryId;
         name = data.AccessoryName;
+        level = data.AccessoryLevel;
         description = data.AccessoryDescription;
     }
 }

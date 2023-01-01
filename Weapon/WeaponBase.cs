@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections;
 
+//무기 투사체들의 공통 로직 클래스
+//각 무기 클래스는 해당 클래스를 상속받아 사용
+//무기별 특징은 IndividualInitialize()에서 구현
 public class WeaponBase : MonoBehaviour
 {
     protected WeaponData weaponData;
@@ -11,6 +13,10 @@ public class WeaponBase : MonoBehaviour
     protected Collider2D coll;
     protected Animator anim;
     protected Vector3 direction;
+
+    //일시정지 대응
+    protected bool isPaused;
+    Vector2 rigidVelocity;
 
     //기본 스케일
     protected Vector3 initialScale;
@@ -30,6 +36,8 @@ public class WeaponBase : MonoBehaviour
         TryGetComponent<Collider2D>(out coll);
         TryGetComponent<Animator>(out anim);
         direction = Vector3.zero;
+
+        isPaused = false;
     }
 
     void OnEnable()
@@ -41,6 +49,34 @@ public class WeaponBase : MonoBehaviour
             initialColliderScale = coll.transform.localScale;
             coll.enabled = true;
         } 
+    }
+
+    void Update()
+    {
+        //일시정지 시작
+        if (GameManager.IsPaused && !isPaused)
+        {
+            Pause();
+            return;
+        }
+        //일시정지 종료
+        if (!GameManager.IsPaused && isPaused)
+        {
+            PauseOff();
+        }
+    }
+
+    void Pause()
+    {
+        isPaused = true;
+        rigidVelocity = rigid.velocity;
+        rigid.velocity = Vector2.zero;
+    }
+
+    void PauseOff()
+    {
+        isPaused = false;
+        rigid.velocity = rigidVelocity;
     }
 
     void OnDisable()
@@ -99,5 +135,4 @@ public class WeaponBase : MonoBehaviour
 
     //필수 개별 구현 함수
     protected virtual void IndividualInitialize() { }
-
 }

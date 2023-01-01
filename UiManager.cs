@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+using Random = UnityEngine.Random; // System.Random과 혼선 방지용
+
 public class UiManager : MonoBehaviour
 {
     [Header("컴포넌트 연결")]
@@ -67,9 +69,20 @@ public class UiManager : MonoBehaviour
     [Header("보물 상자")]
     [SerializeField] GameObject lotterySet;
     [SerializeField] GameObject lotteryStartBtn;
-    [SerializeField] Image[] lotterySlot;
+    [SerializeField] Image[] lotterySlots;
     [SerializeField] Image lotteryHighlight;
     [SerializeField] TextMeshProUGUI lotteryGoldText;
+    [SerializeField] GameObject lotteryResultSet;
+    [SerializeField] Image lotteryResultIcon;
+    [SerializeField] TextMeshProUGUI lotteryResName;
+    [SerializeField] TextMeshProUGUI lotteryResDesc;
+    [SerializeField] GameObject[] lotteryResStars;
+    [SerializeField] GameObject lotteryStarSet;
+    [SerializeField] GameObject lotteryResStarForLegandary;
+    [SerializeField] LotteryGold lotteryGold;
+    Vector3 initialHighlightPos;
+    int lotteryTargetIdx;
+    DataForLevelUp lotteryTargetData;
 
     //스테이지 클리어 관련
     [Header("스테이지 클리어")]
@@ -97,8 +110,9 @@ public class UiManager : MonoBehaviour
 
         hpPosOffset = new Vector3(0, -60, 0);
         hpBarScale = Vector3.one;
-
         expBarScale = Vector3.one;
+
+        initialHighlightPos = lotteryHighlight.rectTransform.localPosition;
     }
 
     void Start()
@@ -288,6 +302,115 @@ public class UiManager : MonoBehaviour
                 break;
             }
         }
+    }
+
+    //보물상자 획득
+    public void ShowLottery()
+    {
+        //무기 정보 받아오기
+        DataForLevelUp[] datas = weaponLogic.GetLotteryWeaponData(out int id);
+
+        int idx;
+        for(int i = 0; i < lotterySlots.Length; i++)
+        {
+            idx = Random.Range(0, datas.Length);
+            lotterySlots[i].sprite = SpriteContainer.getSprite(datas[idx].id);
+
+        }
+        lotteryTargetIdx = Random.Range(0, lotterySlots.Length);
+
+        //업그레이드 가능한 무기가 있을 경우 무작위 슬롯 하나를 덮어씌우고,
+        //lotteryTargetIdx 업그레이드 무기 id로 고정
+        if (id > 0) 
+        {
+            idx = Random.Range(0, lotterySlots.Length);
+            lotterySlots[idx].sprite = SpriteContainer.getSprite(datas[idx].id);
+            lotteryTargetIdx = id;
+        }
+
+        lotteryTargetData = datas[lotteryTargetIdx];
+        lotterySet.SetActive(true);
+        soundManager.PlayBgm((int)StageSoundManager.StageBgm.lotteryBgm);
+    }
+
+    public void Btn_StartLottery()
+    {
+        lotteryStartBtn.SetActive(false);
+        StartCoroutine(Lottery());
+        lotteryGold.LotteryStart();
+    }
+
+    IEnumerator Lottery()
+    {
+        soundManager.PlayBgm((int)StageSoundManager.StageBgm.lotteryStart);
+        //애니메이션 시간동안 대기
+        lotteryHighlight.gameObject.SetActive(true);
+        yield return new WaitForSeconds(2.5f);
+
+        lotteryGold.LotteryStop();
+        //lotteryHighlight.rectTransform.localPosition = lotterySlots[lotteryTargetIdx].rectTransform.localPosition;
+        
+        soundManager.StopBgm();
+        soundManager.PlaySfx((int)StageSoundManager.StageSfx.lotteryEnd);
+        yield return new WaitForSeconds(0.5f);
+        lotteryHighlight.transform.position = new Vector3(180, -165, 0);
+        lotteryResultIcon.sprite = SpriteContainer.getSprite(lotteryTargetData.id);
+        lotteryResName.text = lotteryTargetData.name;
+        lotteryResDesc.text = lotteryTargetData.description;
+        //업그레이드 무기일 경우
+        if(lotteryTargetData.id % 10 == 9)
+        {
+            lotteryStarSet.SetActive(false);
+            lotteryResStarForLegandary.SetActive(true);
+        }
+        else
+        {
+            lotteryStarSet.SetActive(true);
+            lotteryResStarForLegandary.SetActive(false);
+
+            for (int i = 0; i < lotteryTargetData.level; i++)
+                lotteryResStars[i].SetActive(true);
+            for (int i = lotteryTargetData.level; i < lotteryResStars.Length; i++)
+                lotteryResStars[i].SetActive(false);
+        }
+        lotteryResultSet.SetActive(true);
+    }
+
+    public void Btn_LotteryEnd()
+    {
+        weaponLogic.GetWeapon(lotteryTargetData.id);
+        lotteryResultSet.SetActive(false);
+        lotteryHighlight.gameObject.SetActive(false);
+        lotterySet.SetActive(false);
+        lotteryHighlight.rectTransform.localPosition = initialHighlightPos;
+        lotteryStartBtn.SetActive(true);
+
+        //골드 갱신
+        GoldManager.Instance.PlusGold(lotteryGold.Gold);
+        UpdateMoneyCount(lotteryGold.Gold);
+        GameManager.moneyCountPlus(lotteryGold.Gold);
+
+        //일시정지 해제 및 무기 코루틴 재시작
+        gameManager.PauseOff();
+        weaponLogic.RestartWeapons();
+        soundManager.PlayBgm((int)StageSoundManager.StageBgm.stage_1);
+    }
+
+    public void InputEnter()
+    {
+        if (!weaponSelectSet.activeSelf && !lotterySet.activeSelf)
+            return;
+
+        //무기 선택 창에서 Enter 입력 시
+        if(weaponSelectSet.activeSelf)
+        {
+            Btn_WeaponSelectComplete();
+            return;
+        }
+
+        //럭키 찬스 창에서 Enter 입력 시
+        if(lotteryStartBtn.activeSelf)
+            Btn_StartLottery();
     }
 
     //스테이지 클리어

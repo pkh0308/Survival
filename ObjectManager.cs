@@ -48,14 +48,20 @@ public class ObjectManager : MonoBehaviour
     [SerializeField] GameObject hellfireMinePrefab;
     GameObject[] hellfireMine;
 
-    [Header("PlayerBullet")]
+    [Header("폭발 판정")]
     [SerializeField] GameObject playerBulletPrefab;
     GameObject[] playerBullet;
 
     //몬스터
     [Header("몬스터")]
-    [SerializeField] GameObject enemyMeleePrefab;
-    GameObject[] enemyMelee;
+    [SerializeField] GameObject zombiePrefab;
+    GameObject[] zombie;
+    [SerializeField] GameObject monsterTreePrefab;
+    GameObject[] monsterTree;
+
+    [Header("몬스터 투사체")]
+    [SerializeField] GameObject stonePrefab;
+    GameObject[] stone;
 
     //경험치 젬
     [Header("경험치 젬")]
@@ -85,6 +91,11 @@ public class ObjectManager : MonoBehaviour
     [Header("아이템 박스")]
     [SerializeField] GameObject itemBoxPrefab;
     GameObject[] itemBox;
+
+    //아이템 박스
+    [Header("보물 상자")]
+    [SerializeField] GameObject treasureBoxPrefab;
+    GameObject[] treasureBox;
 
     //UI
     [Header("UI")]
@@ -125,7 +136,11 @@ public class ObjectManager : MonoBehaviour
         playerBullet = new GameObject[100];
 
         //몬스터
-        enemyMelee = new GameObject[100];
+        zombie = new GameObject[300];
+        monsterTree = new GameObject[10];
+
+        //몬스터 투사체
+        stone = new GameObject[100];
 
         //경험치 젬
         expGemLow = new GameObject[1000];
@@ -142,6 +157,9 @@ public class ObjectManager : MonoBehaviour
 
         //아이템 박스
         itemBox = new GameObject[300];
+
+        //보물 상자
+        treasureBox = new GameObject[50];
 
         //UI_텍스트
         texts = new TextMeshProUGUI[1000];
@@ -190,11 +208,22 @@ public class ObjectManager : MonoBehaviour
     // 오퍼레이터의 경우 operatorStatus 파일을 읽어와서 스테이터스 설정
     void Generate()
     {
-        //적
-        for (int idx = 0; idx < enemyMelee.Length; idx++)
+        //몬스터
+        for (int idx = 0; idx < zombie.Length; idx++)
         {
-            enemyMelee[idx] = Instantiate(enemyMeleePrefab);
-            enemyMelee[idx].SetActive(false);
+            zombie[idx] = Instantiate(zombiePrefab);
+            zombie[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < monsterTree.Length; idx++)
+        {
+            monsterTree[idx] = Instantiate(monsterTreePrefab);
+            monsterTree[idx].SetActive(false);
+        }
+        //몬스터 투사체
+        for (int idx = 0; idx < stone.Length; idx++)
+        {
+            stone[idx] = Instantiate(stonePrefab);
+            stone[idx].SetActive(false);
         }
 
         //무기 투사체
@@ -322,6 +351,12 @@ public class ObjectManager : MonoBehaviour
             itemBox[idx] = Instantiate(itemBoxPrefab);
             itemBox[idx].SetActive(false);
         }
+        //보물 상자
+        for (int idx = 0; idx < treasureBox.Length; idx++)
+        {
+            treasureBox[idx] = Instantiate(treasureBoxPrefab);
+            treasureBox[idx].SetActive(false);
+        }
 
         //텍스트
         for (int idx = 0; idx < texts.Length; idx++)
@@ -403,8 +438,15 @@ public class ObjectManager : MonoBehaviour
                 targetPool = playerBullet;
                 break;
             //몬스터
-            case ObjectNames.enemyMelee:
-                targetPool = enemyMelee;
+            case ObjectNames.zombie:
+                targetPool = zombie;
+                break;
+            case ObjectNames.monsterTree:
+                targetPool = monsterTree;
+                break;
+            //몬스터 투사체
+            case ObjectNames.stone:
+                targetPool = stone;
                 break;
             //아이템
             case ObjectNames.gold_10:
@@ -428,6 +470,10 @@ public class ObjectManager : MonoBehaviour
             //아이템 박스
             case ObjectNames.itemBox:
                 targetPool = itemBox;
+                break;
+            //보물 상자
+            case ObjectNames.treasureBox:
+                targetPool = treasureBox;
                 break;
         }
 

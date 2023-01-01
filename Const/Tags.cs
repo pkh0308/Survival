@@ -13,4 +13,5 @@ public class Tags
     public const string magnet = "Magnet";
     public const string bomb = "Bomb";
     public const string playerBullet = "PlayerBullet";
+    public const string treasureBox = "TreasureBox";
 }

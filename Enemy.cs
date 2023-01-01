@@ -3,27 +3,43 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    Rigidbody2D rigid;
-    Animator anim;
-    BoxCollider2D boxCol;
-    SpriteRenderer spriteRenderer;
+    protected Rigidbody2D rigid;
+    protected Animator anim;
+    protected BoxCollider2D boxCol;
+    protected SpriteRenderer spriteRenderer;
+    
+    //몬스터 타입
+    public enum enemyType { Normal, Boss }
+    [SerializeField] enemyType monsterType;
 
-    bool isDie;
-    WaitForSeconds dieSec;
-    [SerializeField] float timeForDie;
+    protected bool isDie;
+    protected WaitForSeconds dieSec;
+    [SerializeField] protected float timeForDie;
 
     //스탯 관련
-    int curHp;
+    protected int curHp;
     public int maxHp;
 
     public float moveSpeed;
-    float moveDelta;
+    protected float moveDelta;
 
+    //일시정지 대응
+    bool isPaused;
+    Vector2 rigidVelocity;
+
+    //근접 공격(접촉 시)
     public int meleePow;
+    protected WaitForSeconds meleeAtkSec;
+    protected Coroutine meleeAtkRoutine;
+
+    //원거리 공격
     public int rangePow;
-    WaitForSeconds atkSec;
-    Coroutine atkRoutine;
-    Player target;
+    protected WaitForSeconds rangeAtkSec;
+    protected Coroutine rangeAtkRoutine;
+    [SerializeField] protected float rangeAtkInterval;
+    [SerializeField] protected int bulletId;
+
+    protected Player target;
 
     void Awake()
     {
@@ -45,13 +61,32 @@ public class Enemy : MonoBehaviour
     void Start()
     {
         curHp = maxHp;
-        atkSec = new WaitForSeconds(0.1f);
+        meleeAtkSec = new WaitForSeconds(0.1f);
+        rangeAtkSec = new WaitForSeconds(rangeAtkInterval);
+        if (rangePow > 0)
+            rangeAtkRoutine = StartCoroutine(RangeAttack());
+        if (monsterType == enemyType.Boss)
+            BossRoutine();
     }
+
+    //보스 타입 개별 구현
+    protected virtual void BossRoutine() { }
 
     void Update()
     {
         if (isDie) return;
-        if (GameManager.IsPaused) return;
+
+        //일시정지 시작
+        if (GameManager.IsPaused)
+        {
+            if(!isPaused) Pause();
+            return;
+        }
+        //일시정지 종료
+        if (isPaused)
+        {
+            PauseOff();
+        }
         
         Move();
         Flip();
@@ -59,6 +94,9 @@ public class Enemy : MonoBehaviour
 
     void Move()
     {
+        if (moveSpeed == 0) 
+            return;
+
         moveDelta = moveSpeed * Time.deltaTime;
         transform.position = Vector3.MoveTowards(transform.position, Player.playerPos, moveDelta);
     }
@@ -69,6 +107,20 @@ public class Enemy : MonoBehaviour
             spriteRenderer.flipX = true;
         else if(Player.playerPos.x > transform.position.x && spriteRenderer.flipX)
             spriteRenderer.flipX = false;
+    }
+
+    void Pause()
+    {
+        isPaused = true;
+        rigidVelocity = rigid.velocity;
+        anim.speed = 0;
+    }
+
+    void PauseOff()
+    {
+        isPaused = false;
+        rigid.velocity = rigidVelocity;
+        anim.speed = 1;
     }
 
     //전투 관련
@@ -108,9 +160,10 @@ public class Enemy : MonoBehaviour
         anim.SetTrigger("OnDie");
         isDie = true;
         boxCol.enabled = false;
-        if(atkRoutine != null) StopCoroutine(atkRoutine);
+        if(meleeAtkRoutine != null) StopCoroutine(meleeAtkRoutine);
+        if(rangeAtkRoutine != null) StopCoroutine(rangeAtkRoutine);
 
-        if(!timeOver) //타임 오버 외 사망(타임 오버는 드랍 x, 킬 카운트 x)
+        if (!timeOver) //타임 오버 외 사망(타임 오버는 드랍 x, 킬 카운트 x)
         {
             GameManager.killCountPlus();
             DropItem();
@@ -122,6 +175,14 @@ public class Enemy : MonoBehaviour
 
     void DropItem()
     {
+        //보스일 경우
+        if(monsterType == enemyType.Boss)
+        {
+            GameObject box = ObjectManager.makeObj(ObjectNames.treasureBox);
+            box.transform.position = transform.position;
+            return;
+        }
+
         //확률 계산
         int val = Random.Range(0, 10000);
 
@@ -139,7 +200,7 @@ public class Enemy : MonoBehaviour
         {
             if (col.TryGetComponent<Player>(out target))
             {
-                atkRoutine = StartCoroutine(Attack());
+                meleeAtkRoutine = StartCoroutine(MeleeAttack());
                 return;
             }
         }
@@ -149,20 +210,35 @@ public class Enemy : MonoBehaviour
             StartCoroutine(OnDie(true));
             return;
         }
-        //폭탄 습득 시 처리
-        if (col.gameObject.CompareTag(Tags.bomb))
+        //폭탄 습득 시 처리(보스는 제외)
+        if (col.gameObject.CompareTag(Tags.bomb) && monsterType != enemyType.Boss)
         {
             StartCoroutine(OnDie());
             return;
         }
     }
 
-    IEnumerator Attack()
+    IEnumerator MeleeAttack()
     {
-        while(!target.IsDie)
+        while(!GameManager.IsPaused)
         {
+            if (target.IsDie) yield break;
+
             target.OnDamaged(meleePow);
-            yield return atkSec;
+            yield return meleeAtkSec;
+        }
+    }
+
+    IEnumerator RangeAttack()
+    {
+        while(!GameManager.IsPaused)
+        {
+            if (isDie) yield break;
+            yield return rangeAtkSec;
+
+            GameObject bullet = ObjectManager.makeObj(bulletId);
+            bullet.transform.position = transform.position;
+            bullet.GetComponent<EnemyBullet>().Shoot(rangePow, (Player.playerPos - transform.position).normalized);
         }
     }
 
@@ -170,7 +246,8 @@ public class Enemy : MonoBehaviour
     {
         if (col.gameObject.CompareTag(Tags.player))
         {
-            StopCoroutine(atkRoutine);
+            if(meleeAtkRoutine != null)
+                StopCoroutine(meleeAtkRoutine);
         }
     }
 }

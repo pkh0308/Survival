@@ -94,6 +94,10 @@ public class Player : MonoBehaviour
         {
             gameManager.Pause_Exit();
         }
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            uiManager.InputEnter();
+        }
     }
 
     void FixedUpdate()
@@ -136,6 +140,8 @@ public class Player : MonoBehaviour
 
     public void OnDamaged(int dmg)
     {
+        if (isDie) return; //이미 죽은 경우 스킵
+
         dmg -= stat.PlayerdefVal;
 
         if(curHp <= dmg)

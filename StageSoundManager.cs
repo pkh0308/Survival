@@ -8,12 +8,14 @@ public class StageSoundManager : MonoBehaviour
     AudioSource curSfxSource;
     
     //재생 함수 호출용 열거형
-    public enum StageBgm { stage_1 = 100 }
-    public enum StageSfx { getExp = 1000, levelUp, stageClear, gameOver, meat_or_magnet, gold, bomb }
+    public enum StageBgm { stage_1 = 100, lotteryBgm, lotteryStart }
+    public enum StageSfx { getExp = 1000, levelUp, stageClear, gameOver, meat_or_magnet, gold, bomb, lotteryEnd }
     public enum WeaponSfx { soccerBall = 1100, shuriken, defender, missile, thunder, explodeMine, explosion }
 
     //bgm
     [SerializeField] AudioClip stage_1;
+    [SerializeField] AudioClip lotteryBgm;
+    [SerializeField] AudioClip lotteryStart;
 
     //sfx
     [SerializeField] AudioClip getExp;
@@ -23,6 +25,7 @@ public class StageSoundManager : MonoBehaviour
     [SerializeField] AudioClip meat_or_magnet;
     [SerializeField] AudioClip gold;
     [SerializeField] AudioClip bomb;
+    [SerializeField] AudioClip lotteryEnd;
 
     //weapon
     public static Action<int> playWeaponSfx; 
@@ -63,7 +66,20 @@ public class StageSoundManager : MonoBehaviour
                 bgmAudioSource.clip = stage_1;
                 bgmAudioSource.Play();
                 break;
+            case (int)StageBgm.lotteryBgm:
+                bgmAudioSource.clip = lotteryBgm;
+                bgmAudioSource.Play();
+                break;
+            case (int)StageBgm.lotteryStart:
+                bgmAudioSource.clip = lotteryStart;
+                bgmAudioSource.Play();
+                break;
         }
+    }
+
+    public void StopBgm()
+    {
+        bgmAudioSource.Stop();
     }
 
     public void PlaySfx(int idx)
@@ -106,6 +122,10 @@ public class StageSoundManager : MonoBehaviour
                 break;
             case (int)StageSfx.bomb:
                 curSfxSource.clip = bomb;
+                curSfxSource.Play();
+                break;
+            case (int)StageSfx.lotteryEnd:
+                curSfxSource.clip = lotteryEnd;
                 curSfxSource.Play();
                 break;
         }

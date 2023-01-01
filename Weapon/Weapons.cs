@@ -244,6 +244,7 @@ public class Weapons : MonoBehaviour
             curWeapons.Remove(beforeId);
             StopWeaponRoutine(beforeId);
             curWeapons.Add(id, legendaryWeaponDic[id]);
+            weaponDic.Remove(beforeId);
 
             UiManager.updateWeaponAccList(id);
             acmDmgDic.Add(id, acmDmgDic[beforeId]);
@@ -338,6 +339,89 @@ public class Weapons : MonoBehaviour
             if (keys.Count < 1) break;
         }
         return datas;
+    }
+
+    //보물상자 획득 시 데이터 전달
+    public DataForLevelUp[] GetLotteryWeaponData(out int targetId)
+    {
+        List<DataForLevelUp> datas = new List<DataForLevelUp>();
+        targetId = -1;
+
+        //업그레이드 가능한 무기가 있는지 확인
+        //보물상자의 경우 업그레이드 가능한 무기 확정 획득
+        if (HasUpgradable(out int upgradeId))
+        {
+            datas.Add(new DataForLevelUp(legendaryWeaponDic[upgradeId]));
+            targetId = upgradeId;
+        }
+
+        //무기, 악세사리 키 병합
+        List<int> keys = new List<int>();
+        if (curMaxWeapons < 6)
+            keys.AddRange(curWeapons.Keys);
+        if (curMaxAccessories < 6)
+            keys.AddRange(curAccessories.Keys);
+
+        //모든 무기와 악세사리가 최고레벨일 경우 골드/회복 옵션 노출
+        if (keys.Count == 0)
+        {
+            //체력 회복, 골드 획득 옵션
+            keys.Add(ObjectNames.meat_50);
+            keys.Add(ObjectNames.gold_70);
+        }
+        else //레벨업 가능한 무기가 있을 경우 목록에서 골드/회복 옵션 삭제
+        {
+            keys.Remove(ObjectNames.meat_50);
+            keys.Remove(ObjectNames.gold_70);
+        }
+
+        while(datas.Count < ObjectNames.maxLotterySlot)
+        {
+            int id = keys[Random.Range(0, keys.Count)];
+            if (id < 3000) //무기
+            {
+                if(id % 10 == 9) //업그레이드 무기일 경우
+                    datas.Add(new DataForLevelUp(legendaryWeaponDic[id]));
+                else if (curWeapons[id].WeaponLevel < weaponDic[id].Length)
+                    datas.Add(new DataForLevelUp(weaponDic[id][curWeapons[id].WeaponLevel]));
+            }
+            else if(id < 4000)// 악세사리
+            {
+                if (curAccessories[id].AccessoryLevel < accesoryDic[id].Length)
+                    datas.Add(new DataForLevelUp(accesoryDic[id][curAccessories[id].AccessoryLevel]));
+            }
+            else //골드 or 회복 옵션
+            {
+                datas.Add(new DataForLevelUp(weaponDic[id][curWeapons[id].WeaponLevel]));
+            }
+        }
+
+        return datas.ToArray();
+    }
+
+    //업그레이드 가능한 무기가 있는지 확인
+    //없을 경우 false, id는 -1을 반환
+    bool HasUpgradable(out int id)
+    {
+        List<int> keys = new List<int>(curWeapons.Keys);
+        for(int i = 0; i < keys.Count; i++)
+        {
+            int idx = keys[i];
+            if (curWeapons[idx].WeaponLevel < 5)
+                continue;
+
+            int tempId = (curWeapons[idx].WeaponId / 10 * 10) + 9; //업그레이드 무기 id
+            if (!legendaryWeaponDic.ContainsKey(tempId))  //업그레이드 무기가 없을 경우
+                continue;
+
+            if (curAccessories.ContainsKey(upgradeDic[tempId].combineId)) //조합 악세사리도 보유중일 경우
+            {
+                id = tempId;
+                return true;
+            }
+        }
+        id = -1;
+        return false;
     }
 
     //일시정지 종료 후 무기 코루틴 재시작용
