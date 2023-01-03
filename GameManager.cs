@@ -57,13 +57,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] float levelUpInterval;
     WaitForSeconds levelUpSeconds;
     Coroutine levelUpRoutine;
-    bool isWaitingForLevelUp;
+    bool onLevelUp;
 
     //카운트 관련
     public static Action killCountPlus;
     int killCount;
-    public static Action<int> moneyCountPlus;
-    int moneyCount;
+    public static Action<int> goldCountPlus;
+    int goldCount;
 
     void Awake()
     {
@@ -73,7 +73,7 @@ public class GameManager : MonoBehaviour
         levelUpSeconds = new WaitForSeconds(levelUpInterval);
 
         isPaused = false;
-        isWaitingForLevelUp = false;
+        onLevelUp = false;
 
         maxExp = Enumerable.Repeat<int>(100, 100).ToArray();
 
@@ -81,7 +81,7 @@ public class GameManager : MonoBehaviour
         onoffInterval = new WaitForSeconds(0.1f);
 
         killCountPlus = () => { UpdateKillCount(); };
-        moneyCountPlus = (a) => { UpdateMoneyCount(a); };
+        goldCountPlus = (a) => { UpdateGoldCount(a); };
 
         spawnList = new List<EnemySpawnData>();
         curStageIdx = LoadingSceneManager.getCurStageIdx();
@@ -201,6 +201,7 @@ public class GameManager : MonoBehaviour
 
         isPaused = false;
         StartMyCoroutines();
+        Weapons.restartWeapons();
     }
 
     void StartMyCoroutines()
@@ -265,8 +266,8 @@ public class GameManager : MonoBehaviour
             {
                 soundManager.PlaySfx((int)StageSoundManager.StageSfx.getExp);
                 curExp += itemDic[id];
-
-                if (maxExp[maxExpIdx] <= curExp)
+                //대기중일 경우 레벨업 루틴은 스킵
+                if (!onLevelUp && maxExp[maxExpIdx] <= curExp)
                     levelUpRoutine = StartCoroutine(LevelUpRoutine());
                 uiManager.UpdateExp(curExp, maxExp[maxExpIdx]);
 
@@ -285,7 +286,7 @@ public class GameManager : MonoBehaviour
             {
                 soundManager.PlaySfx((int)StageSoundManager.StageSfx.gold);
                 GoldManager.Instance.PlusGold(itemDic[id]);
-                uiManager.UpdateMoneyCount(GoldManager.Instance.Gold);
+                uiManager.UpdateGoldCount(GoldManager.Instance.Gold);
                 break;
             }
             case ObjectNames.magnet:
@@ -319,22 +320,37 @@ public class GameManager : MonoBehaviour
     public void GetTreasureBox()
     {
         Pause();
+        if (onLevelUp) //레벨업 대기중일 경우 레벨업 루틴 정지
+            StopCoroutine(levelUpRoutine);
         uiManager.ShowLottery();
+    }
+
+    public void EndTreasureBox(int lotteryMoney)
+    {
+        UpdateGoldCount(lotteryMoney);
+
+        if (onLevelUp) //레벨업 대기중일 경우 레벨업 루틴 재시작
+        {
+            levelUpRoutine = StartCoroutine(LevelUpRoutine());
+        }
     }
 
     //LevelUp 루틴 외부 호출용
     public void LevelUp()
     {
         if (isPaused || gameOver) return;
-        if (maxExp[maxExpIdx] > curExp) return;
-        if (isWaitingForLevelUp) return;
+        if (maxExp[maxExpIdx] > curExp)
+        {
+            onLevelUp = false;
+            return;
+        }
 
         levelUpRoutine = StartCoroutine(LevelUpRoutine());
     }
     
     IEnumerator LevelUpRoutine()
     {
-        isWaitingForLevelUp = true;
+        onLevelUp = true;
         curExp -= maxExp[maxExpIdx];
         maxExpIdx++;
 
@@ -344,7 +360,6 @@ public class GameManager : MonoBehaviour
         uiManager.UpdateLevel(maxExpIdx + 1);
         uiManager.UpdateExp(curExp, maxExp[maxExpIdx]);
         uiManager.WeaponSelect();
-        isWaitingForLevelUp = false;
     }
 
     //카운트 관련
@@ -354,10 +369,10 @@ public class GameManager : MonoBehaviour
         uiManager.UpdateKillCount(killCount);
     }
 
-    void UpdateMoneyCount(int count)
+    void UpdateGoldCount(int count)
     {
-        moneyCount += count;
-        uiManager.UpdateMoneyCount(moneyCount);
+        goldCount += count;
+        uiManager.UpdateGoldCount(goldCount);
     }
 
     //스테이지 클리어
@@ -369,7 +384,7 @@ public class GameManager : MonoBehaviour
 
         yield return new WaitForSeconds(3.0f);
         isPaused = true;
-        uiManager.StageClear(killCount, moneyCount);
+        uiManager.StageClear(killCount, goldCount);
     }
 
     //게임 오버
@@ -377,6 +392,6 @@ public class GameManager : MonoBehaviour
     {
         isPaused = true;
         gameOver = true;
-        uiManager.GameOver(killCount, moneyCount);
+        uiManager.GameOver(killCount, goldCount);
     }
 }

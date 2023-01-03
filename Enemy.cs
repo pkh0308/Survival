@@ -146,8 +146,11 @@ public class Enemy : MonoBehaviour
         else
             curHp -= dmg;
 
-        rigid.AddForce(vec, ForceMode2D.Impulse);
-        Invoke(nameof(StopForce), 0.3f);
+        if (monsterType != enemyType.Boss) //보스가 아닐때만 밀치기 적용
+        {
+            rigid.AddForce(vec, ForceMode2D.Impulse);
+            Invoke(nameof(StopForce), 0.3f);
+        } 
     }
 
     void StopForce()

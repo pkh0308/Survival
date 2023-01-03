@@ -19,6 +19,7 @@ public class Weapons : MonoBehaviour
     Dictionary<int, WeaponData[]> weaponDic;
     Dictionary<int, WeaponData> curWeapons;
     int curMaxWeapons;
+    public static Action restartWeapons;
 
     //악세사리 정보
     Dictionary<int, AccessoryData[]> accesoryDic;
@@ -67,7 +68,6 @@ public class Weapons : MonoBehaviour
 
     //그림자 칼날
     Coroutine shadowEdge;
-    WaitForSeconds shadowEdgeSec;
 
     //수호자
     Coroutine guardian;
@@ -99,6 +99,7 @@ public class Weapons : MonoBehaviour
 
         curDefenders = new List<GameObject>();
 
+        restartWeapons = () => { RestartWeapons(); };
         accumulateDmg = (a, b) => { AccumulateDmg(a, b); };
         getAccumulatedDmg = () => { return GetAccumulatedDmg(); };
         getTotalDmg = () => { return totalDmg; };
@@ -218,8 +219,8 @@ public class Weapons : MonoBehaviour
     //Prefers 에서 플레이어 데이터 가져옴
     public void SetStatus(PlayerStatus stat)
     {
-        baseStat = stat;
-        curStat = stat;
+        baseStat = stat.Copy();
+        curStat = stat.Copy();
     }
 
     public void SetObjectManager(ObjectManager manager)
@@ -279,6 +280,7 @@ public class Weapons : MonoBehaviour
         }
         
         curStat.SetStatus(id, baseStat, curAccessories[id].AccessoryValue);
+        Player.updateStatus(curStat, id);
         //악세사리가 최고 레벨일 경우
         if (curAccessories[id].AccessoryLevel == accesoryDic[id].Length)
             curMaxAccessories++;

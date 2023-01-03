@@ -33,6 +33,14 @@ public class PlayerStatus
         playerMoveSpeedVal = moveSpeed;
     }
 
+    //복사본 반환
+    public PlayerStatus Copy()
+    {
+        PlayerStatus status = new PlayerStatus(atkPowerVal, atkScaleVal, projSpeedVal, coolTimeVal, 
+                                               projCountVal, atkRemainTimeVal, playerHealthVal, playerdefVal, playerMoveSpeedVal);
+        return status;
+    }
+
     public void AddStatus(string name, float val)
     {
         switch(name)

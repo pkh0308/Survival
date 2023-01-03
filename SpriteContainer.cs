@@ -34,6 +34,10 @@ public class SpriteContainer : MonoBehaviour
     [SerializeField] Sprite acc_armor;
     [SerializeField] Sprite acc_sneakers;
 
+    [Header("무기 선택 슬롯")]
+    [SerializeField] Sprite weaponSelectSlotNormal;
+    [SerializeField] Sprite weaponSelectSlotLegandary;
+
     public static Func<int, Sprite> getSprite;
 
     private void Awake()
@@ -94,6 +98,10 @@ public class SpriteContainer : MonoBehaviour
                 return judgement;
             case ObjectNames.hellfireMine:
                 return hellfireMine;
+            case ObjectNames.weaponSelectSlotNormal:
+                return weaponSelectSlotNormal;
+            case ObjectNames.weaponSelectSlotLegandary:
+                return weaponSelectSlotLegandary;
             default:
                 return null;
         }

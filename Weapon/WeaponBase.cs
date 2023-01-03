@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 //무기 투사체들의 공통 로직 클래스
 //각 무기 클래스는 해당 클래스를 상속받아 사용
@@ -102,7 +103,8 @@ public class WeaponBase : MonoBehaviour
 
         IndividualInitialize();
 
-        Invoke(nameof(TimeOver), weaponData.WeaponRemainTime * atkRemainTime);
+        if (weaponData.WeaponRemainTime > 0)
+            StartCoroutine(TimeOver());
     }
 
     protected void AcmDmg(int val)
@@ -112,10 +114,10 @@ public class WeaponBase : MonoBehaviour
 
     //투사체 회전용 함수
     //타겟의 위치값을 Vector3 형태로 받아 플레이어와의 각도를 arctan로 계산하여 회전
-    protected void Rotate(Vector3 target)
+    protected void Rotate(Vector3 target, bool isDirection = false)
     {
-        float diff_x = target.x - transform.position.x;
-        float diff_y = target.y - transform.position.y;
+        float diff_x = isDirection ? target.x : target.x - transform.position.x;
+        float diff_y = isDirection ? target.y : target.y - transform.position.y;
         if (diff_x == 0) diff_x = 0.01f; // DevideByZero 방지
 
         float angle = Mathf.Atan(diff_x / diff_y) * Mathf.Rad2Deg * -1;
@@ -126,11 +128,26 @@ public class WeaponBase : MonoBehaviour
         if (diff_y < 0) spriteRenderer.flipY = true;
     }
 
-    protected virtual void TimeOver()
+    protected virtual IEnumerator TimeOver()
     {
-        if (weaponData.WeaponRemainTime == 0) return;
+        float timer = 0;
+        float timeLimit = weaponData.WeaponRemainTime * atkRemainTime;
+        while (gameObject.activeSelf)
+        {
+            if(GameManager.IsPaused)
+            {
+                yield return null;
+                continue;
+            }
 
-        gameObject.SetActive(false);
+            timer += Time.deltaTime;
+            if(timer > timeLimit)
+            {
+                gameObject.SetActive(false);
+                yield break;
+            }
+            yield return null;
+        }
     }
 
     //필수 개별 구현 함수

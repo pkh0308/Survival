@@ -11,7 +11,7 @@ public class Missile : WeaponBase
         direction.y = Random.Range(-5.0f, 5.0f);
         direction = direction.normalized * weaponData.WeaponProjectileSpeed;
         rigid.AddForce(direction, ForceMode2D.Impulse);
-        Rotate(direction);
+        Rotate(direction, true);
 
         StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.missile);
     }
@@ -25,12 +25,29 @@ public class Missile : WeaponBase
         StartCoroutine(Explode());
     }
     //지속시간 종료 시 Explode() 호출
-    protected override void TimeOver()
+    protected override IEnumerator TimeOver()
     {
-        if(coll.enabled) //아직 터지지 않았다면 실행
+        float timer = 0;
+        float timeLimit = weaponData.WeaponRemainTime * atkRemainTime;
+        while (gameObject.activeSelf)
         {
-            targetPos = transform.position;
-            StartCoroutine(Explode());
+            if (GameManager.IsPaused)
+            {
+                yield return null;
+                continue;
+            }
+
+            timer += Time.deltaTime;
+            if (timer > timeLimit)
+            {
+                if (coll.enabled) //아직 터지지 않았다면 실행
+                {
+                    targetPos = transform.position;
+                    StartCoroutine(Explode());
+                }
+                yield break;
+            }
+            yield return null;
         }
     }
 

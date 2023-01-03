@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Guardian : WeaponBase
@@ -8,9 +9,10 @@ public class Guardian : WeaponBase
     }
 
     //타임 오버 제거
-    protected override void TimeOver()
+    protected override IEnumerator TimeOver()
     {
         //별도로 구현할 내용 X
+        yield break;
     }
 
     //회전을 위해 update 함수 사용

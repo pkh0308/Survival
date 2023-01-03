@@ -59,17 +59,27 @@ public class UiManager : MonoBehaviour
     [Header("무기 획득")]
     [SerializeField] GameObject weaponSelectSet;
     [SerializeField] GameObject[] weaponSelectSlots;
+    Image[] weaponSelectSlots_Bg;
+
     DataForLevelUp[] levelupDatas;
     int curWeaponIdx;
     [SerializeField] Image[] weaponImages;
     [SerializeField] TextMeshProUGUI[] weaponName;
     [SerializeField] TextMeshProUGUI[] weaponDesc;
+    [SerializeField] GameObject[] levelUpStarSets;
+    [SerializeField] GameObject[] legandaryStars;
+    [SerializeField] GameObject[] levelUpStars_0;
+    [SerializeField] GameObject[] levelUpStars_1;
+    [SerializeField] GameObject[] levelUpStars_2;
+    List<GameObject[]> levelUpStars;
+    
 
     //보물상자 획득 관련
     [Header("보물 상자")]
     [SerializeField] GameObject lotterySet;
     [SerializeField] GameObject lotteryStartBtn;
     [SerializeField] Image[] lotterySlots;
+    [SerializeField] GameObject lotteryHighlightAnimation;
     [SerializeField] Image lotteryHighlight;
     [SerializeField] TextMeshProUGUI lotteryGoldText;
     [SerializeField] GameObject lotteryResultSet;
@@ -81,8 +91,8 @@ public class UiManager : MonoBehaviour
     [SerializeField] GameObject lotteryResStarForLegandary;
     [SerializeField] LotteryGold lotteryGold;
     Vector3 initialHighlightPos;
-    int lotteryTargetIdx;
     DataForLevelUp lotteryTargetData;
+    int lotteryTargetIdx;
 
     //스테이지 클리어 관련
     [Header("스테이지 클리어")]
@@ -112,13 +122,20 @@ public class UiManager : MonoBehaviour
         hpBarScale = Vector3.one;
         expBarScale = Vector3.one;
 
-        initialHighlightPos = lotteryHighlight.rectTransform.localPosition;
+        weaponSelectSlots_Bg = new Image[weaponSelectSlots.Length];
+        for (int i = 0; i < weaponSelectSlots.Length; i++)
+            weaponSelectSlots_Bg[i] = weaponSelectSlots[i].GetComponent<Image>();
+
+        levelUpStars = new List<GameObject[]>();
+        levelUpStars.Add(levelUpStars_0);
+        levelUpStars.Add(levelUpStars_1);
+        levelUpStars.Add(levelUpStars_2);
     }
 
     void Start()
     {
         UpdateKillCount(0);
-        UpdateMoneyCount(0);
+        UpdateGoldCount(0);
     }
 
     IEnumerator ShowDamage(int dmg, Vector3 pos)
@@ -214,7 +231,7 @@ public class UiManager : MonoBehaviour
         killCountText.text = string.Format("{0:n0}", count);
     }
 
-    public void UpdateMoneyCount(int count)
+    public void UpdateGoldCount(int count)
     {
         goldCountText.text = string.Format("{0:n0}", count);
     }
@@ -241,6 +258,26 @@ public class UiManager : MonoBehaviour
             weaponImages[i].sprite = SpriteContainer.getSprite(levelupDatas[i].id);
             weaponName[i].text = levelupDatas[i].name;
             weaponDesc[i].text = levelupDatas[i].description;
+            //업그레이드 무기일 경우
+            if(levelupDatas[i].id % 10 == 9)
+            {
+                weaponSelectSlots_Bg[i].sprite = SpriteContainer.getSprite(ObjectNames.weaponSelectSlotLegandary);
+                levelUpStarSets[i].SetActive(false);
+                legandaryStars[i].SetActive(true);
+            }
+            else
+            {
+                weaponSelectSlots_Bg[i].sprite = SpriteContainer.getSprite(ObjectNames.weaponSelectSlotNormal);
+
+                for (int k = 0; k < levelupDatas[i].level; k++)
+                    levelUpStars[i][k].SetActive(true);
+                for (int k = levelupDatas[i].level; k < levelUpStars[i].Length; k++)
+                    levelUpStars[i][k].SetActive(false);
+
+                levelUpStarSets[i].SetActive(true);
+                legandaryStars[i].SetActive(false);
+            }
+
             weaponSelectSlots[i].SetActive(true);
         }
         //획득 또는 업그레이드 가능한 무기가 3개 미만일 경우
@@ -315,20 +352,20 @@ public class UiManager : MonoBehaviour
         {
             idx = Random.Range(0, datas.Length);
             lotterySlots[i].sprite = SpriteContainer.getSprite(datas[idx].id);
-
         }
         lotteryTargetIdx = Random.Range(0, lotterySlots.Length);
+        lotteryTargetData = datas[lotteryTargetIdx];
 
         //업그레이드 가능한 무기가 있을 경우 무작위 슬롯 하나를 덮어씌우고,
-        //lotteryTargetIdx 업그레이드 무기 id로 고정
+        //lotteryTargetData를 업그레이드 무기로 고정
         if (id > 0) 
         {
             idx = Random.Range(0, lotterySlots.Length);
-            lotterySlots[idx].sprite = SpriteContainer.getSprite(datas[idx].id);
-            lotteryTargetIdx = id;
+            lotterySlots[idx].sprite = SpriteContainer.getSprite(id);
+            lotteryTargetIdx = idx;
+            lotteryTargetData = datas[0];
         }
-
-        lotteryTargetData = datas[lotteryTargetIdx];
+        
         lotterySet.SetActive(true);
         soundManager.PlayBgm((int)StageSoundManager.StageBgm.lotteryBgm);
     }
@@ -344,21 +381,43 @@ public class UiManager : MonoBehaviour
     {
         soundManager.PlayBgm((int)StageSoundManager.StageBgm.lotteryStart);
         //애니메이션 시간동안 대기
-        lotteryHighlight.gameObject.SetActive(true);
+        lotteryHighlightAnimation.SetActive(true);
         yield return new WaitForSeconds(2.5f);
 
         lotteryGold.LotteryStop();
-        //lotteryHighlight.rectTransform.localPosition = lotterySlots[lotteryTargetIdx].rectTransform.localPosition;
-        
+        lotteryHighlightAnimation.SetActive(false);
+        int quo = lotteryTargetIdx / 4, rem = lotteryTargetIdx % 4;
+        Vector2 posVec;
+        switch(quo)
+        {
+            case 0:
+                posVec = new Vector2(-180 + (90 * rem) , 180);
+                break;
+            case 1:
+                posVec = new Vector2(180, 180 - (90 * rem));
+                break;
+            case 2:
+                posVec = new Vector2(180 - (90 * rem), -180);
+                break;
+            case 3:
+                posVec = new Vector2(-180, -180 + (90 * rem));
+                break;
+            default:
+                posVec = new Vector3(-180, 180);
+                break;
+        }
+        lotteryHighlight.rectTransform.anchoredPosition = posVec;
+        lotteryHighlight.gameObject.SetActive(true);
+
         soundManager.StopBgm();
         soundManager.PlaySfx((int)StageSoundManager.StageSfx.lotteryEnd);
         yield return new WaitForSeconds(0.5f);
-        lotteryHighlight.transform.position = new Vector3(180, -165, 0);
+
         lotteryResultIcon.sprite = SpriteContainer.getSprite(lotteryTargetData.id);
         lotteryResName.text = lotteryTargetData.name;
-        lotteryResDesc.text = lotteryTargetData.description;
-        //업그레이드 무기일 경우
-        if(lotteryTargetData.id % 10 == 9)
+        lotteryResDesc.text = lotteryTargetData.description; 
+        //업그레이드 가능한 무기 존재 시
+        if (lotteryTargetData.id % 10 == 9)
         {
             lotteryStarSet.SetActive(false);
             lotteryResStarForLegandary.SetActive(true);
@@ -382,13 +441,11 @@ public class UiManager : MonoBehaviour
         lotteryResultSet.SetActive(false);
         lotteryHighlight.gameObject.SetActive(false);
         lotterySet.SetActive(false);
-        lotteryHighlight.rectTransform.localPosition = initialHighlightPos;
         lotteryStartBtn.SetActive(true);
 
         //골드 갱신
         GoldManager.Instance.PlusGold(lotteryGold.Gold);
-        UpdateMoneyCount(lotteryGold.Gold);
-        GameManager.moneyCountPlus(lotteryGold.Gold);
+        gameManager.EndTreasureBox(lotteryGold.Gold);
 
         //일시정지 해제 및 무기 코루틴 재시작
         gameManager.PauseOff();

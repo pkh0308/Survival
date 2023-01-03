@@ -20,6 +20,7 @@ public class Player : MonoBehaviour
     //캐릭터 스탯
     CharacterData characterData;
     PlayerStatus stat;
+    public static Action<PlayerStatus, int> updateStatus;
 
     //전투 관련
     int curHp;
@@ -49,7 +50,8 @@ public class Player : MonoBehaviour
         anim = GetComponent<Animator>();
         weaponLogic = GetComponent<Weapons>();
 
-        getHeal = (a) => { GetHeal(a); };
+        getHeal = (healValue) => { GetHeal(healValue); };
+        updateStatus = (status, id) => { UpdateStatus(status, id); };
 
         stat = PlayerStatusManager.getStatus();
         moveVec = Vector3.zero;
@@ -78,7 +80,6 @@ public class Player : MonoBehaviour
         stat.AddStatus(nameof(stat.PlayerdefVal), characterData.playerdef);
     }
 
-    // Update is called once per frame
     void Update()
     {
         playerPos = transform.position;
@@ -121,6 +122,14 @@ public class Player : MonoBehaviour
         transform.position += moveSpeed * stat.PlayerMoveSpeedVal * Time.fixedDeltaTime * moveVec;
     }
 
+    //스테이터스 정보 갱신
+    void UpdateStatus(PlayerStatus data, int id)
+    {
+        stat = data;
+        if (id == ObjectNames.acc_heart)
+            UpdateMaxHealth();
+    }
+
     //전투 관련
     void OnTriggerEnter2D(Collider2D col)
     {
@@ -129,6 +138,14 @@ public class Player : MonoBehaviour
             gameManager.GetItem(col.GetComponent<Item>().Consume());
             return;
         }
+    }
+
+    void UpdateMaxHealth()
+    {
+        int beforeMaxHp = maxHp;
+        maxHp = (int)(baseHp * stat.PlayerHealthVal);
+        curHp += maxHp - beforeMaxHp; //증가한 최대 체력만큼 현재 체력도 증가
+        uiManager.UpdateHp(curHp, maxHp);
     }
 
     public void GetHeal(int healVal)
