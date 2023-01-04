@@ -93,7 +93,7 @@ public class Player : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Escape))
         {
-            gameManager.Pause_Exit();
+            gameManager.Pause_Board();
         }
         if (Input.GetKeyDown(KeyCode.Return))
         {
@@ -176,6 +176,7 @@ public class Player : MonoBehaviour
     IEnumerator OnDie()
     {
         isDie = true;
+        weaponLogic.StopAllCoroutines();
         //anim.SetTrigger("OnDie");
 
         yield return new WaitForSeconds(1.5f);

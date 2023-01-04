@@ -13,9 +13,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] StageSoundManager soundManager;
     [SerializeField] GameObject stageEnder;
 
+    //상태 표시용 bool값
     static bool isPaused;
     public static bool IsPaused { get { return isPaused; } }
     bool gameOver;
+    bool onLevelUp;
+    bool onLottery;
 
     //타이머 관련
     WaitForSeconds oneSec;
@@ -57,7 +60,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] float levelUpInterval;
     WaitForSeconds levelUpSeconds;
     Coroutine levelUpRoutine;
-    bool onLevelUp;
 
     //카운트 관련
     public static Action killCountPlus;
@@ -74,6 +76,7 @@ public class GameManager : MonoBehaviour
 
         isPaused = false;
         onLevelUp = false;
+        onLottery = false;
 
         maxExp = Enumerable.Repeat<int>(100, 100).ToArray();
 
@@ -174,17 +177,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void Pause_Exit()
+    public void Pause_Board()
     {
-        isPaused = uiManager.Pause(isPaused);
-        if (isPaused)
-        {
-            StopMyCoroutines();
-        }
+        if (onLevelUp || onLottery) return;
+
+        if(uiManager.Pause(isPaused))
+            Pause();
         else
-        {
-            StartMyCoroutines();
-        }
+            PauseOff();
     }
 
     public void Pause()
@@ -201,7 +201,6 @@ public class GameManager : MonoBehaviour
 
         isPaused = false;
         StartMyCoroutines();
-        Weapons.restartWeapons();
     }
 
     void StartMyCoroutines()
@@ -209,6 +208,8 @@ public class GameManager : MonoBehaviour
         timerRoutine = StartCoroutine(Timer());
         spawnRoutine = StartCoroutine(Spawn());
         spawnItemBoxRoutine = StartCoroutine(SpawnItemBox());
+
+        if (onLevelUp) LevelUp();
     }
 
     void StopMyCoroutines()
@@ -216,6 +217,8 @@ public class GameManager : MonoBehaviour
         if (timerRoutine != null) StopCoroutine(timerRoutine);
         if (spawnRoutine != null) StopCoroutine(spawnRoutine);
         if (spawnItemBoxRoutine != null) StopCoroutine(spawnItemBoxRoutine);
+
+        if (onLevelUp) StopCoroutine(levelUpRoutine);
     }
 
     //적 스폰 관련
@@ -270,7 +273,6 @@ public class GameManager : MonoBehaviour
                 if (!onLevelUp && maxExp[maxExpIdx] <= curExp)
                     levelUpRoutine = StartCoroutine(LevelUpRoutine());
                 uiManager.UpdateExp(curExp, maxExp[maxExpIdx]);
-
                 break;
             }
             case ObjectNames.meat_50:
@@ -320,6 +322,7 @@ public class GameManager : MonoBehaviour
     public void GetTreasureBox()
     {
         Pause();
+        onLottery = true;
         if (onLevelUp) //레벨업 대기중일 경우 레벨업 루틴 정지
             StopCoroutine(levelUpRoutine);
         uiManager.ShowLottery();
@@ -328,6 +331,7 @@ public class GameManager : MonoBehaviour
     public void EndTreasureBox(int lotteryMoney)
     {
         UpdateGoldCount(lotteryMoney);
+        onLottery = false;
 
         if (onLevelUp) //레벨업 대기중일 경우 레벨업 루틴 재시작
         {
@@ -338,25 +342,25 @@ public class GameManager : MonoBehaviour
     //LevelUp 루틴 외부 호출용
     public void LevelUp()
     {
-        if (isPaused || gameOver) return;
+        if (isPaused || gameOver) return; 
         if (maxExp[maxExpIdx] > curExp)
         {
             onLevelUp = false;
             return;
         }
-
+        
         levelUpRoutine = StartCoroutine(LevelUpRoutine());
     }
     
     IEnumerator LevelUpRoutine()
     {
-        onLevelUp = true;
-        curExp -= maxExp[maxExpIdx];
+        onLevelUp = true; 
+        curExp -= maxExp[maxExpIdx]; 
         maxExpIdx++;
+        soundManager.PlaySfx((int)StageSoundManager.StageSfx.levelUp);
 
         yield return levelUpSeconds;
         Pause();
-        soundManager.PlaySfx((int)StageSoundManager.StageSfx.levelUp);
         uiManager.UpdateLevel(maxExpIdx + 1);
         uiManager.UpdateExp(curExp, maxExp[maxExpIdx]);
         uiManager.WeaponSelect();

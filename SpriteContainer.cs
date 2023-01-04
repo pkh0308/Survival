@@ -34,9 +34,12 @@ public class SpriteContainer : MonoBehaviour
     [SerializeField] Sprite acc_armor;
     [SerializeField] Sprite acc_sneakers;
 
-    [Header("무기 선택 슬롯")]
-    [SerializeField] Sprite weaponSelectSlotNormal;
-    [SerializeField] Sprite weaponSelectSlotLegandary;
+    [Header("기타 UI")]
+    [SerializeField] Sprite weaponSlotNormal;
+    [SerializeField] Sprite weaponSlotLegandary;
+    [SerializeField] Sprite blackStar;
+    [SerializeField] Sprite normalStar;
+    [SerializeField] Sprite legandaryStar;
 
     public static Func<int, Sprite> getSprite;
 
@@ -98,10 +101,17 @@ public class SpriteContainer : MonoBehaviour
                 return judgement;
             case ObjectNames.hellfireMine:
                 return hellfireMine;
-            case ObjectNames.weaponSelectSlotNormal:
-                return weaponSelectSlotNormal;
-            case ObjectNames.weaponSelectSlotLegandary:
-                return weaponSelectSlotLegandary;
+            //기타 UI
+            case ObjectNames.weaponSlotNormal:
+                return weaponSlotNormal;
+            case ObjectNames.weaponSlotLegandary:
+                return weaponSlotLegandary;
+            case ObjectNames.blackStar:
+                return blackStar;
+            case ObjectNames.normalStar:
+                return normalStar;
+            case ObjectNames.legandaryStar:
+                return legandaryStar;
             default:
                 return null;
         }

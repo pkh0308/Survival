@@ -102,6 +102,10 @@ public class StageSoundManager : MonoBehaviour
                 curSfxSource.clip = getExp;
                 curSfxSource.Play();
                 break;
+            case (int)StageSfx.levelUp:
+                curSfxSource.clip = levelUp;
+                curSfxSource.Play();
+                break;
             case (int)StageSfx.stageClear:
                 bgmAudioSource.Stop();
                 curSfxSource.clip = stageClear;

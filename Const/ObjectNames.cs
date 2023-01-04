@@ -76,6 +76,9 @@ public class ObjectNames
 
     //기타
     public const string text = "Text";
-    public const int weaponSelectSlotNormal = 10001;
-    public const int weaponSelectSlotLegandary = 10002;
+    public const int weaponSlotNormal = 10001;
+    public const int weaponSlotLegandary = 10002;
+    public const int blackStar = 10011;
+    public const int normalStar = 10012;
+    public const int legandaryStar = 10013;
 }

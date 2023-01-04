@@ -314,11 +314,11 @@ public class Weapons : MonoBehaviour
             int id = keys[Random.Range(0, keys.Count)];
             if (id < 3000) //무기
             {
-                if (curWeapons.TryGetValue(id, out WeaponData w_data) == false)
-                    datas.Add(new DataForLevelUp(weaponDic[id][0]));
-                else if (w_data.WeaponLevel < weaponDic[id].Length)
-                    datas.Add(new DataForLevelUp(weaponDic[id][w_data.WeaponLevel]));
-                else //가지고 있는 무기이며, 최대 레벨일 경우
+                if (curWeapons.TryGetValue(id, out WeaponData w_data) == false) //신규 획득
+                    datas.Add(new DataForLevelUp(weaponDic[id][0], weaponDic[id].Length));
+                else if (w_data.WeaponLevel < weaponDic[id].Length)  //보유중인 무기 레벨업
+                    datas.Add(new DataForLevelUp(weaponDic[id][w_data.WeaponLevel], weaponDic[id].Length));
+                else //보유중인 무기이며, 최대 레벨일 경우
                 {
                     int tempId = (id / 10 * 10) + 9; //업그레이드 무기 id
                     if (!legendaryWeaponDic.ContainsKey(tempId))  //업그레이드 무기가 없을 경우
@@ -331,9 +331,9 @@ public class Weapons : MonoBehaviour
             else // 악세사리
             {
                 if (curAccessories.TryGetValue(id, out AccessoryData a_data) == false)
-                    datas.Add(new DataForLevelUp(accesoryDic[id][0]));
+                    datas.Add(new DataForLevelUp(accesoryDic[id][0], accesoryDic[id].Length));
                 else if (a_data.AccessoryLevel < accesoryDic[id].Length)
-                    datas.Add(new DataForLevelUp(accesoryDic[id][a_data.AccessoryLevel]));
+                    datas.Add(new DataForLevelUp(accesoryDic[id][a_data.AccessoryLevel], accesoryDic[id].Length));
             }
 
             keys.Remove(id);
@@ -382,15 +382,18 @@ public class Weapons : MonoBehaviour
             int id = keys[Random.Range(0, keys.Count)];
             if (id < 3000) //무기
             {
-                if(id % 10 == 9) //업그레이드 무기일 경우
-                    datas.Add(new DataForLevelUp(legendaryWeaponDic[id]));
+                if(id % 10 == 9) //업그레이드 무기일 경우 제외
+                {
+                    keys.Remove(id);
+                    continue;
+                }  
                 else if (curWeapons[id].WeaponLevel < weaponDic[id].Length)
-                    datas.Add(new DataForLevelUp(weaponDic[id][curWeapons[id].WeaponLevel]));
+                    datas.Add(new DataForLevelUp(weaponDic[id][curWeapons[id].WeaponLevel], weaponDic[id].Length));
             }
             else if(id < 4000)// 악세사리
             {
                 if (curAccessories[id].AccessoryLevel < accesoryDic[id].Length)
-                    datas.Add(new DataForLevelUp(accesoryDic[id][curAccessories[id].AccessoryLevel]));
+                    datas.Add(new DataForLevelUp(accesoryDic[id][curAccessories[id].AccessoryLevel], accesoryDic[id].Length));
             }
             else //골드 or 회복 옵션
             {
@@ -520,47 +523,49 @@ public class Weapons : MonoBehaviour
 
     void StopWeaponRoutine(int id)
     {
+        Coroutine targetRoutine = null;
         switch (id)
         {
             //일반 무기
             case ObjectNames.soccerBall:
-                StopCoroutine(soccerBall);
+                targetRoutine = soccerBall;
                 break;
             case ObjectNames.shuriken:
-                StopCoroutine(shuriken);
+                targetRoutine = shuriken; 
                 break;
             case ObjectNames.defender:
-                StopCoroutine(defender);
+                targetRoutine = defender;
                 break;
             case ObjectNames.missile:
-                StopCoroutine(missile);
+                targetRoutine = missile;
                 break;
             case ObjectNames.thunder:
-                StopCoroutine(thunder);
+                targetRoutine = thunder;
                 break;
             case ObjectNames.explodeMine:
-                StopCoroutine(explodeMine);
+                targetRoutine = explodeMine;
                 break;
             //업그레이드 무기
             case ObjectNames.quantumBall:
-                StopCoroutine(quantumBall);
+                targetRoutine = quantumBall;
                 break;
             case ObjectNames.shadowEdge:
-                StopCoroutine(shadowEdge);
+                targetRoutine = shadowEdge;
                 break;
             case ObjectNames.guardian:
-                StopCoroutine(guardian);
+                targetRoutine = guardian;
                 break;
             case ObjectNames.sharkMissile:
-                StopCoroutine(sharkMissile);
+                targetRoutine = sharkMissile;
                 break;
             case ObjectNames.judgement:
-                StopCoroutine(judgement);
+                targetRoutine = judgement;
                 break;
             case ObjectNames.hellfireMine:
-                StopCoroutine(hellfireMine);
+                targetRoutine = hellfireMine;
                 break;
         }
+        if(targetRoutine != null) StopCoroutine(targetRoutine);
     }
 
     // 축구공
@@ -569,8 +574,14 @@ public class Weapons : MonoBehaviour
         soccerBallSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal);
         int maxProj = curWeapons[ObjectNames.soccerBall].WeaponProjectileCount + curStat.ProjCountVal;
 
-        while (!GameManager.IsPaused)
+        while (gameObject.activeSelf)
         {
+            if (GameManager.IsPaused)
+            {
+                yield return null;
+                continue;
+            }
+
             for (int i = 0; i < maxProj; i++)
             {
                 GameObject ball = objectManager.MakeObj(ObjectNames.soccerBall);
@@ -589,8 +600,14 @@ public class Weapons : MonoBehaviour
         int maxProj = curWeapons[ObjectNames.shuriken].WeaponProjectileCount + curStat.ProjCountVal;
         shurikenSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal - (0.1f * maxProj));
 
-        while (!GameManager.IsPaused)
+        while (gameObject.activeSelf)
         {
+            if (GameManager.IsPaused)
+            {
+                yield return null;
+                continue;
+            }
+
             for (int i = 0; i < maxProj; i++)
             {
                 GameObject shk = objectManager.MakeObj(ObjectNames.shuriken);
@@ -600,7 +617,6 @@ public class Weapons : MonoBehaviour
 
                 yield return projInterval;
             }
-
             yield return shurikenSec;
         }
     }
@@ -618,8 +634,14 @@ public class Weapons : MonoBehaviour
             curDefenders.Clear();
         }
 
-        while (!GameManager.IsPaused)
+        while (gameObject.activeSelf)
         {
+            if (GameManager.IsPaused)
+            {
+                yield return null;
+                continue;
+            }
+
             float rotateOffset = 360 / curWeapons[ObjectNames.defender].WeaponProjectileCount;
 
             curDefenders.Clear();
@@ -642,8 +664,14 @@ public class Weapons : MonoBehaviour
         int maxProj = curWeapons[ObjectNames.missile].WeaponProjectileCount + curStat.ProjCountVal;
         missileSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal - (0.1f * maxProj));
 
-        while (!GameManager.IsPaused)
+        while (gameObject.activeSelf)
         {
+            if (GameManager.IsPaused)
+            {
+                yield return null;
+                continue;
+            }
+
             for (int i = 0; i < maxProj; i++)
             {
                 GameObject mis = objectManager.MakeObj(ObjectNames.missile);
@@ -664,9 +692,15 @@ public class Weapons : MonoBehaviour
         WaitForSeconds projInterval = new WaitForSeconds(0.1f);
         int maxProj = curWeapons[ObjectNames.thunder].WeaponProjectileCount + curStat.ProjCountVal;
         thunderSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal - (0.1f * maxProj));
-        
-        while (!GameManager.IsPaused)
+
+        while (gameObject.activeSelf)
         {
+            if (GameManager.IsPaused)
+            {
+                yield return null;
+                continue;
+            }
+
             for (int i = 0; i < maxProj; i++)
             {
                 GameObject thd = objectManager.MakeObj(ObjectNames.thunder);
@@ -686,8 +720,14 @@ public class Weapons : MonoBehaviour
         explodeMineSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal);
         int maxProj = curWeapons[ObjectNames.explodeMine].WeaponProjectileCount + curStat.ProjCountVal;
 
-        while (!GameManager.IsPaused)
+        while (gameObject.activeSelf)
         {
+            if (GameManager.IsPaused)
+            {
+                yield return null;
+                continue;
+            }
+
             for (int i = 0; i < maxProj; i++)
             {
                 GameObject mine = objectManager.MakeObj(ObjectNames.explodeMine);
@@ -705,8 +745,14 @@ public class Weapons : MonoBehaviour
         quantumBallSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal);
         int maxProj = curWeapons[ObjectNames.quantumBall].WeaponProjectileCount + curStat.ProjCountVal;
 
-        while (!GameManager.IsPaused)
+        while (gameObject.activeSelf)
         {
+            if (GameManager.IsPaused)
+            {
+                yield return null;
+                continue;
+            }
+
             for (int i = 0; i < maxProj; i++)
             {
                 GameObject ball = objectManager.MakeObj(ObjectNames.quantumBall);
@@ -723,8 +769,14 @@ public class Weapons : MonoBehaviour
     {
         WaitForSeconds projInterval = new WaitForSeconds(0.1f);
 
-        while (!GameManager.IsPaused)
+        while (gameObject.activeSelf)
         {
+            if (GameManager.IsPaused)
+            {
+                yield return null;
+                continue;
+            }
+
             GameObject shd = objectManager.MakeObj(ObjectNames.shadowEdge);
             shd.transform.position = transform.position;
             shd.GetComponent<Shuriken>().Initialize(curWeapons[ObjectNames.shadowEdge],
@@ -765,8 +817,14 @@ public class Weapons : MonoBehaviour
         int maxProj = curWeapons[ObjectNames.sharkMissile].WeaponProjectileCount + curStat.ProjCountVal;
         sharkMissileSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal - (0.1f * maxProj));
 
-        while (!GameManager.IsPaused)
+        while (gameObject.activeSelf)
         {
+            if (GameManager.IsPaused)
+            {
+                yield return null;
+                continue;
+            }
+
             for (int i = 0; i < maxProj; i++)
             {
                 GameObject mis = objectManager.MakeObj(ObjectNames.sharkMissile);
@@ -787,8 +845,14 @@ public class Weapons : MonoBehaviour
         int maxProj = curWeapons[ObjectNames.judgement].WeaponProjectileCount + curStat.ProjCountVal;
         judgementSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal - (0.1f * maxProj));
 
-        while (!GameManager.IsPaused)
+        while (gameObject.activeSelf)
         {
+            if (GameManager.IsPaused)
+            {
+                yield return null;
+                continue;
+            }
+
             for (int i = 0; i < maxProj; i++)
             {
                 GameObject jud = objectManager.MakeObj(ObjectNames.judgement);
@@ -807,8 +871,14 @@ public class Weapons : MonoBehaviour
         hellfireMineSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal);
         int maxProj = curWeapons[ObjectNames.hellfireMine].WeaponProjectileCount + curStat.ProjCountVal;
 
-        while (!GameManager.IsPaused)
+        while (gameObject.activeSelf)
         {
+            if (GameManager.IsPaused)
+            {
+                yield return null;
+                continue;
+            }
+
             for (int i = 0; i < maxProj; i++)
             {
                 GameObject mine = objectManager.MakeObj(ObjectNames.hellfireMine);
