@@ -91,6 +91,9 @@ public class UiManager : MonoBehaviour
     int lotteryTargetIdx;
     Vector2 highlightOffset = new Vector2(40, -40);
 
+    [Header("보스 경고")]
+    [SerializeField] GameObject bossAlertSet;
+
     //스테이지 클리어 관련
     [Header("스테이지 클리어")]
     [SerializeField] GameObject stageClearSet;
@@ -222,6 +225,16 @@ public class UiManager : MonoBehaviour
     {
         hpBarScale.x = (float)cur / max;
         hpBar.rectTransform.localScale = hpBarScale;
+    }
+
+    //보스 경고
+    public IEnumerator BossAlert(float interval)
+    {
+        bossAlertSet.SetActive(true);
+        soundManager.PlaySfx((int)StageSoundManager.StageSfx.bossAlert);
+        yield return new WaitForSeconds(interval);
+
+        bossAlertSet.SetActive(false);
     }
 
     //카운트 관련

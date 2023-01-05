@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using MyMath;
 
 public class EnemyBullet : MonoBehaviour
 {
@@ -7,6 +8,7 @@ public class EnemyBullet : MonoBehaviour
     [SerializeField] float timeOutSec;
     int dmg;
     Rigidbody2D rigid;
+    SpriteRenderer spriteRenderer;
 
     //일시정지 대응
     bool isPaused;
@@ -15,6 +17,7 @@ public class EnemyBullet : MonoBehaviour
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     void Update()
@@ -50,6 +53,9 @@ public class EnemyBullet : MonoBehaviour
         this.dmg = dmg;
 
         rigid.AddForce(dir * projSpeed, ForceMode2D.Impulse);
+        transform.Rotate(MyRotation.Rotate(dir, out bool flip));
+        spriteRenderer.flipY = flip;
+
         StartCoroutine(TimeOver());
     }
 
@@ -66,5 +72,10 @@ public class EnemyBullet : MonoBehaviour
     {
         yield return new WaitForSeconds(timeOutSec);
         gameObject.SetActive(false);
+    }
+
+    void OnDisable()
+    {
+        transform.rotation = Quaternion.identity;
     }
 }

@@ -69,10 +69,15 @@ public class ObjectNames
 
     //몬스터
     public const int zombie = 100001;
+    public const int zombie_Unique = 100002;
+    public const int salesman = 100011;
+    public const int salesman_Unique = 100012;
     public const int monsterTree = 120001;
+    public const int bossAlert = 900001;
 
     //몬스터 투사체
     public const int stone = 200001;
+    public const int phone = 200011;
 
     //기타
     public const string text = "Text";

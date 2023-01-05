@@ -55,13 +55,19 @@ public class ObjectManager : MonoBehaviour
     //몬스터
     [Header("몬스터")]
     [SerializeField] GameObject zombiePrefab;
-    GameObject[] zombie;
+    [SerializeField] GameObject zombie_UniquePrefab;
+    [SerializeField] GameObject salesmanPrefab;
     [SerializeField] GameObject monsterTreePrefab;
+    GameObject[] zombie;
+    GameObject[] zombie_Unique;
+    GameObject[] salesman;
     GameObject[] monsterTree;
 
     [Header("몬스터 투사체")]
     [SerializeField] GameObject stonePrefab;
+    [SerializeField] GameObject phonePrefab;
     GameObject[] stone;
+    GameObject[] phone;
 
     //경험치 젬
     [Header("경험치 젬")]
@@ -137,10 +143,13 @@ public class ObjectManager : MonoBehaviour
 
         //몬스터
         zombie = new GameObject[300];
-        monsterTree = new GameObject[10];
+        zombie_Unique = new GameObject[10];
+        salesman = new GameObject[300];
+        monsterTree = new GameObject[3];
 
         //몬스터 투사체
         stone = new GameObject[100];
+        phone = new GameObject[100];
 
         //경험치 젬
         expGemLow = new GameObject[1000];
@@ -214,6 +223,16 @@ public class ObjectManager : MonoBehaviour
             zombie[idx] = Instantiate(zombiePrefab);
             zombie[idx].SetActive(false);
         }
+        for (int idx = 0; idx < zombie_Unique.Length; idx++)
+        {
+            zombie_Unique[idx] = Instantiate(zombie_UniquePrefab);
+            zombie_Unique[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < salesman.Length; idx++)
+        {
+            salesman[idx] = Instantiate(salesmanPrefab);
+            salesman[idx].SetActive(false);
+        }
         for (int idx = 0; idx < monsterTree.Length; idx++)
         {
             monsterTree[idx] = Instantiate(monsterTreePrefab);
@@ -224,6 +243,11 @@ public class ObjectManager : MonoBehaviour
         {
             stone[idx] = Instantiate(stonePrefab);
             stone[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < phone.Length; idx++)
+        {
+            phone[idx] = Instantiate(phonePrefab);
+            phone[idx].SetActive(false);
         }
 
         //무기 투사체
@@ -441,12 +465,21 @@ public class ObjectManager : MonoBehaviour
             case ObjectNames.zombie:
                 targetPool = zombie;
                 break;
+            case ObjectNames.zombie_Unique:
+                targetPool = zombie_Unique;
+                break;
+            case ObjectNames.salesman:
+                targetPool = salesman;
+                break;
             case ObjectNames.monsterTree:
                 targetPool = monsterTree;
                 break;
             //몬스터 투사체
             case ObjectNames.stone:
                 targetPool = stone;
+                break;
+            case ObjectNames.phone:
+                targetPool = phone;
                 break;
             //아이템
             case ObjectNames.gold_10:

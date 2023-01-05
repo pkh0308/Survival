@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
     int curSpawnIdx;
     Vector3 spawnOffset;
     [SerializeField] float spawnDistance;
-    [SerializeField] float maxStageTime;
+    public static Action bossDie;
 
     //경험치 관련
     int curExp;
@@ -89,6 +89,7 @@ public class GameManager : MonoBehaviour
         spawnList = new List<EnemySpawnData>();
         curStageIdx = LoadingSceneManager.getCurStageIdx();
         curSpawnIdx = 0;
+        bossDie = () => { BossDie(); };
 
         spawnItemBoxInterval = new WaitForSeconds(spawnItemBoxTime);
 
@@ -172,8 +173,6 @@ public class GameManager : MonoBehaviour
             yield return oneSec;
             seconds++;
             uiManager.UpdateTimer(seconds);
-
-            if (seconds == maxStageTime) StartCoroutine(StageClear());
         }
     }
 
@@ -230,7 +229,11 @@ public class GameManager : MonoBehaviour
             if (curSpawnIdx >= spawnList.Count) break;
 
             EnemySpawnData curData = spawnList[curSpawnIdx];
-            if (curData.enemyId != 0)
+            if(curData.enemyId == ObjectNames.bossAlert)
+            {
+                StartCoroutine(BossReady(curData.interval));
+            }
+            else if(curData.enemyId != 0)
             {
                 curEnemy = objectManager.MakeObj(curData.enemyId);
                 spawnOffset = Quaternion.Euler(0, 0, UnityEngine.Random.Range(0, 360)) * Vector3.right * spawnDistance; //랜덤 벡터값 생성
@@ -240,6 +243,17 @@ public class GameManager : MonoBehaviour
 
             yield return new WaitForSeconds(curData.interval);
         }
+    }
+
+    IEnumerator BossReady(float interval)
+    {
+        StartCoroutine(uiManager.BossAlert(interval - 0.5f));
+        yield return new WaitForSeconds(interval - 0.5f);
+
+        stageEnder.SetActive(true);
+        yield return new WaitForSeconds(0.4f);
+
+        stageEnder.SetActive(false);
     }
 
     //아이템 박스 스폰
@@ -379,12 +393,15 @@ public class GameManager : MonoBehaviour
         uiManager.UpdateGoldCount(goldCount);
     }
 
+    public void BossDie()
+    {
+        StartCoroutine(StageClear());
+    }
+
     //스테이지 클리어
     IEnumerator StageClear()
     {
         gameOver = true;
-        //모든 적 사망처리
-        stageEnder.SetActive(true);
 
         yield return new WaitForSeconds(3.0f);
         isPaused = true;

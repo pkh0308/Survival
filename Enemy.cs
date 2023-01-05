@@ -9,8 +9,8 @@ public class Enemy : MonoBehaviour
     protected SpriteRenderer spriteRenderer;
     
     //몬스터 타입
-    public enum enemyType { Normal, Boss }
-    [SerializeField] enemyType monsterType;
+    public enum enemyType { Normal, Unique, Boss }
+    [SerializeField] enemyType type;
 
     protected bool isDie;
     protected WaitForSeconds dieSec;
@@ -65,7 +65,7 @@ public class Enemy : MonoBehaviour
         rangeAtkSec = new WaitForSeconds(rangeAtkInterval);
         if (rangePow > 0)
             rangeAtkRoutine = StartCoroutine(RangeAttack());
-        if (monsterType == enemyType.Boss)
+        if (type == enemyType.Boss)
             BossRoutine();
     }
 
@@ -146,7 +146,7 @@ public class Enemy : MonoBehaviour
         else
             curHp -= dmg;
 
-        if (monsterType != enemyType.Boss) //보스가 아닐때만 밀치기 적용
+        if (type == enemyType.Normal) //일반 몹만 밀치기 적용
         {
             rigid.AddForce(vec, ForceMode2D.Impulse);
             Invoke(nameof(StopForce), 0.3f);
@@ -174,12 +174,14 @@ public class Enemy : MonoBehaviour
 
         yield return dieSec;
         gameObject.SetActive(false);
+        if (type == enemyType.Boss)
+            GameManager.bossDie();
     }
 
     void DropItem()
     {
-        //보스일 경우
-        if(monsterType == enemyType.Boss)
+        //네임드일 경우 보물상자 드랍
+        if(type == enemyType.Unique)
         {
             GameObject box = ObjectManager.makeObj(ObjectNames.treasureBox);
             box.transform.position = transform.position;
@@ -213,8 +215,8 @@ public class Enemy : MonoBehaviour
             StartCoroutine(OnDie(true));
             return;
         }
-        //폭탄 습득 시 처리(보스는 제외)
-        if (col.gameObject.CompareTag(Tags.bomb) && monsterType != enemyType.Boss)
+        //폭탄 습득 시 처리(네임드, 보스 제외)
+        if (col.gameObject.CompareTag(Tags.bomb) && type == enemyType.Normal)
         {
             StartCoroutine(OnDie());
             return;
