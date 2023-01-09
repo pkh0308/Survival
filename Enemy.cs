@@ -7,6 +7,8 @@ public class Enemy : MonoBehaviour
     protected Animator anim;
     protected BoxCollider2D boxCol;
     protected SpriteRenderer spriteRenderer;
+    protected Coroutine velocityControllRoutine;
+    protected float velocityCutTime;
     
     //몬스터 타입
     public enum enemyType { Normal, Unique, Boss }
@@ -63,6 +65,8 @@ public class Enemy : MonoBehaviour
         curHp = maxHp;
         meleeAtkSec = new WaitForSeconds(0.1f);
         rangeAtkSec = new WaitForSeconds(rangeAtkInterval);
+        velocityCutTime = 0.5f;
+
         if (rangePow > 0)
             rangeAtkRoutine = StartCoroutine(RangeAttack());
         if (type == enemyType.Boss)
@@ -90,6 +94,7 @@ public class Enemy : MonoBehaviour
         
         Move();
         Flip();
+        VelocityControll();
     }
 
     void Move()
@@ -107,6 +112,21 @@ public class Enemy : MonoBehaviour
             spriteRenderer.flipX = true;
         else if(Player.playerPos.x > transform.position.x && spriteRenderer.flipX)
             spriteRenderer.flipX = false;
+    }
+
+    void VelocityControll()
+    {
+        if (rigid.velocity == Vector2.zero) return;
+
+        if(velocityControllRoutine == null) 
+            velocityControllRoutine = StartCoroutine(VelocityCut());
+    }
+
+    IEnumerator VelocityCut()
+    {
+        yield return new WaitForSeconds(velocityCutTime);
+        rigid.velocity = Vector2.zero;
+        velocityControllRoutine = null;
     }
 
     void Pause()
@@ -149,13 +169,7 @@ public class Enemy : MonoBehaviour
         if (type == enemyType.Normal) //일반 몹만 밀치기 적용
         {
             rigid.AddForce(vec, ForceMode2D.Impulse);
-            Invoke(nameof(StopForce), 0.3f);
         } 
-    }
-
-    void StopForce()
-    {
-        rigid.velocity = Vector3.zero;
     }
 
     IEnumerator OnDie(bool timeOver = false)
@@ -199,24 +213,28 @@ public class Enemy : MonoBehaviour
         gem.transform.position = transform.position;
     }
 
-    void OnTriggerEnter2D(Collider2D col)
+    void OnCollisionEnter2D(Collision2D col)
     {
-        if(col.gameObject.CompareTag(Tags.player))
+        if (col.gameObject.CompareTag(Tags.player))
         {
-            if (col.TryGetComponent<Player>(out target))
+            if (col.gameObject.TryGetComponent<Player>(out target))
             {
                 meleeAtkRoutine = StartCoroutine(MeleeAttack());
                 return;
             }
         }
+    }
+
+    void OnTriggerEnter2D(Collider2D col)
+    {
         //스테이지 클리어 시 처리(타임 아웃)
-        if (col.gameObject.CompareTag(Tags.stageEnder))
+        if (col.CompareTag(Tags.stageEnder))
         {
             StartCoroutine(OnDie(true));
             return;
         }
         //폭탄 습득 시 처리(네임드, 보스 제외)
-        if (col.gameObject.CompareTag(Tags.bomb) && type == enemyType.Normal)
+        if (col.CompareTag(Tags.bomb) && type == enemyType.Normal)
         {
             StartCoroutine(OnDie());
             return;
@@ -247,7 +265,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    void OnTriggerExit2D(Collider2D col)
+    void OnCollisionExit2D(Collision2D col)
     {
         if (col.gameObject.CompareTag(Tags.player))
         {

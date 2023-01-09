@@ -74,6 +74,7 @@ public class ObjectNames
     public const int salesman_Unique = 100012;
     public const int monsterTree = 120001;
     public const int bossAlert = 900001;
+    public const int bossArea = 900011;
 
     //몬스터 투사체
     public const int stone = 200001;

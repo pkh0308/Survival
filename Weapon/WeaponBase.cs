@@ -17,7 +17,7 @@ public class WeaponBase : MonoBehaviour
 
     //일시정지 대응
     protected bool isPaused;
-    Vector2 rigidVelocity;
+    protected Vector2 initialVelocity;
 
     //기본 스케일
     protected Vector3 initialScale;
@@ -70,14 +70,14 @@ public class WeaponBase : MonoBehaviour
     void Pause()
     {
         isPaused = true;
-        rigidVelocity = rigid.velocity;
+        initialVelocity = rigid.velocity;
         rigid.velocity = Vector2.zero;
     }
 
     void PauseOff()
     {
         isPaused = false;
-        rigid.velocity = rigidVelocity;
+        rigid.velocity = initialVelocity;
     }
 
     void OnDisable()

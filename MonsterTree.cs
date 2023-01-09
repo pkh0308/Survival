@@ -4,7 +4,6 @@ using UnityEngine;
 public class MonsterTree : Enemy
 {
     [SerializeField] float octoShootInterval;
-    WaitForSeconds octoShootSec;
     Vector3[] directions;
 
     protected override void BossRoutine()
@@ -24,8 +23,7 @@ public class MonsterTree : Enemy
         directions[6] = new Vector3(0.7f, -0.7f, 0);
         directions[7] = new Vector3(-0.7f, -0.7f, 0);
 
-        octoShootSec = new WaitForSeconds(octoShootInterval);
-
+        float count = 0;
         while (!isDie)
         {
             if(GameManager.IsPaused)
@@ -34,13 +32,18 @@ public class MonsterTree : Enemy
                 continue;
             }
 
-            yield return octoShootSec; 
-            for(int i = 0; i < directions.Length; i++)
+            count += Time.deltaTime;
+            if(count > octoShootInterval)
             {
-                GameObject bullet = ObjectManager.makeObj(bulletId);
-                bullet.transform.position = transform.position;
-                bullet.GetComponent<EnemyBullet>().Shoot(rangePow, directions[i]);
+                for (int i = 0; i < directions.Length; i++)
+                {
+                    GameObject bullet = ObjectManager.makeObj(bulletId);
+                    bullet.transform.position = transform.position;
+                    bullet.GetComponent<EnemyBullet>().Shoot(rangePow, directions[i]);
+                }
+                count = 0;
             }
+            yield return null;
         }
     }
 }

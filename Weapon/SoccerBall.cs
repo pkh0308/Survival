@@ -8,6 +8,7 @@ public class SoccerBall : WeaponBase
         direction.y = Random.Range(-5.0f, 5.0f);
         direction = direction.normalized * weaponData.WeaponProjectileSpeed;
         rigid.AddForce(direction, ForceMode2D.Impulse);
+        initialVelocity = rigid.velocity;
 
         StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.soccerBall);
     }

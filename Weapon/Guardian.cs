@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class Guardian : WeaponBase
 {
+    [SerializeField] float knuckbackOffset;
+
     protected override void IndividualInitialize()
     {
         //별도로 구현할 내용 X
@@ -29,10 +31,13 @@ public class Guardian : WeaponBase
 
         //적 탄환 제거
         if (col.CompareTag(Tags.enemyBullet))
+        {
             col.gameObject.SetActive(false);
-
+            return;
+        }
+        //적 타격(넉백 포함)
         col.GetComponent<Enemy>().OnDamaged((int)(weaponData.WeaponAtk * atkPower),
-                                            (col.transform.position - Player.playerPos).normalized * 5.0f);
+                                            (col.transform.position - Player.playerPos).normalized * knuckbackOffset);
         AcmDmg((int)(weaponData.WeaponAtk * atkPower));
     }
 }

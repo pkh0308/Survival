@@ -12,7 +12,7 @@ public class EnemyBullet : MonoBehaviour
 
     //일시정지 대응
     bool isPaused;
-    Vector2 rigidVelocity;
+    Vector2 beforeVelocity;
 
     void Awake()
     {
@@ -38,14 +38,14 @@ public class EnemyBullet : MonoBehaviour
     void Pause()
     {
         isPaused = true;
-        rigidVelocity = rigid.velocity;
+        beforeVelocity = rigid.velocity;
         rigid.velocity = Vector2.zero;
     }
 
     void PauseOff()
     {
         isPaused = false;
-        rigid.velocity = rigidVelocity;
+        rigid.velocity = beforeVelocity;
     }
 
     public void Shoot(int dmg, Vector3 dir)
@@ -70,8 +70,19 @@ public class EnemyBullet : MonoBehaviour
 
     IEnumerator TimeOver()
     {
-        yield return new WaitForSeconds(timeOutSec);
-        gameObject.SetActive(false);
+        float count = 0;
+        while(gameObject.activeSelf)
+        {
+            if(isPaused) //일시정지 상태인 동안은 대기
+            {
+                yield return null;
+                continue;
+            }
+            count += Time.deltaTime;
+            if(count > timeOutSec)
+                gameObject.SetActive(false);
+            yield return null;
+        }
     }
 
     void OnDisable()

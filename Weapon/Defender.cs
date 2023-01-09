@@ -2,17 +2,17 @@
 
 public class Defender : WeaponBase
 {
+    [SerializeField] float knuckbackOffset;
+
     protected override void IndividualInitialize()
     {
-        StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.defender);
+        //별도로 구현할 내용 X
     }
 
     //회전을 위해 update 함수 사용
     void Update()
     {
         transform.RotateAround(Player.playerPos, Vector3.forward, weaponData.WeaponProjectileSpeed * Time.deltaTime);
-
-        if (GameManager.IsPaused) gameObject.SetActive(false);
     }
 
     void OnTriggerEnter2D(Collider2D col)
@@ -21,10 +21,13 @@ public class Defender : WeaponBase
 
         //적 탄환 제거
         if(col.CompareTag(Tags.enemyBullet))
+        {
             col.gameObject.SetActive(false);
-
+            return;
+        }
+        //적 피격 로직 호출
         col.GetComponent<Enemy>().OnDamaged((int)(weaponData.WeaponAtk * atkPower), 
-                                            (col.transform.position - Player.playerPos).normalized * 5.0f);
+                                            (col.transform.position - Player.playerPos).normalized * knuckbackOffset);
         AcmDmg((int)(weaponData.WeaponAtk * atkPower));
     }
 }

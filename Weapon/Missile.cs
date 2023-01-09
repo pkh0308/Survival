@@ -11,6 +11,7 @@ public class Missile : WeaponBase
         direction.y = Random.Range(-5.0f, 5.0f);
         direction = direction.normalized * weaponData.WeaponProjectileSpeed;
         rigid.AddForce(direction, ForceMode2D.Impulse);
+        initialVelocity = rigid.velocity;
         Rotate(direction, true);
 
         StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.missile);

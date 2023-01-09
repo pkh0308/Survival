@@ -2,12 +2,14 @@
 
 public class Shuriken : WeaponBase
 {
+    [SerializeField] float searchDistance;
+
     protected override void IndividualInitialize()
     {
-        Collider2D[] cols = Physics2D.OverlapCircleAll(transform.position, 15.0f, LayerMask.GetMask("Enemy"));
+        Collider2D[] cols = Physics2D.OverlapCircleAll(transform.position, searchDistance, LayerMask.GetMask("Enemy")); 
         if (cols.Length > 0)
         {
-            float min = 1000;
+            float min = 1000; 
             int minIdx = 0;
             for(int i = 0; i < cols.Length; i++)
             {
@@ -29,6 +31,7 @@ public class Shuriken : WeaponBase
         }
 
         rigid.AddForce(direction * weaponData.WeaponProjectileSpeed * projSpeed, ForceMode2D.Impulse);
+        initialVelocity = rigid.velocity;
         StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.shuriken);
     }
 

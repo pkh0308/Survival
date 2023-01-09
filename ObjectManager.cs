@@ -103,6 +103,11 @@ public class ObjectManager : MonoBehaviour
     [SerializeField] GameObject treasureBoxPrefab;
     GameObject[] treasureBox;
 
+    //기타
+    [Header("기타")]
+    [SerializeField] GameObject bossAreaPrefab;
+    GameObject[] bossArea;
+
     //UI
     [Header("UI")]
     [SerializeField] Canvas minorCanvas;
@@ -169,6 +174,9 @@ public class ObjectManager : MonoBehaviour
 
         //보물 상자
         treasureBox = new GameObject[50];
+
+        //기타
+        bossArea = new GameObject[5];
 
         //UI_텍스트
         texts = new TextMeshProUGUI[1000];
@@ -381,6 +389,12 @@ public class ObjectManager : MonoBehaviour
             treasureBox[idx] = Instantiate(treasureBoxPrefab);
             treasureBox[idx].SetActive(false);
         }
+        //기타
+        for (int idx = 0; idx < bossArea.Length; idx++)
+        {
+            bossArea[idx] = Instantiate(bossAreaPrefab);
+            bossArea[idx].SetActive(false);
+        }
 
         //텍스트
         for (int idx = 0; idx < texts.Length; idx++)
@@ -507,6 +521,10 @@ public class ObjectManager : MonoBehaviour
             //보물 상자
             case ObjectNames.treasureBox:
                 targetPool = treasureBox;
+                break;
+            //기타
+            case ObjectNames.bossArea:
+                targetPool = bossArea;
                 break;
         }
 

@@ -9,8 +9,9 @@ public class Player : MonoBehaviour
 
     GameManager gameManager;
     UiManager uiManager;
-
     Weapons weaponLogic;
+
+    Rigidbody2D rigid;
     SpriteRenderer spriteRender;
     Animator anim;
 
@@ -49,6 +50,7 @@ public class Player : MonoBehaviour
         spriteRender = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         weaponLogic = GetComponent<Weapons>();
+        rigid = GetComponent<Rigidbody2D>();
 
         getHeal = (healValue) => { GetHeal(healValue); };
         updateStatus = (status, id) => { UpdateStatus(status, id); };
@@ -94,10 +96,25 @@ public class Player : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Escape))
         {
             gameManager.Pause_Board();
+            return;
         }
+
         if (Input.GetKeyDown(KeyCode.Return))
         {
             uiManager.InputEnter();
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            uiManager.InputUpDown(KeyCode.UpArrow);
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            uiManager.InputUpDown(KeyCode.DownArrow);
+            return;
         }
     }
 
@@ -118,8 +135,8 @@ public class Player : MonoBehaviour
 
         if (moveVec.x < 0) spriteRender.flipX = true;
         else if(moveVec.x > 0) spriteRender.flipX = false;
-        
-        transform.position += moveSpeed * stat.PlayerMoveSpeedVal * Time.fixedDeltaTime * moveVec;
+
+        rigid.transform.Translate(moveSpeed * stat.PlayerMoveSpeedVal * Time.fixedDeltaTime * moveVec);
     }
 
     //스테이터스 정보 갱신
@@ -165,7 +182,7 @@ public class Player : MonoBehaviour
         {
             curHp = 0;
             uiManager.UpdateHp(curHp, maxHp);
-            StartCoroutine(OnDie());
+            OnDie();
             return;
         }
 
@@ -173,13 +190,12 @@ public class Player : MonoBehaviour
         uiManager.UpdateHp(curHp, maxHp);
     }
 
-    IEnumerator OnDie()
+    void OnDie()
     {
         isDie = true;
         weaponLogic.StopAllCoroutines();
-        //anim.SetTrigger("OnDie");
-
-        yield return new WaitForSeconds(1.5f);
-        gameManager.GameOver();
+        StageSoundManager.playSfx((int)StageSoundManager.StageSfx.playerDeath);
+        anim.SetTrigger("OnDie");
+        gameManager.PlayerDie();
     }
 }

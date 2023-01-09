@@ -20,6 +20,7 @@ public class Weapons : MonoBehaviour
     Dictionary<int, WeaponData> curWeapons;
     int curMaxWeapons;
     public static Action restartWeapons;
+    [SerializeField] float projInterval;
 
     //악세사리 정보
     Dictionary<int, AccessoryData[]> accesoryDic;
@@ -39,51 +40,51 @@ public class Weapons : MonoBehaviour
 
     //축구공
     Coroutine soccerBall;
-    WaitForSeconds soccerBallSec;
+    float soccerBallCount = 0;
 
     //수리검
     Coroutine shuriken;
-    WaitForSeconds shurikenSec;
+    float shurikenCount = 0;
 
     //수비수
     Coroutine defender;
-    WaitForSeconds defenderSec;
-    List<GameObject> curDefenders;
+    float defenderCount = 0;
 
     //로켓 미사일
     Coroutine missile;
-    WaitForSeconds missileSec;
+    float missileCount = 0;
 
     //낙뢰
     Coroutine thunder;
-    WaitForSeconds thunderSec;
+    float thunderCount = 0;
 
     //지뢰
     Coroutine explodeMine;
-    WaitForSeconds explodeMineSec;
+    float explodeMineCount = 0;
 
     //양자 공
     Coroutine quantumBall;
-    WaitForSeconds quantumBallSec;
+    float quantumBallCount = 0;
 
     //그림자 칼날
     Coroutine shadowEdge;
+    float shadowEdgeCount = 0;
 
     //수호자
     Coroutine guardian;
-    WaitForSeconds guardianSec;
+    float guardianCount = 0;
 
     //상어부리포
     Coroutine sharkMissile;
-    WaitForSeconds sharkMissileSec;
+    float sharkMissileCount = 0;
 
     //천벌
     Coroutine judgement;
-    WaitForSeconds judgementSec;
+    float judgementCount = 0;
 
     //지옥불
     Coroutine hellfireMine;
-    WaitForSeconds hellfireMineSec;
+    float hellfireMineCount = 0;
 
     void Awake()
     {
@@ -96,8 +97,6 @@ public class Weapons : MonoBehaviour
 
         acmDmgDic = new Dictionary<int, int>();
         totalDmg = 0;
-
-        curDefenders = new List<GameObject>();
 
         restartWeapons = () => { RestartWeapons(); };
         accumulateDmg = (a, b) => { AccumulateDmg(a, b); };
@@ -250,10 +249,11 @@ public class Weapons : MonoBehaviour
             UiManager.updateWeaponAccList(id);
             acmDmgDic.Add(id, acmDmgDic[beforeId]);
             acmDmgDic.Remove(beforeId);
-
+            StartWeaponRoutine(id, true);
             return;
         }
 
+        bool isNew = false;
         if (curWeapons.ContainsKey(id))
             curWeapons[id] = weaponDic[id][curWeapons[id].WeaponLevel];
         else
@@ -261,12 +261,13 @@ public class Weapons : MonoBehaviour
             curWeapons.Add(id, weaponDic[id][0]);
             UiManager.updateWeaponAccList(id);
             acmDmgDic.Add(id, 0);
+            isNew = true;
         }
         //무기가 최고 레벨일 경우
         if (curWeapons[id].WeaponLevel == weaponDic[id].Length)
             curMaxWeapons++;
 
-        if (!GameManager.IsPaused) StartWeaponRoutine(id);
+        StartWeaponRoutine(id, isNew);
     }
 
     public void GetAccesssory(int id)
@@ -434,7 +435,7 @@ public class Weapons : MonoBehaviour
     {
         List<int> keys = new List<int>(curWeapons.Keys);
         for(int i = 0; i < keys.Count; i++)
-            StartWeaponRoutine(keys[i]);
+            StartWeaponRoutine(keys[i], false);
     }
 
     //데미지 누적
@@ -464,59 +465,59 @@ public class Weapons : MonoBehaviour
 
     //신규 무기 획득 시 호출
     //혼선 방지를 위해 해당 무기의 코루틴이 null이 아니면 정지 후 재시작
-    void StartWeaponRoutine(int id)
+    void StartWeaponRoutine(int id, bool isNew)
     {
         switch(id)
         {
             //일반 무기
             case ObjectNames.soccerBall:
                 if (soccerBall != null) StopCoroutine(soccerBall);
-                soccerBall = StartCoroutine(SoccerBall(curWeapons[id].WeaponCooltime));
+                soccerBall = StartCoroutine(SoccerBall(isNew));
                 break;
             case ObjectNames.shuriken:
                 if (shuriken != null) StopCoroutine(shuriken);
-                shuriken = StartCoroutine(Shuriken(curWeapons[id].WeaponCooltime));
+                shuriken = StartCoroutine(Shuriken(isNew));
                 break;
             case ObjectNames.defender:
                 if (defender != null) StopCoroutine(defender);
-                defender = StartCoroutine(Defender(curWeapons[id].WeaponCooltime));
+                defender = StartCoroutine(Defender(isNew));
                 break;
             case ObjectNames.missile:
                 if (missile != null) StopCoroutine(missile);
-                missile = StartCoroutine(Missile(curWeapons[id].WeaponCooltime));
+                missile = StartCoroutine(Missile(isNew));
                 break;
             case ObjectNames.thunder:
                 if (thunder != null) StopCoroutine(thunder);
-                thunder = StartCoroutine(Thunder(curWeapons[id].WeaponCooltime));
+                thunder = StartCoroutine(Thunder(isNew));
                 break;
             case ObjectNames.explodeMine:
                 if (explodeMine != null) StopCoroutine(explodeMine);
-                explodeMine = StartCoroutine(ExplodeMine(curWeapons[id].WeaponCooltime));
+                explodeMine = StartCoroutine(ExplodeMine(isNew));
                 break;
             //업그레이드 무기
             case ObjectNames.quantumBall:
                 if (quantumBall != null) StopCoroutine(quantumBall);
-                quantumBall = StartCoroutine(QuantumBall(curWeapons[id].WeaponCooltime));
+                quantumBall = StartCoroutine(QuantumBall(isNew));
                 break;
             case ObjectNames.shadowEdge:
                 if (shadowEdge != null) StopCoroutine(shadowEdge);
-                shadowEdge = StartCoroutine(ShadowEdge());
+                shadowEdge = StartCoroutine(ShadowEdge(isNew));
                 break;
             case ObjectNames.guardian:
                 if (guardian != null) break;
-                guardian = StartCoroutine(Guardian());
+                guardian = StartCoroutine(Guardian(isNew));
                 break;
             case ObjectNames.sharkMissile:
                 if (sharkMissile != null) StopCoroutine(sharkMissile);
-                sharkMissile = StartCoroutine(SharkMissile(curWeapons[id].WeaponCooltime));
+                sharkMissile = StartCoroutine(SharkMissile(isNew));
                 break;
             case ObjectNames.judgement:
                 if (judgement != null) StopCoroutine(judgement);
-                judgement = StartCoroutine(Judgement(curWeapons[id].WeaponCooltime));
+                judgement = StartCoroutine(Judgement(isNew));
                 break;
             case ObjectNames.hellfireMine:
                 if (hellfireMine != null) StopCoroutine(hellfireMine);
-                hellfireMine = StartCoroutine(HellfireMine(curWeapons[id].WeaponCooltime));
+                hellfireMine = StartCoroutine(HellfireMine(isNew));
                 break;
         }
     }
@@ -568,324 +569,370 @@ public class Weapons : MonoBehaviour
         if(targetRoutine != null) StopCoroutine(targetRoutine);
     }
 
-    // 축구공
-    IEnumerator SoccerBall(float cooldown)
+    void CreateWeaponProj(int id, bool initializePos = false)
     {
-        soccerBallSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal);
+        GameObject obj = objectManager.MakeObj(id);
+        if (initializePos) obj.transform.position = transform.position;
+        obj.GetComponent<WeaponBase>().Initialize(curWeapons[id],
+                                                  curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
+    }
+
+    // 축구공
+    IEnumerator SoccerBall(bool isNew = false)
+    {
+        float soccerBallSec = curWeapons[ObjectNames.soccerBall].WeaponCooltime * curStat.CoolTimeVal;
         int maxProj = curWeapons[ObjectNames.soccerBall].WeaponProjectileCount + curStat.ProjCountVal;
+        if (isNew) soccerBallCount = soccerBallSec; 
 
-        while (gameObject.activeSelf)
+        while (!GameManager.IsPaused)
         {
-            if (GameManager.IsPaused)
+            soccerBallCount += Time.deltaTime;
+            if(soccerBallCount > soccerBallSec)
             {
-                yield return null;
-                continue;
-            }
+                for (int i = 0; i < maxProj; i++)
+                    CreateWeaponProj(ObjectNames.soccerBall, true);
 
-            for (int i = 0; i < maxProj; i++)
-            {
-                GameObject ball = objectManager.MakeObj(ObjectNames.soccerBall);
-                ball.transform.position = transform.position;
-                ball.GetComponent<SoccerBall>().Initialize(curWeapons[ObjectNames.soccerBall],
-                                                                  curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
+                soccerBallCount = 0;
             }
-            yield return soccerBallSec;
+            yield return null;
         }
     }
 
     // 수리검
-    IEnumerator Shuriken(float cooldown)
+    IEnumerator Shuriken(bool isNew = false)
     {
-        WaitForSeconds projInterval = new WaitForSeconds(0.1f);
         int maxProj = curWeapons[ObjectNames.shuriken].WeaponProjectileCount + curStat.ProjCountVal;
-        shurikenSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal - (0.1f * maxProj));
+        int curProj = 0;
+        float shurikenSec = curWeapons[ObjectNames.shuriken].WeaponCooltime * curStat.CoolTimeVal - (projInterval * maxProj);
+        if (isNew) shurikenCount = shurikenSec;
 
-        while (gameObject.activeSelf)
+        while (!GameManager.IsPaused)
         {
-            if (GameManager.IsPaused)
+            if(curProj == maxProj) //최대 투사체 수만큼 발사 후 초기화
             {
-                yield return null;
+                shurikenCount = 0;
+                curProj = 0;
                 continue;
             }
 
-            for (int i = 0; i < maxProj; i++)
+            shurikenCount += Time.deltaTime;
+            if(curProj == 0) //첫번째 투사체는 shurikenSec만큼 대기 후 발사
             {
-                GameObject shk = objectManager.MakeObj(ObjectNames.shuriken);
-                shk.transform.position = transform.position;
-                shk.GetComponent<Shuriken>().Initialize(curWeapons[ObjectNames.shuriken],
-                                                        curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
-
-                yield return projInterval;
+                if (shurikenCount > shurikenSec)
+                {
+                    CreateWeaponProj(ObjectNames.shuriken, true);
+                    shurikenCount = 0;
+                    curProj++;
+                }
             }
-            yield return shurikenSec;
+            else  //2발째부터는 projInterval만큼 대기 후 발사
+            {
+                if (shurikenCount > projInterval)
+                {
+                    CreateWeaponProj(ObjectNames.shuriken, true);
+                    shurikenCount = 0;
+                    curProj++;
+                }
+            }
+            yield return null;
         }
     }
 
     // 수호자
-    IEnumerator Defender(float cooldown)
+    IEnumerator Defender(bool isNew = false)
     {
-        defenderSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal);
+        float defenderSec = curWeapons[ObjectNames.defender].WeaponCooltime * curStat.CoolTimeVal;
         int maxProj = curWeapons[ObjectNames.defender].WeaponProjectileCount + curStat.ProjCountVal;
-        //이미 생성된 수호자가 있을 경우 초기화
-        if(curDefenders.Count > 0)
+        float rotateOffset = 360 / maxProj;
+        if (isNew) defenderCount = defenderSec;
+
+        while (!GameManager.IsPaused)
         {
-            foreach (GameObject obj in curDefenders)
-                obj.SetActive(false);
-            curDefenders.Clear();
-        }
+            defenderCount += Time.deltaTime;
 
-        while (gameObject.activeSelf)
-        {
-            if (GameManager.IsPaused)
+            if(defenderCount > defenderSec)
             {
-                yield return null;
-                continue;
+                for (int i = 0; i < maxProj; i++)
+                {
+                    GameObject def = objectManager.MakeObj(ObjectNames.defender);
+                    def.transform.position = transform.position + (Vector3.up * 2);
+                    def.transform.RotateAround(transform.position, Vector3.forward, rotateOffset * i);
+                    def.GetComponent<WeaponBase>().Initialize(curWeapons[ObjectNames.defender],
+                                                              curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
+                }
+                StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.defender);
+                defenderCount = 0;
             }
-
-            float rotateOffset = 360 / curWeapons[ObjectNames.defender].WeaponProjectileCount;
-
-            curDefenders.Clear();
-            for (int i = 0; i < maxProj; i++)
-            {
-                curDefenders.Add(objectManager.MakeObj(ObjectNames.defender));
-                curDefenders[i].transform.position = transform.position + (Vector3.up * 2);
-                curDefenders[i].transform.RotateAround(transform.position, Vector3.forward, rotateOffset * i);
-                curDefenders[i].GetComponent<Defender>().Initialize(curWeapons[ObjectNames.defender],
-                                                        curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
-            }
-            yield return defenderSec;
+            yield return null;
         }
     }
 
     //로켓 미사일
-    IEnumerator Missile(float cooldown)
+    IEnumerator Missile(bool isNew = false)
     {
-        WaitForSeconds projInterval = new WaitForSeconds(0.1f);
         int maxProj = curWeapons[ObjectNames.missile].WeaponProjectileCount + curStat.ProjCountVal;
-        missileSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal - (0.1f * maxProj));
+        int curProj = 0;
+        float missileSec = curWeapons[ObjectNames.missile].WeaponCooltime * curStat.CoolTimeVal - (projInterval * maxProj);
+        if (isNew) missileCount = missileSec;
 
-        while (gameObject.activeSelf)
+        while (!GameManager.IsPaused)
         {
-            if (GameManager.IsPaused)
+            if (curProj == maxProj) //최대 투사체 수만큼 발사 후 초기화
             {
-                yield return null;
+                missileCount = 0;
+                curProj = 0;
                 continue;
             }
 
-            for (int i = 0; i < maxProj; i++)
+            missileCount += Time.deltaTime;
+            if (curProj == 0) //첫번째 투사체는 shurikenSec만큼 대기 후 발사
             {
-                GameObject mis = objectManager.MakeObj(ObjectNames.missile);
-                mis.transform.position = transform.position;
-                mis.GetComponent<Missile>().Initialize(curWeapons[ObjectNames.missile],
-                                                        curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
-
-                yield return projInterval;
+                if (missileCount > missileSec)
+                {
+                    CreateWeaponProj(ObjectNames.missile, true);
+                    missileCount = 0;
+                    curProj++;
+                }
             }
-
-            yield return missileSec;
+            else  //2발째부터는 projInterval만큼 대기 후 발사
+            {
+                if (missileCount > projInterval)
+                {
+                    CreateWeaponProj(ObjectNames.missile, true);
+                    missileCount = 0;
+                    curProj++;
+                }
+            }
+            yield return null;
         }
     }
 
     //낙뢰
-    IEnumerator Thunder(float cooldown)
+    IEnumerator Thunder(bool isNew = false)
     {
-        WaitForSeconds projInterval = new WaitForSeconds(0.1f);
         int maxProj = curWeapons[ObjectNames.thunder].WeaponProjectileCount + curStat.ProjCountVal;
-        thunderSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal - (0.1f * maxProj));
+        int curProj = 0;
+        float thunderSec = curWeapons[ObjectNames.thunder].WeaponCooltime * curStat.CoolTimeVal - (projInterval * maxProj);
+        if (isNew) thunderCount = thunderSec;
 
-        while (gameObject.activeSelf)
+        while (!GameManager.IsPaused)
         {
-            if (GameManager.IsPaused)
+            if(curProj == maxProj)
             {
-                yield return null;
+                thunderCount = 0;
+                curProj = 0;
                 continue;
             }
 
-            for (int i = 0; i < maxProj; i++)
+            thunderCount += Time.deltaTime;
+            if(curProj == 0) //첫번째 투사체는 shurikenSec만큼 대기 후 발사
             {
-                GameObject thd = objectManager.MakeObj(ObjectNames.thunder);
-                thd.GetComponent<Thunder>().Initialize(curWeapons[ObjectNames.thunder],
-                                                        curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
-
-                yield return projInterval;
+                if(thunderCount > thunderSec)
+                {
+                    CreateWeaponProj(ObjectNames.thunder);
+                    thunderCount = 0;
+                    curProj++;
+                }
             }
-
-            yield return thunderSec;
+            else //2발째부터는 projInterval만큼 대기 후 발사
+            {
+                if(thunderCount > projInterval)
+                {
+                    CreateWeaponProj(ObjectNames.thunder);
+                    thunderCount = 0;
+                    curProj++;
+                }
+            }
+            yield return null;
         }
     }
 
     //지뢰
-    IEnumerator ExplodeMine(float cooldown)
+    IEnumerator ExplodeMine(bool isNew = false)
     {
-        explodeMineSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal);
+        float explodeMineSec = curWeapons[ObjectNames.explodeMine].WeaponCooltime * curStat.CoolTimeVal;
         int maxProj = curWeapons[ObjectNames.explodeMine].WeaponProjectileCount + curStat.ProjCountVal;
+        if (isNew) explodeMineCount = explodeMineSec;
 
-        while (gameObject.activeSelf)
+        while (!GameManager.IsPaused)
         {
-            if (GameManager.IsPaused)
+            explodeMineCount += Time.deltaTime;
+            if(explodeMineCount > explodeMineSec)
             {
-                yield return null;
-                continue;
-            }
+                for (int i = 0; i < maxProj; i++)
+                    CreateWeaponProj(ObjectNames.explodeMine);
 
-            for (int i = 0; i < maxProj; i++)
-            {
-                GameObject mine = objectManager.MakeObj(ObjectNames.explodeMine);
-                mine.GetComponent<ExplodeMine>().Initialize(curWeapons[ObjectNames.explodeMine],
-                                                                  curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
+                explodeMineCount = 0;
             }
-            yield return explodeMineSec;
+            yield return null;
         }
     }
 
     /////// 업그레이드 무기 ///////
     //양자 공
-    IEnumerator QuantumBall(float cooldown)
+    IEnumerator QuantumBall(bool isNew = false)
     {
-        quantumBallSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal);
+        float quantumBallSec = curWeapons[ObjectNames.quantumBall].WeaponCooltime * curStat.CoolTimeVal;
         int maxProj = curWeapons[ObjectNames.quantumBall].WeaponProjectileCount + curStat.ProjCountVal;
+        if (isNew) quantumBallCount = quantumBallSec;
 
-        while (gameObject.activeSelf)
+        while (!GameManager.IsPaused)
         {
-            if (GameManager.IsPaused)
+            quantumBallCount += Time.deltaTime;
+            if(quantumBallCount > quantumBallSec)
             {
-                yield return null;
-                continue;
-            }
+                for (int i = 0; i < maxProj; i++)
+                    CreateWeaponProj(ObjectNames.quantumBall);
 
-            for (int i = 0; i < maxProj; i++)
-            {
-                GameObject ball = objectManager.MakeObj(ObjectNames.quantumBall);
-                ball.transform.position = transform.position;
-                ball.GetComponent<SoccerBall>().Initialize(curWeapons[ObjectNames.quantumBall],
-                                                                  curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
+                quantumBallCount = 0;
             }
-            yield return quantumBallSec;
+            yield return null;
         }
     }
 
     //그림자 칼날
-    IEnumerator ShadowEdge()
+    IEnumerator ShadowEdge(bool isNew = false)
     {
-        WaitForSeconds projInterval = new WaitForSeconds(0.1f);
+        if (isNew) shadowEdgeCount = projInterval;
 
-        while (gameObject.activeSelf)
+        while (!GameManager.IsPaused)
         {
-            if (GameManager.IsPaused)
+            shadowEdgeCount += Time.deltaTime;
+            if(shadowEdgeCount > projInterval)
             {
-                yield return null;
-                continue;
+                CreateWeaponProj(ObjectNames.shadowEdge);
+                shadowEdgeCount = 0;
             }
-
-            GameObject shd = objectManager.MakeObj(ObjectNames.shadowEdge);
-            shd.transform.position = transform.position;
-            shd.GetComponent<Shuriken>().Initialize(curWeapons[ObjectNames.shadowEdge],
-                                                    curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
-
-            yield return projInterval;
+            yield return null;
         }
     }
 
     //수호자
-    IEnumerator Guardian()
+    IEnumerator Guardian(bool isNew = false)
     {
-        int maxProj = curWeapons[ObjectNames.guardian].WeaponProjectileCount + curStat.ProjCountVal;
-        float rotateOffset = 360 / maxProj;
-
-        for (int i = 0; i < maxProj; i++)
+        if(isNew) //영구 유지이므로 최초 실행시에만 생성
         {
-            GameObject guard = objectManager.MakeObj(ObjectNames.guardian);
-            guard.transform.position = transform.position + (Vector3.up * 2);
-            guard.transform.RotateAround(transform.position, Vector3.forward, rotateOffset * i);
-            guard.GetComponent<Guardian>().Initialize(curWeapons[ObjectNames.guardian],
-                                                    curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
+            int maxProj = curWeapons[ObjectNames.guardian].WeaponProjectileCount + curStat.ProjCountVal;
+            float rotateOffset = 360 / maxProj;
+
+            for (int i = 0; i < maxProj; i++)
+            {
+                GameObject guard = objectManager.MakeObj(ObjectNames.guardian);
+                guard.transform.position = transform.position + (Vector3.up * 2);
+                guard.transform.RotateAround(transform.position, Vector3.forward, rotateOffset * i);
+                guard.GetComponent<Guardian>().Initialize(curWeapons[ObjectNames.guardian],
+                                                        curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
+            }
         }
 
-        guardianSec = new WaitForSeconds(curWeapons[ObjectNames.guardian].WeaponCooltime);
-        while (gameObject.activeSelf)
+        float guardianSec = curWeapons[ObjectNames.guardian].WeaponCooltime;
+        while (!GameManager.IsPaused)
         {
-            if(!GameManager.IsPaused)
+            guardianCount += Time.deltaTime;
+            if (guardianCount > guardianSec)
                 StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.defender);
-            yield return guardianSec;
+            yield return null;
         }
     }
 
     //상어부리포
-    IEnumerator SharkMissile(float cooldown)
+    IEnumerator SharkMissile(bool isNew = false)
     {
-        WaitForSeconds projInterval = new WaitForSeconds(0.1f);
         int maxProj = curWeapons[ObjectNames.sharkMissile].WeaponProjectileCount + curStat.ProjCountVal;
-        sharkMissileSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal - (0.1f * maxProj));
+        int curProj = 0;
+        float sharkMissileSec = curWeapons[ObjectNames.sharkMissile].WeaponCooltime * curStat.CoolTimeVal - (projInterval * maxProj);
+        if (isNew) sharkMissileCount = sharkMissileSec;
 
-        while (gameObject.activeSelf)
+        while (!GameManager.IsPaused)
         {
-            if (GameManager.IsPaused)
+            if (curProj == maxProj)
             {
-                yield return null;
+                sharkMissileCount = 0;
+                curProj = 0;
                 continue;
             }
 
-            for (int i = 0; i < maxProj; i++)
+            sharkMissileCount += Time.deltaTime;
+            if (curProj == 0) //첫번째 투사체는 shurikenSec만큼 대기 후 발사
             {
-                GameObject mis = objectManager.MakeObj(ObjectNames.sharkMissile);
-                mis.transform.position = transform.position;
-                mis.GetComponent<Missile>().Initialize(curWeapons[ObjectNames.sharkMissile],
-                                                        curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
-
-                yield return projInterval;
+                if (sharkMissileCount > sharkMissileSec)
+                {
+                    CreateWeaponProj(ObjectNames.sharkMissile, true);
+                    sharkMissileCount = 0;
+                    curProj++;
+                }
             }
-            yield return sharkMissileSec;
+            else //2발째부터는 projInterval만큼 대기 후 발사
+            {
+                if (sharkMissileCount > projInterval)
+                {
+                    CreateWeaponProj(ObjectNames.sharkMissile, true);
+                    sharkMissileCount = 0;
+                    curProj++;
+                }
+            }
+            yield return null;
         }
     }
 
     //천벌
-    IEnumerator Judgement(float cooldown)
+    IEnumerator Judgement(bool isNew = false)
     {
-        WaitForSeconds projInterval = new WaitForSeconds(0.1f);
         int maxProj = curWeapons[ObjectNames.judgement].WeaponProjectileCount + curStat.ProjCountVal;
-        judgementSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal - (0.1f * maxProj));
+        int curProj = 0;
+        float judgementSec = curWeapons[ObjectNames.judgement].WeaponCooltime * curStat.CoolTimeVal - (projInterval * maxProj);
+        if (isNew) judgementCount = judgementSec;
 
-        while (gameObject.activeSelf)
+        while (!GameManager.IsPaused)
         {
-            if (GameManager.IsPaused)
+            if (curProj == maxProj)
             {
-                yield return null;
+                sharkMissileCount = 0;
+                curProj = 0;
                 continue;
             }
 
-            for (int i = 0; i < maxProj; i++)
+            judgementCount += Time.deltaTime;
+            if (curProj == 0) //첫번째 투사체는 shurikenSec만큼 대기 후 발사
             {
-                GameObject jud = objectManager.MakeObj(ObjectNames.judgement);
-                jud.GetComponent<Thunder>().Initialize(curWeapons[ObjectNames.judgement],
-                                                        curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
-
-                yield return projInterval;
+                if (judgementCount > judgementSec)
+                {
+                    CreateWeaponProj(ObjectNames.judgement);
+                    judgementCount = 0;
+                    curProj++;
+                }
             }
-            yield return judgementSec;
+            else //2발째부터는 projInterval만큼 대기 후 발사
+            {
+                if (judgementCount > projInterval)
+                {
+                    CreateWeaponProj(ObjectNames.judgement);
+                    judgementCount = 0;
+                    curProj++;
+                }
+            }
+            yield return null;
         }
     }
 
     //불지옥
-    IEnumerator HellfireMine(float cooldown)
+    IEnumerator HellfireMine(bool isNew = false)
     {
-        hellfireMineSec = new WaitForSeconds(cooldown * curStat.CoolTimeVal);
+        float hellfireMineSec = curWeapons[ObjectNames.hellfireMine].WeaponCooltime * curStat.CoolTimeVal;
         int maxProj = curWeapons[ObjectNames.hellfireMine].WeaponProjectileCount + curStat.ProjCountVal;
+        if (isNew) hellfireMineCount = hellfireMineSec;
 
-        while (gameObject.activeSelf)
+        while (!GameManager.IsPaused)
         {
-            if (GameManager.IsPaused)
+            hellfireMineCount += Time.deltaTime;
+            if(hellfireMineCount > hellfireMineSec)
             {
-                yield return null;
-                continue;
-            }
+                for (int i = 0; i < maxProj; i++)
+                    CreateWeaponProj(ObjectNames.hellfireMine);
 
-            for (int i = 0; i < maxProj; i++)
-            {
-                GameObject mine = objectManager.MakeObj(ObjectNames.hellfireMine);
-                mine.GetComponent<ExplodeMine>().Initialize(curWeapons[ObjectNames.hellfireMine],
-                                                                  curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
+                hellfireMineCount = 0;
             }
-            yield return hellfireMineSec;
+            yield return null;
         }
     }
 

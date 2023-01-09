@@ -33,7 +33,12 @@ public class GameManager : MonoBehaviour
     int curSpawnIdx;
     Vector3 spawnOffset;
     [SerializeField] float spawnDistance;
+
+    //보스 관련
+    [Header("보스 스폰")]
+    bool onBossFighting;
     public static Action bossDie;
+    GameObject area;
 
     //경험치 관련
     int curExp;
@@ -77,6 +82,7 @@ public class GameManager : MonoBehaviour
         isPaused = false;
         onLevelUp = false;
         onLottery = false;
+        onBossFighting = false;
 
         maxExp = Enumerable.Repeat<int>(100, 100).ToArray();
 
@@ -162,7 +168,9 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        StartMyCoroutines();
+        timerRoutine = StartCoroutine(Timer());
+        spawnRoutine = StartCoroutine(Spawn());
+        spawnItemBoxRoutine = StartCoroutine(SpawnItemBox());
     }
 
     //타이머 관련
@@ -170,6 +178,8 @@ public class GameManager : MonoBehaviour
     {
         while (isPaused == false)
         {
+            if (gameOver) yield break;
+
             yield return oneSec;
             seconds++;
             uiManager.UpdateTimer(seconds);
@@ -178,7 +188,7 @@ public class GameManager : MonoBehaviour
 
     public void Pause_Board()
     {
-        if (onLevelUp || onLottery) return;
+        if (onLevelUp || onLottery || gameOver) return;
 
         if(uiManager.Pause(isPaused))
             Pause();
@@ -200,12 +210,12 @@ public class GameManager : MonoBehaviour
 
         isPaused = false;
         StartMyCoroutines();
+        Weapons.restartWeapons();
     }
 
     void StartMyCoroutines()
     {
         timerRoutine = StartCoroutine(Timer());
-        spawnRoutine = StartCoroutine(Spawn());
         spawnItemBoxRoutine = StartCoroutine(SpawnItemBox());
 
         if (onLevelUp) LevelUp();
@@ -214,7 +224,6 @@ public class GameManager : MonoBehaviour
     void StopMyCoroutines()
     {
         if (timerRoutine != null) StopCoroutine(timerRoutine);
-        if (spawnRoutine != null) StopCoroutine(spawnRoutine);
         if (spawnItemBoxRoutine != null) StopCoroutine(spawnItemBoxRoutine);
 
         if (onLevelUp) StopCoroutine(levelUpRoutine);
@@ -224,11 +233,24 @@ public class GameManager : MonoBehaviour
     IEnumerator Spawn()
     {
         GameObject curEnemy;
-        while (!isPaused)
+        float count;
+        while (curSpawnIdx < spawnList.Count)
         {
-            if (curSpawnIdx >= spawnList.Count) break;
-
             EnemySpawnData curData = spawnList[curSpawnIdx];
+            count = 0;
+            while(count < curData.interval)
+            {
+                if (isPaused)
+                {
+                    yield return null;
+                    continue;
+                }
+
+                count += Time.deltaTime;
+                if (count >= curData.interval) break;
+                yield return null;
+            }
+
             if(curData.enemyId == ObjectNames.bossAlert)
             {
                 StartCoroutine(BossReady(curData.interval));
@@ -238,21 +260,44 @@ public class GameManager : MonoBehaviour
                 curEnemy = objectManager.MakeObj(curData.enemyId);
                 spawnOffset = Quaternion.Euler(0, 0, UnityEngine.Random.Range(0, 360)) * Vector3.right * spawnDistance; //랜덤 벡터값 생성
                 curEnemy.transform.position = Player.playerPos + spawnOffset; // 플레이어로부터 일정 거리 떨어진 곳에서 스폰
+                if(curData.enemyId >= ObjectNames.monsterTree) //보스일 경우
+                {
+                    area = objectManager.MakeObj(ObjectNames.bossArea);
+                    area.transform.position = curEnemy.transform.position;
+                }
             }
             curSpawnIdx++;
-
-            yield return new WaitForSeconds(curData.interval);
         }
     }
 
     IEnumerator BossReady(float interval)
     {
         StartCoroutine(uiManager.BossAlert(interval - 0.5f));
-        yield return new WaitForSeconds(interval - 0.5f);
+        float count = 0;
+        while(count < interval - 0.5f) 
+        {
+            if(isPaused)
+            {
+                yield return null;
+                continue;
+            }
+            count += Time.deltaTime;
+            yield return null;
+        }
 
         stageEnder.SetActive(true);
-        yield return new WaitForSeconds(0.4f);
-
+        onBossFighting = true;
+        count = 0;
+        while (count < 0.4f)
+        {
+            if (isPaused)
+            {
+                yield return null;
+                continue;
+            }
+            count += Time.deltaTime;
+            yield return null;
+        }
         stageEnder.SetActive(false);
     }
 
@@ -264,6 +309,8 @@ public class GameManager : MonoBehaviour
         GameObject itemBox;
         while(!isPaused)
         {
+            if (onBossFighting) yield break;
+
             itemBox = objectManager.MakeObj(ObjectNames.itemBox);
             spawnItemBoxOffset = Quaternion.Euler(0, 0, UnityEngine.Random.Range(0, 360)) * Vector3.right * spawnItemBoxDistance; //랜덤 벡터값 생성
             itemBox.transform.position = Player.playerPos + spawnItemBoxOffset; // 플레이어로부터 일정 거리 떨어진 곳에서 스폰
@@ -301,8 +348,9 @@ public class GameManager : MonoBehaviour
             case ObjectNames.gold_100:
             {
                 soundManager.PlaySfx((int)StageSoundManager.StageSfx.gold);
+                goldCount += itemDic[id];
                 GoldManager.Instance.PlusGold(itemDic[id]);
-                uiManager.UpdateGoldCount(GoldManager.Instance.Gold);
+                uiManager.UpdateGoldCount(goldCount);
                 break;
             }
             case ObjectNames.magnet:
@@ -335,6 +383,8 @@ public class GameManager : MonoBehaviour
     //보물 상자 획득
     public void GetTreasureBox()
     {
+        if (gameOver) return;
+
         Pause();
         onLottery = true;
         if (onLevelUp) //레벨업 대기중일 경우 레벨업 루틴 정지
@@ -372,8 +422,9 @@ public class GameManager : MonoBehaviour
         curExp -= maxExp[maxExpIdx]; 
         maxExpIdx++;
         soundManager.PlaySfx((int)StageSoundManager.StageSfx.levelUp);
-
         yield return levelUpSeconds;
+
+        if (gameOver) yield break;
         Pause();
         uiManager.UpdateLevel(maxExpIdx + 1);
         uiManager.UpdateExp(curExp, maxExp[maxExpIdx]);
@@ -395,6 +446,7 @@ public class GameManager : MonoBehaviour
 
     public void BossDie()
     {
+        area.SetActive(false);
         StartCoroutine(StageClear());
     }
 
@@ -409,10 +461,17 @@ public class GameManager : MonoBehaviour
     }
 
     //게임 오버
-    public void GameOver()
+    public void PlayerDie()
     {
-        isPaused = true;
+        StartCoroutine(GameOver());
+    }
+
+    IEnumerator GameOver()
+    {
         gameOver = true;
+
+        yield return new WaitForSeconds(1.5f);
+        isPaused = true;
         uiManager.GameOver(killCount, goldCount);
     }
 }

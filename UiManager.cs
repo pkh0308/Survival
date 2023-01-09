@@ -59,6 +59,7 @@ public class UiManager : MonoBehaviour
     [Header("무기 획득")]
     [SerializeField] GameObject weaponSelectSet;
     [SerializeField] GameObject[] weaponSelectSlots;
+    Button[] weaponSelectSlots_Btn;
     Image[] weaponSelectSlots_Bg;
 
     DataForLevelUp[] levelupDatas;
@@ -125,6 +126,10 @@ public class UiManager : MonoBehaviour
         weaponSelectSlots_Bg = new Image[weaponSelectSlots.Length];
         for (int i = 0; i < weaponSelectSlots.Length; i++)
             weaponSelectSlots_Bg[i] = weaponSelectSlots[i].GetComponent<Image>();
+
+        weaponSelectSlots_Btn = new Button[weaponSelectSlots.Length];
+        for (int i = 0; i < weaponSelectSlots.Length; i++)
+            weaponSelectSlots_Btn[i] = weaponSelectSlots[i].GetComponent<Button>();
 
         levelUpStars = new List<Image[]>();
         levelUpStars.Add(levelUpStars_0);
@@ -351,6 +356,30 @@ public class UiManager : MonoBehaviour
         gameManager.PauseOff();
         weaponLogic.GetWeapon(levelupDatas[curWeaponIdx].id);
         weaponSelectSet.SetActive(false);
+        //선택된 버튼 초기화
+        weaponSelectSlots_Btn[curWeaponIdx].interactable = false;
+        weaponSelectSlots_Btn[curWeaponIdx].interactable = true;
+        curWeaponIdx = -1;
+    }
+
+    public void InputUpDown(KeyCode flag)
+    {
+        //무기 선택창 활성화 상태에서만 동작
+        if(!weaponSelectSet.activeSelf) return;
+
+        if(flag == KeyCode.UpArrow)
+        {
+            curWeaponIdx--;
+            if (curWeaponIdx < 0)
+                curWeaponIdx = weaponSelectSlots.Length - 1;
+        }
+        else
+        {
+            curWeaponIdx++;
+            if (curWeaponIdx >= weaponSelectSlots.Length)
+                curWeaponIdx = 0;
+        }
+        weaponSelectSlots_Btn[curWeaponIdx].Select();
     }
 
     //무기, 악세사리 목록 업데이트
@@ -518,9 +547,6 @@ public class UiManager : MonoBehaviour
 
     public void InputEnter()
     {
-        if (!weaponSelectSet.activeSelf && !lotterySet.activeSelf)
-            return;
-
         //무기 선택 창에서 Enter 입력 시
         if(weaponSelectSet.activeSelf)
         {
@@ -530,9 +556,27 @@ public class UiManager : MonoBehaviour
 
         //럭키 찬스 창에서 Enter 입력 시
         if (lotteryStartBtn.activeSelf)
+        {
             Btn_StartLottery();
-        else if (lotteryResultSet.activeSelf)
+            return;
+        }
+        if (lotteryResultSet.activeSelf)
+        {
             Btn_LotteryEnd();
+            return;
+        }
+            
+        //스테이지 클리어 or 게임 오버
+        if (gameOverSet.activeSelf)
+        {
+            Btn_GameOver();
+            return;
+        }
+        if (stageClearSet.activeSelf)
+        {
+            Btn_StageClear();
+            return;
+        }
     }
 
     //스테이지 클리어
