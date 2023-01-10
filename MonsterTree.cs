@@ -37,7 +37,7 @@ public class MonsterTree : Enemy
             {
                 for (int i = 0; i < directions.Length; i++)
                 {
-                    GameObject bullet = ObjectManager.makeObj(bulletId);
+                    GameObject bullet = ObjectManager.makeEnemy(bulletId);
                     bullet.transform.position = transform.position;
                     bullet.GetComponent<EnemyBullet>().Shoot(rangePow, directions[i]);
                 }

@@ -60,11 +60,11 @@ public class Missile : WeaponBase
         spriteRenderer.enabled = false;
         StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.explosion);
 
-        GameObject playerBullet = ObjectManager.makeObj(ObjectNames.playerBullet);
-        playerBullet.GetComponent<Explosion>().Initialize((int)(weaponData.WeaponAtk * atkPower), weaponData.WeaponId, weaponData.WeaponScale * atkScale);
+        GameObject explosion = ObjectManager.makeObj(ObjectNames.explosion);
+        explosion.GetComponent<Explosion>().Initialize((int)(weaponData.WeaponAtk * atkPower), weaponData.WeaponId, weaponData.WeaponScale * atkScale);
         //¹Ì»çÀÏ°ú ºÎµúÈù Å¸°Ù »çÀÌÀÇ ÁöÁ¡¿¡¼­ Æø¹ß
-        playerBullet.transform.position = (transform.position + targetPos) / 2;
-        playerBullet.SetActive(true);
+        explosion.transform.position = (transform.position + targetPos) / 2;
+        explosion.SetActive(true);
 
         yield return new WaitForSeconds(0.5f);
         gameObject.SetActive(false);

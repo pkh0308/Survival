@@ -33,12 +33,12 @@ public class ItemBox : MonoBehaviour
         int val = Random.Range(0, 10000);
         GameObject item = null;
         
-        if (val > 9500)      item = ObjectManager.makeObj(ObjectNames.bomb);
-        else if (val > 9000) item = ObjectManager.makeObj(ObjectNames.magnet);
-        else if (val > 8500) item = ObjectManager.makeObj(ObjectNames.gold_100);
-        else if (val > 7500) item = ObjectManager.makeObj(ObjectNames.gold_50);
-        else if (val > 6500) item = ObjectManager.makeObj(ObjectNames.meat_50);
-        else if (val > 5000) item = ObjectManager.makeObj(ObjectNames.gold_10);
+        if (val > 9500)      item = ObjectManager.makeItem(ObjectNames.bomb);
+        else if (val > 9000) item = ObjectManager.makeItem(ObjectNames.magnet);
+        else if (val > 8500) item = ObjectManager.makeItem(ObjectNames.gold_100);
+        else if (val > 7500) item = ObjectManager.makeItem(ObjectNames.gold_50);
+        else if (val > 6500) item = ObjectManager.makeItem(ObjectNames.meat_50);
+        else if (val > 5000) item = ObjectManager.makeItem(ObjectNames.gold_10);
         if (item != null) item.transform.position = transform.position;
 
         yield return openSec;

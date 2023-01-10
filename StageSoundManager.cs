@@ -9,7 +9,7 @@ public class StageSoundManager : MonoBehaviour
     
     //재생 함수 호출용 열거형
     public enum StageBgm { stage_1 = 100, lotteryBgm, lotteryStart }
-    public enum StageSfx { getExp = 1000, levelUp, stageClear, gameOver, meat_or_magnet, gold, bomb, lotteryEnd, bossAlert, playerDeath }
+    public enum StageSfx { getExp = 1000, levelUp, stageClear, gameOver, meat_or_magnet, gold, bomb, lotteryEnd, bossAlert, playerDamaged, playerDeath }
     public enum WeaponSfx { soccerBall = 1100, shuriken, defender, missile, thunder, explodeMine, explosion }
 
     //bgm
@@ -29,6 +29,7 @@ public class StageSoundManager : MonoBehaviour
     [SerializeField] AudioClip lotteryEnd;
     [SerializeField] AudioClip bossAlert;
     [SerializeField] AudioClip playerDeath;
+    [SerializeField] AudioClip playerDamaged;
 
     //weapon
     public static Action<int> playWeaponSfx; 
@@ -142,6 +143,10 @@ public class StageSoundManager : MonoBehaviour
                 break;
             case (int)StageSfx.playerDeath:
                 curSfxSource.clip = playerDeath;
+                curSfxSource.Play();
+                break;
+            case (int)StageSfx.playerDamaged:
+                curSfxSource.clip = playerDamaged;
                 curSfxSource.Play();
                 break;
         }

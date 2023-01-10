@@ -7,7 +7,7 @@ using TMPro;
 public class LobbyManager : MonoBehaviour
 {
     [SerializeField] LobbySoundManager soundManager;
-    [SerializeField] ImageContainer imgContainer;
+    [SerializeField] LobbySpriteContainer spriteContainer;
 
     [SerializeField] GameObject enhancementSet;
     [SerializeField] GameObject exitSet;
@@ -15,6 +15,10 @@ public class LobbyManager : MonoBehaviour
     //캐릭터 선택 화면 관련
     int charId;
     [SerializeField] GameObject characterSelectSet;
+    List<PlayerInfo> playerInfoList;
+    [SerializeField] Image[] playerImgs;
+    [SerializeField] TextMeshProUGUI[] playerNames;
+    [SerializeField] Image[] playerWeaponImgs;
 
     //스테이지 선택 화면 관련
     int stageId;
@@ -46,13 +50,16 @@ public class LobbyManager : MonoBehaviour
         stageId = 0;
         curEnhanceIdx = 0;
 
+        playerInfoList = new List<PlayerInfo>();
         enhanceDic = new Dictionary<int, EnhancementData>();
-        ReadEnhancementData();
+
+        ReadData();
     }
 
-    void ReadEnhancementData()
+    //csv 파일에서 데이터 읽어오기
+    void ReadData()
     {
-        //csv 파일에서 데이터 읽어오기
+        //강화 데이터
         TextAsset enhanceDatas = Resources.Load("EnhancementDatas") as TextAsset;
         StringReader enhanceDataReader = new StringReader(enhanceDatas.text);
 
@@ -76,13 +83,48 @@ public class LobbyManager : MonoBehaviour
             }
         }
         enhanceDataReader.Close();
+
+        //플레이어블 캐릭터 데이터
+        TextAsset playerInfos = Resources.Load("PlayerInfos") as TextAsset;
+        StringReader playerInfoReader = new StringReader(playerInfos.text);
+
+        while (playerInfoReader != null)
+        {
+            string line = playerInfoReader.ReadLine();
+            if (line == null) break;
+
+            line = playerInfoReader.ReadLine();
+            while (line.Length > 1)
+            {
+                string[] datas = line.Split(',');
+                //0: charId, 1: charName, 2: weaponId
+                PlayerInfo info = new PlayerInfo(int.Parse(datas[0]), datas[1], int.Parse(datas[2]));
+                playerInfoList.Add(info);
+
+                line = playerInfoReader.ReadLine();
+                if (line == null) break;
+            }
+        }
+        playerInfoReader.Close();
     }
 
     void Start()
     {
         UpdateGold();
         SetEnhanceIds();
+        UpdateCharacterInfo();
         UpdateEnhanceInfo(enhanceSlots[0].EnhanceId);
+    }
+
+    //캐릭터 선택창 관련
+    void UpdateCharacterInfo()
+    {
+        for(int i = 0; i < playerInfoList.Count; i++)
+        {
+            playerImgs[i].sprite = spriteContainer.GetPlayerSprite(playerInfoList[i].charId);
+            playerNames[i].text = playerInfoList[i].charName;
+            playerWeaponImgs[i].sprite = spriteContainer.GetWeaponSprite(playerInfoList[i].weaponId);
+        }
     }
 
     //게임 시작 버튼 관련
@@ -101,9 +143,9 @@ public class LobbyManager : MonoBehaviour
         stageSelectSet.SetActive(true);
     }
 
-    public void Btn_Character(int id)
+    public void Btn_Character(int idx)
     {
-        charId = id;
+        charId = playerInfoList[idx].charId;
     }
 
     public void Btn_characterSelectExit()
@@ -126,6 +168,8 @@ public class LobbyManager : MonoBehaviour
         stageId = id;
     }
 
+    //현재 강화 수치들을 PlayerStatus 클래스로 저장하여 PlayerStatusManager에 전달
+    //스테이지 시작 시 해당 데이터를 Player에서 불러와 사용
     public void Btn_StageEnter()
     {
         if (stageId == 0) return;
@@ -170,7 +214,7 @@ public class LobbyManager : MonoBehaviour
 
     void UpdateEnhanceInfo(int id)
     {
-        enhanceIcon.sprite = imgContainer.GetSprite(enhanceDic[id].spriteId);
+        enhanceIcon.sprite = spriteContainer.GetEnhancementSprite(enhanceDic[id].spriteId);
         enhanceNameText.text = enhanceDic[id].nameText;
         enhanceDescText.text = enhanceDic[id].descText;
         enhancePriceText.text = enhanceDic[id].price == 0 ? "Max" : string.Format("{0:n0}", enhanceDic[id].price);

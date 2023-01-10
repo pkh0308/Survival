@@ -257,7 +257,7 @@ public class GameManager : MonoBehaviour
             }
             else if(curData.enemyId != 0)
             {
-                curEnemy = objectManager.MakeObj(curData.enemyId);
+                curEnemy = objectManager.MakeEnemy(curData.enemyId);
                 spawnOffset = Quaternion.Euler(0, 0, UnityEngine.Random.Range(0, 360)) * Vector3.right * spawnDistance; //랜덤 벡터값 생성
                 curEnemy.transform.position = Player.playerPos + spawnOffset; // 플레이어로부터 일정 거리 떨어진 곳에서 스폰
                 if(curData.enemyId >= ObjectNames.monsterTree) //보스일 경우

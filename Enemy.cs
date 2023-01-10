@@ -62,8 +62,7 @@ public class Enemy : MonoBehaviour
 
     void Start()
     {
-        curHp = maxHp;
-        meleeAtkSec = new WaitForSeconds(0.1f);
+        meleeAtkSec = new WaitForSeconds(0.15f);
         rangeAtkSec = new WaitForSeconds(rangeAtkInterval);
         velocityCutTime = 0.5f;
 
@@ -259,7 +258,7 @@ public class Enemy : MonoBehaviour
             if (isDie) yield break;
             yield return rangeAtkSec;
 
-            GameObject bullet = ObjectManager.makeObj(bulletId);
+            GameObject bullet = ObjectManager.makeEnemyBullet(bulletId);
             bullet.transform.position = transform.position;
             bullet.GetComponent<EnemyBullet>().Shoot(rangePow, (Player.playerPos - transform.position).normalized);
         }

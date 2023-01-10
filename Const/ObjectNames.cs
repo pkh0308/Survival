@@ -6,6 +6,9 @@ public class ObjectNames
     public const int kkurugi = 1001;
     public const int ninja = 1002;
     public const int knight = 1003;
+    public const int farmer = 1004;
+    public const int hunter = 1005;
+    public const int monk = 1006;
 
     //무기 투사체
     public const int soccerBall = 2001;
@@ -16,7 +19,7 @@ public class ObjectNames
     public const int explodeMine = 2051;
 
     //폭발 판정 콜라이더(playerBullet)
-    public const int playerBullet = 2901;
+    public const int explosion = 2901;
 
     //악세사리
     public const int acc_bullet = 3001;

@@ -13,9 +13,12 @@ public class ObjectManager : MonoBehaviour
     [Header("플레이어 캐릭터")]
     int playerCharacterId;
     Player player;
-    [SerializeField] GameObject player_1101Prefab;
-    [SerializeField] GameObject player_1201Prefab;
-    [SerializeField] GameObject player_1301Prefab;
+    [SerializeField] GameObject kkurugiPrefab;
+    [SerializeField] GameObject ninjaPrefab;
+    [SerializeField] GameObject knightPrefab;
+    [SerializeField] GameObject farmerPrefab;
+    [SerializeField] GameObject hunterPrefab;
+    [SerializeField] GameObject monkPrefab;
     Dictionary<int, CharacterData> characterDic;
 
     //무기 투사체
@@ -49,8 +52,8 @@ public class ObjectManager : MonoBehaviour
     GameObject[] hellfireMine;
 
     [Header("폭발 판정")]
-    [SerializeField] GameObject playerBulletPrefab;
-    GameObject[] playerBullet;
+    [SerializeField] GameObject explosionPrefab;
+    GameObject[] explosion;
 
     //몬스터
     [Header("몬스터")]
@@ -117,6 +120,10 @@ public class ObjectManager : MonoBehaviour
     GameObject[] targetPool;
 
     public static Func<int, GameObject> dropExp;
+    public static Func<int, GameObject> makeWeaponProj;
+    public static Func<int, GameObject> makeEnemy;
+    public static Func<int, GameObject> makeEnemyBullet;
+    public static Func<int, GameObject> makeItem;
     public static Func<int, GameObject> makeObj;
 
     void Awake()
@@ -125,6 +132,10 @@ public class ObjectManager : MonoBehaviour
         characterDic = new Dictionary<int, CharacterData>();
 
         dropExp = (a) => { return DropExp(a); };
+        makeWeaponProj = (id) => { return MakeWeaponProj(id); };
+        makeEnemy = (id) => { return MakeEnemy(id); };
+        makeEnemyBullet = (id) => { return MakeEnemyBullet(id); };
+        makeItem = (id) => { return MakeItem(id); };
         makeObj = (id) => { return MakeObj(id); };
 
         //무기 투사체
@@ -144,7 +155,7 @@ public class ObjectManager : MonoBehaviour
         hellfireMine = new GameObject[30];
 
         //폭발 판정 콜라이더(PlayerBullet)
-        playerBullet = new GameObject[100];
+        explosion = new GameObject[100];
 
         //몬스터
         zombie = new GameObject[300];
@@ -321,11 +332,11 @@ public class ObjectManager : MonoBehaviour
             hellfireMine[idx].SetActive(false);
         }
 
-        //폭발 판정 콜라이더(playerBullet)
-        for (int idx = 0; idx < playerBullet.Length; idx++)
+        //폭발 판정 콜라이더(explosion)
+        for (int idx = 0; idx < explosion.Length; idx++)
         {
-            playerBullet[idx] = Instantiate(playerBulletPrefab);
-            playerBullet[idx].SetActive(false);
+            explosion[idx] = Instantiate(explosionPrefab);
+            explosion[idx].SetActive(false);
         }
 
         //경험치 젬
@@ -404,19 +415,29 @@ public class ObjectManager : MonoBehaviour
         }
     }
 
+    //플레이어 캐릭터 초기화
     public GameObject StartCharacter(int id)
     {
         GameObject target;
         switch(id)
         {
             case ObjectNames.kkurugi:
-                target = Instantiate(player_1101Prefab);
+                target = Instantiate(kkurugiPrefab);
                 break;
             case ObjectNames.ninja:
-                target = Instantiate(player_1201Prefab);
+                target = Instantiate(ninjaPrefab);
                 break;
             case ObjectNames.knight:
-                target = Instantiate(player_1301Prefab);
+                target = Instantiate(knightPrefab);
+                break;
+            case ObjectNames.farmer:
+                target = Instantiate(farmerPrefab);
+                break;
+            case ObjectNames.hunter:
+                target = Instantiate(hunterPrefab);
+                break;
+            case ObjectNames.monk:
+                target = Instantiate(monkPrefab);
                 break;
             default:
                 return null;
@@ -429,7 +450,8 @@ public class ObjectManager : MonoBehaviour
         return target;
     }
 
-    public GameObject MakeObj(int id)
+    //무기 투사체 생성
+    public GameObject MakeWeaponProj(int id)
     {
         switch (id)
         {
@@ -471,10 +493,24 @@ public class ObjectManager : MonoBehaviour
             case ObjectNames.hellfireMine:
                 targetPool = hellfireMine;
                 break;
-            //폭발 판정 콜라이더
-            case ObjectNames.playerBullet:
-                targetPool = playerBullet;
-                break;
+        }
+
+        for (int idx = 0; idx < targetPool.Length; idx++)
+        {
+            if (!targetPool[idx].activeSelf)
+            {
+                targetPool[idx].SetActive(true);
+                return targetPool[idx];
+            }
+        }
+        return null;
+    }
+
+    //몬스터 생성
+    public GameObject MakeEnemy(int id)
+    {
+        switch (id)
+        {
             //몬스터
             case ObjectNames.zombie:
                 targetPool = zombie;
@@ -495,6 +531,49 @@ public class ObjectManager : MonoBehaviour
             case ObjectNames.phone:
                 targetPool = phone;
                 break;
+        }
+
+        for (int idx = 0; idx < targetPool.Length; idx++)
+        {
+            if (!targetPool[idx].activeSelf)
+            {
+                targetPool[idx].SetActive(true);
+                return targetPool[idx];
+            }
+        }
+        return null;
+    }
+
+    //몬스터 투사체 생성
+    public GameObject MakeEnemyBullet(int id)
+    {
+        switch (id)
+        {
+            //몬스터 투사체
+            case ObjectNames.stone:
+                targetPool = stone;
+                break;
+            case ObjectNames.phone:
+                targetPool = phone;
+                break;
+        }
+
+        for (int idx = 0; idx < targetPool.Length; idx++)
+        {
+            if (!targetPool[idx].activeSelf)
+            {
+                targetPool[idx].SetActive(true);
+                return targetPool[idx];
+            }
+        }
+        return null;
+    }
+
+    //아이템 생성
+    public GameObject MakeItem(int id)
+    {
+        switch (id)
+        {
             //아이템
             case ObjectNames.gold_10:
                 targetPool = gold_10;
@@ -514,6 +593,28 @@ public class ObjectManager : MonoBehaviour
             case ObjectNames.bomb:
                 targetPool = bomb;
                 break;
+        }
+
+        for (int idx = 0; idx < targetPool.Length; idx++)
+        {
+            if (!targetPool[idx].activeSelf)
+            {
+                targetPool[idx].SetActive(true);
+                return targetPool[idx];
+            }
+        }
+        return null;
+    }
+
+    //기타 오브젝트 생성
+    public GameObject MakeObj(int id)
+    {
+        switch (id)
+        {
+            //폭발 판정 콜라이더
+            case ObjectNames.explosion:
+                targetPool = explosion;
+                break;
             //아이템 박스
             case ObjectNames.itemBox:
                 targetPool = itemBox;
@@ -522,7 +623,7 @@ public class ObjectManager : MonoBehaviour
             case ObjectNames.treasureBox:
                 targetPool = treasureBox;
                 break;
-            //기타
+            //보스 전투 영역
             case ObjectNames.bossArea:
                 targetPool = bossArea;
                 break;
@@ -532,7 +633,7 @@ public class ObjectManager : MonoBehaviour
         {
             if (!targetPool[idx].activeSelf)
             {
-                if(targetPool != playerBullet)  //playerBullet은 비활성화 상태로 전달
+                if(targetPool != explosion) //explosion은 비활성 상태로 전달
                     targetPool[idx].SetActive(true);
                 return targetPool[idx];
             }

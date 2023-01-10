@@ -571,7 +571,7 @@ public class Weapons : MonoBehaviour
 
     void CreateWeaponProj(int id, bool initializePos = false)
     {
-        GameObject obj = objectManager.MakeObj(id);
+        GameObject obj = objectManager.MakeWeaponProj(id);
         if (initializePos) obj.transform.position = transform.position;
         obj.GetComponent<WeaponBase>().Initialize(curWeapons[id],
                                                   curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
@@ -654,7 +654,7 @@ public class Weapons : MonoBehaviour
             {
                 for (int i = 0; i < maxProj; i++)
                 {
-                    GameObject def = objectManager.MakeObj(ObjectNames.defender);
+                    GameObject def = objectManager.MakeWeaponProj(ObjectNames.defender);
                     def.transform.position = transform.position + (Vector3.up * 2);
                     def.transform.RotateAround(transform.position, Vector3.forward, rotateOffset * i);
                     def.GetComponent<WeaponBase>().Initialize(curWeapons[ObjectNames.defender],
@@ -817,7 +817,7 @@ public class Weapons : MonoBehaviour
 
             for (int i = 0; i < maxProj; i++)
             {
-                GameObject guard = objectManager.MakeObj(ObjectNames.guardian);
+                GameObject guard = objectManager.MakeWeaponProj(ObjectNames.guardian);
                 guard.transform.position = transform.position + (Vector3.up * 2);
                 guard.transform.RotateAround(transform.position, Vector3.forward, rotateOffset * i);
                 guard.GetComponent<Guardian>().Initialize(curWeapons[ObjectNames.guardian],

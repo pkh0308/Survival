@@ -188,6 +188,7 @@ public class Player : MonoBehaviour
 
         curHp -= dmg;
         uiManager.UpdateHp(curHp, maxHp);
+        StageSoundManager.playSfx((int)StageSoundManager.StageSfx.playerDamaged);
     }
 
     void OnDie()

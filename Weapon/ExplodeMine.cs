@@ -51,10 +51,10 @@ public class ExplodeMine : WeaponBase
         anim.SetTrigger("OnFoot");
         
         yield return new WaitForSeconds(0.5f);
-        GameObject playerBullet = ObjectManager.makeObj(ObjectNames.playerBullet);
-        playerBullet.GetComponent<Explosion>().Initialize((int)(weaponData.WeaponAtk * atkPower), weaponData.WeaponId, weaponData.WeaponScale * atkScale);
-        playerBullet.transform.position = transform.position;
-        playerBullet.SetActive(true);
+        GameObject explosion = ObjectManager.makeObj(ObjectNames.explosion);
+        explosion.GetComponent<Explosion>().Initialize((int)(weaponData.WeaponAtk * atkPower), weaponData.WeaponId, weaponData.WeaponScale * atkScale);
+        explosion.transform.position = transform.position;
+        explosion.SetActive(true);
         StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.explosion);
 
         gameObject.SetActive(false);
