@@ -10,6 +10,8 @@ using Random = UnityEngine.Random; //System.Random 과 혼선 방지용
 public class Weapons : MonoBehaviour
 {
     ObjectManager objectManager;
+    //멀티플레이용 변수
+    bool isMine;
 
     //캐릭터 스탯
     PlayerStatus baseStat;
@@ -227,6 +229,11 @@ public class Weapons : MonoBehaviour
         objectManager = manager;
     }
 
+    public void SetIsMine(bool isMine)
+    {
+        this.isMine = isMine;
+    }
+
     //무기 획득 or 레벨업
     public void GetWeapon(int id)
     {
@@ -433,6 +440,8 @@ public class Weapons : MonoBehaviour
     //일시정지 종료 후 무기 코루틴 재시작용
     public void RestartWeapons()
     {
+        if (!isMine) return;
+
         List<int> keys = new List<int>(curWeapons.Keys);
         for(int i = 0; i < keys.Count; i++)
             StartWeaponRoutine(keys[i], false);
@@ -467,6 +476,8 @@ public class Weapons : MonoBehaviour
     //혼선 방지를 위해 해당 무기의 코루틴이 null이 아니면 정지 후 재시작
     void StartWeaponRoutine(int id, bool isNew)
     {
+        if (!isMine) return;
+
         switch(id)
         {
             //일반 무기
@@ -524,6 +535,8 @@ public class Weapons : MonoBehaviour
 
     void StopWeaponRoutine(int id)
     {
+        if (!isMine) return;
+
         Coroutine targetRoutine = null;
         switch (id)
         {
@@ -800,7 +813,7 @@ public class Weapons : MonoBehaviour
             shadowEdgeCount += Time.deltaTime;
             if(shadowEdgeCount > projInterval)
             {
-                CreateWeaponProj(ObjectNames.shadowEdge);
+                CreateWeaponProj(ObjectNames.shadowEdge, true);
                 shadowEdgeCount = 0;
             }
             yield return null;

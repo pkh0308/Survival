@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -13,6 +14,7 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] GameObject exitSet;
 
     //캐릭터 선택 화면 관련
+    [Header("캐릭터 선택")]
     int charId;
     [SerializeField] GameObject characterSelectSet;
     List<PlayerInfo> playerInfoList;
@@ -21,14 +23,17 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] Image[] playerWeaponImgs;
 
     //스테이지 선택 화면 관련
+    [Header("스테이지 선택")]
     int stageId;
     [SerializeField] GameObject stageSelectSet;
 
     //골드, 구매 관련
+    [Header("골드 / 구매")]
     [SerializeField] GameObject purchaseFailSet;
     [SerializeField] TextMeshProUGUI goldText;
 
     //강화 화면 관련
+    [Header("강화 화면")]
     [SerializeField] EnhanceSlot[] enhanceSlots;
     [SerializeField] TextMeshProUGUI[] enhanceValueTexts;
     Dictionary<int, EnhancementData> enhanceDic;
@@ -128,18 +133,21 @@ public class LobbyManager : MonoBehaviour
     }
 
     //게임 시작 버튼 관련
+    //모드 선택
     public void Btn_GameStart()
     {
         soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
         characterSelectSet.SetActive(true);
     }
-
+    
+    //캐릭터 선택
     public void Btn_characterSelect()
     {
         if (charId == 0) return;
 
         soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
         characterSelectSet.SetActive(false);
+
         stageSelectSet.SetActive(true);
     }
 
@@ -155,6 +163,7 @@ public class LobbyManager : MonoBehaviour
         charId = 0;
     }
 
+    //스테이지 선택
     public void Btn_StageSelectExit()
     {
         soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
@@ -190,7 +199,7 @@ public class LobbyManager : MonoBehaviour
         PlayerStatusManager.setStatus(status);
         PlayerStatusManager.setCharacterId(charId);
 
-        LoadingSceneManager.enterStage(stageId);
+        LoadingSceneManager.Inst.EnterStage(stageId);
     }
 
     //골드 UI 갱신

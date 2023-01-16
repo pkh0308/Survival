@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LoadingSceneManager : MonoBehaviour
 {
     [SerializeField] GameObject loadingScene;
+    [SerializeField] GameObject loadingCamera;
 
-    public static Action<int> enterStage;
-    public static Action setActiveSceneToCurStage;
-    public static Action setActiveSceneToPlayerScene;
-    public static Action exitStage;
-    public static Func<int> getCurStageIdx;
+    public static LoadingSceneManager Inst { get; private set; }
 
     int curStageIdx;
+    public int CurStageIdx { get { return curStageIdx; } }
+    WaitForSeconds minInterval = new WaitForSeconds(0.1f);
 
     public enum SceneIndex
     {
@@ -28,18 +26,16 @@ public class LoadingSceneManager : MonoBehaviour
 
     void Awake()
     {
-        enterStage = (a) => { EnterStage(a); };
-        setActiveSceneToCurStage = () => { SetActiveSceneToCurStage(); };
-        setActiveSceneToPlayerScene = () => { SetActiveSceneToPlayerScene(); };
-        exitStage = () => { ExitStage(); };
-        getCurStageIdx = () => { return curStageIdx; };
+        Inst = this;
 
+        loadingScene.SetActive(true);
         LoadLobby();
     }
 
     public void LoadLobby()
     {
-        SceneManager.LoadScene((int)SceneIndex.LOBBY, LoadSceneMode.Additive);
+        if(SceneManager.GetActiveScene() != SceneManager.GetSceneByBuildIndex((int)SceneIndex.LOBBY))
+            StartCoroutine(LoadingLobby());
     }
 
     public void SetActiveSceneToCurStage()
@@ -70,22 +66,34 @@ public class LoadingSceneManager : MonoBehaviour
         loadingScene.SetActive(false);
     }
 
+    IEnumerator LoadingLobby()
+    {
+        //로비 씬 로드 대기
+        AsyncOperation op = SceneManager.LoadSceneAsync((int)SceneIndex.LOBBY, LoadSceneMode.Additive);
+        while (!op.isDone)
+        {
+            yield return minInterval;
+        }
+        loadingScene.SetActive(false);
+        loadingCamera.SetActive(false);
+        SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex((int)SceneIndex.LOBBY));
+    }
+
     //입장하는 스테이지를 LoadSceneAsync로 로딩하며 AsyncOperation 변수에 저장
     //로딩 작업이 완료될때까지 대기한 후 해당 스테이지를 액티브 씬으로 설정, 이후 오브젝트 생성
     IEnumerator Loading()
     {
-        WaitForSeconds seconds = new WaitForSeconds(0.1f);
         //스테이지 씬 로드 대기
         AsyncOperation op = SceneManager.LoadSceneAsync(curStageIdx, LoadSceneMode.Additive);
         while (!op.isDone)
         {
-            yield return seconds;
+            yield return minInterval;
         }
         //플레이어 씬 로드 대기
         op = SceneManager.LoadSceneAsync((int)SceneIndex.PLAYER, LoadSceneMode.Additive);
         while (!op.isDone)
         {
-            yield return seconds;
+            yield return minInterval;
         }
         loadingScene.SetActive(false);
     }

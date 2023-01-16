@@ -194,7 +194,7 @@ public class UiManager : MonoBehaviour
 
     public void Btn_ExitYes()
     {
-        LoadingSceneManager.exitStage();
+        LoadingSceneManager.Inst.ExitStage();
     }
 
     public void Btn_Statics()
@@ -445,7 +445,8 @@ public class UiManager : MonoBehaviour
             lotteryTargetIdx = idx;
             lotteryTargetData = datas[0];
         }
-        
+
+        lotteryStartBtn.SetActive(true);
         lotterySet.SetActive(true);
         soundManager.PlayBgm((int)StageSoundManager.StageBgm.lotteryBgm);
     }
@@ -533,7 +534,6 @@ public class UiManager : MonoBehaviour
         lotteryResultSet.SetActive(false);
         lotteryHighlight.gameObject.SetActive(false);
         lotterySet.SetActive(false);
-        lotteryStartBtn.SetActive(true);
 
         //골드 갱신
         GoldManager.Instance.PlusGold(lotteryGold.Gold);
@@ -592,7 +592,7 @@ public class UiManager : MonoBehaviour
     public void Btn_StageClear()
     {
         stageClearSet.SetActive(false);
-        LoadingSceneManager.exitStage();
+        LoadingSceneManager.Inst.ExitStage();
     }
 
     //게임 오버
@@ -608,6 +608,6 @@ public class UiManager : MonoBehaviour
     public void Btn_GameOver()
     {
         gameOverSet.SetActive(false);
-        LoadingSceneManager.exitStage();
+        LoadingSceneManager.Inst.ExitStage();
     }
 }

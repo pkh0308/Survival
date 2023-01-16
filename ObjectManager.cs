@@ -197,9 +197,9 @@ public class ObjectManager : MonoBehaviour
 
     void Start()
     {
-        LoadingSceneManager.setActiveSceneToPlayerScene();
+        LoadingSceneManager.Inst.SetActiveSceneToPlayerScene();
         StartCharacter(playerCharacterId);
-        LoadingSceneManager.setActiveSceneToCurStage();
+        LoadingSceneManager.Inst.SetActiveSceneToCurStage();
         Generate();
     }
 
@@ -416,10 +416,10 @@ public class ObjectManager : MonoBehaviour
     }
 
     //플레이어 캐릭터 초기화
-    public GameObject StartCharacter(int id)
+    public void StartCharacter(int id)
     {
         GameObject target;
-        switch(id)
+        switch (id)
         {
             case ObjectNames.kkurugi:
                 target = Instantiate(kkurugiPrefab);
@@ -440,14 +440,14 @@ public class ObjectManager : MonoBehaviour
                 target = Instantiate(monkPrefab);
                 break;
             default:
-                return null;
+                target = null;
+                break;
         }
 
         player = target.GetComponent<Player>();
         player.Initialize(gameManager, uiManager, characterDic[id]);
         uiManager.GetWeaponLogic(target.GetComponent<Weapons>());
         target.GetComponent<Weapons>().SetObjectManager(this);
-        return target;
     }
 
     //무기 투사체 생성

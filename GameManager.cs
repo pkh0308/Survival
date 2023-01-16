@@ -33,6 +33,9 @@ public class GameManager : MonoBehaviour
     int curSpawnIdx;
     Vector3 spawnOffset;
     [SerializeField] float spawnDistance;
+    float hMin, hMax, vMin, vMax;
+    public static bool hRepos;
+    public static bool vRepos;
 
     //보스 관련
     [Header("보스 스폰")]
@@ -93,7 +96,7 @@ public class GameManager : MonoBehaviour
         goldCountPlus = (a) => { UpdateGoldCount(a); };
 
         spawnList = new List<EnemySpawnData>();
-        curStageIdx = LoadingSceneManager.getCurStageIdx();
+        curStageIdx = LoadingSceneManager.Inst.CurStageIdx;
         curSpawnIdx = 0;
         bossDie = () => { BossDie(); };
 
@@ -101,6 +104,7 @@ public class GameManager : MonoBehaviour
 
         ReadSpawnData();
         ReadItemData();
+        ReadStageData();
     }
 
     void ReadSpawnData()
@@ -164,6 +168,45 @@ public class GameManager : MonoBehaviour
             if (line == null) break;
         }
         itemDataReader.Close();
+    }
+
+    void ReadStageData()
+    {
+        //csv 파일에서 데이터 읽어오기
+        TextAsset stageDatas = Resources.Load("StageDatas") as TextAsset;
+        StringReader stageDataReader = new StringReader(stageDatas.text);
+
+        if (stageDataReader == null)
+        {
+            Debug.Log("stageDataReader is null");
+            return;
+        }
+        //첫줄 스킵(변수 이름 라인)
+        string line = stageDataReader.ReadLine();
+        if (line == null) return;
+
+        line = stageDataReader.ReadLine();
+        while (line.Length > 1)
+        {
+            string[] datas = line.Split(',');
+            if (datas[0] != LoadingSceneManager.Inst.CurStageIdx.ToString())
+            {
+                line = stageDataReader.ReadLine();
+                continue;
+            }
+
+            // 5: hMin, 6: hMax, 7: vMin, 8: vMax
+            hMin = float.Parse(datas[5]);
+            hMax = float.Parse(datas[6]);
+            vMin = float.Parse(datas[7]);
+            vMax = float.Parse(datas[8]);
+            break;
+        }
+        stageDataReader.Close();
+
+        //타입 설정
+        hRepos = hMax < 1000 ? false : true;
+        vRepos = vMax < 1000 ? false : true;
     }
 
     void Start()
@@ -258,8 +301,14 @@ public class GameManager : MonoBehaviour
             else if(curData.enemyId != 0)
             {
                 curEnemy = objectManager.MakeEnemy(curData.enemyId);
-                spawnOffset = Quaternion.Euler(0, 0, UnityEngine.Random.Range(0, 360)) * Vector3.right * spawnDistance; //랜덤 벡터값 생성
-                curEnemy.transform.position = Player.playerPos + spawnOffset; // 플레이어로부터 일정 거리 떨어진 곳에서 스폰
+                //랜덤 벡터값 생성
+                spawnOffset = Quaternion.Euler(0, 0, UnityEngine.Random.Range(0, 360)) * Vector3.right * spawnDistance + Player.playerPos;
+                //x값이나 y값이 경계 바깥일 경우 중간값으로 조정
+                if (spawnOffset.x != Mathf.Clamp(spawnOffset.x, hMin, hMax))
+                    spawnOffset.x = (hMin + hMax) / 2;
+                if (spawnOffset.y != Mathf.Clamp(spawnOffset.y, vMin, vMax))
+                    spawnOffset.y = (vMin + vMax) / 2;
+                curEnemy.transform.position = spawnOffset;
                 if(curData.enemyId >= ObjectNames.monsterTree) //보스일 경우
                 {
                     area = objectManager.MakeObj(ObjectNames.bossArea);
@@ -312,8 +361,14 @@ public class GameManager : MonoBehaviour
             if (onBossFighting) yield break;
 
             itemBox = objectManager.MakeObj(ObjectNames.itemBox);
-            spawnItemBoxOffset = Quaternion.Euler(0, 0, UnityEngine.Random.Range(0, 360)) * Vector3.right * spawnItemBoxDistance; //랜덤 벡터값 생성
-            itemBox.transform.position = Player.playerPos + spawnItemBoxOffset; // 플레이어로부터 일정 거리 떨어진 곳에서 스폰
+            //랜덤 벡터값 생성
+            spawnItemBoxOffset = Quaternion.Euler(0, 0, UnityEngine.Random.Range(0, 360)) * Vector3.right * spawnItemBoxDistance + Player.playerPos; 
+            //x값이나 y값이 경계 바깥일 경우 중간값으로 조정
+            if (spawnItemBoxOffset.x != Mathf.Clamp(spawnItemBoxOffset.x, hMin, hMax))
+                spawnItemBoxOffset.x = (hMin + hMax) / 2;
+            if (spawnItemBoxOffset.y != Mathf.Clamp(spawnItemBoxOffset.y, vMin, vMax))
+                spawnItemBoxOffset.y = (vMin + vMax) / 2;
+            itemBox.transform.position = spawnOffset;
 
             yield return spawnItemBoxInterval;
         }

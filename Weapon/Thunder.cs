@@ -3,9 +3,11 @@ using System.Collections;
 
 public class Thunder : WeaponBase
 {
+    [SerializeField] float searchDistance;
+
     protected override void IndividualInitialize()
     {
-        Collider2D[] cols = Physics2D.OverlapCircleAll(transform.position, 15.0f, LayerMask.GetMask("Enemy"));
+        Collider2D[] cols = Physics2D.OverlapCircleAll(transform.position, searchDistance, LayerMask.GetMask("Enemy"));
         if (cols.Length == 0)
         {
             StartCoroutine(Attack());

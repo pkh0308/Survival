@@ -22,15 +22,22 @@ public class Reposition : MonoBehaviour
 
         diff_x = diff_x > 0 ? 1 : -1;
         diff_y = diff_y > 0 ? 1 : -1;
-
+        
         switch (transform.tag)
         {
             case Tags.ground:
-                if (abs_x > abs_y)
+                if(GameManager.hRepos && GameManager.vRepos)
+                {
+                    if (abs_x > abs_y)
+                        transform.Translate(Vector3.right * diff_x * posVal);
+                    else if (abs_x < abs_y)
+                        transform.Translate(Vector3.up * diff_y * posVal);
+                }
+                else if(GameManager.hRepos) //수평 이동만 가능
                 {
                     transform.Translate(Vector3.right * diff_x * posVal);
                 }
-                else if (abs_x < abs_y)
+                else if(GameManager.vRepos) //수직 이동만 가능
                 {
                     transform.Translate(Vector3.up * diff_y * posVal);
                 }
@@ -38,11 +45,11 @@ public class Reposition : MonoBehaviour
             case Tags.enemy:
                 if (!col.enabled) return;
 
-                if (abs_x > abs_y)
+                if (abs_x > abs_y && GameManager.hRepos)
                 {
                     transform.Translate(Vector3.right * diff_x * posVal);
                 }
-                else if (abs_x < abs_y)
+                else if (abs_x < abs_y && GameManager.vRepos)
                 {
                     transform.Translate(Vector3.up * diff_y * posVal);
                 }

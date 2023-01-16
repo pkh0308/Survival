@@ -7,6 +7,9 @@ public class Player : MonoBehaviour
     //플레이어 위치 추적용
     public static Vector3 playerPos;
 
+    //멀티플레이 변수
+    bool isMine;
+
     GameManager gameManager;
     UiManager uiManager;
     Weapons weaponLogic;
@@ -35,14 +38,17 @@ public class Player : MonoBehaviour
     [SerializeField] int basicWeaponId;
 
     //ObjectManager에 호출하여 필요한 레퍼런스 제공
-    public void Initialize(GameManager gameManager, UiManager uiManager, CharacterData data)
+    public void Initialize(GameManager gameManager, UiManager uiManager, CharacterData data, bool isMine = true)
     {
         this.gameManager = gameManager;
         this.uiManager = uiManager;
         characterData = data;
+        this.isMine = isMine;
 
         baseHp = characterData.playerHealth;
         moveSpeed = characterData.playerMoveSpeed;
+
+        weaponLogic.SetIsMine(isMine);
     }
 
     void Awake()
@@ -61,7 +67,7 @@ public class Player : MonoBehaviour
 
     // Start is called before the first frame update
     void Start()
-    {
+    { 
         StatusMerge();
         weaponLogic.SetStatus(stat);
         maxHp = (int)(baseHp * stat.PlayerHealthVal);
@@ -84,6 +90,8 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        if (!isMine) return;
+
         playerPos = transform.position;
 
         if (isDie) return;
