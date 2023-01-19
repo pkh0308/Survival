@@ -7,6 +7,12 @@ public class Item : MonoBehaviour
     [SerializeField] protected float moveSpeed;
     [SerializeField] protected float speedOffset;
     protected float moveDelta;
+    bool isConsumed;
+
+    void OnEnable()
+    {
+        isConsumed = false;
+    }
 
     public void Touch()
     {
@@ -25,6 +31,9 @@ public class Item : MonoBehaviour
 
     public int Consume()
     {
+        if (isConsumed) return -1;
+
+        isConsumed = true;
         StopCoroutine(nameof(Trace));
         gameObject.SetActive(false);
         return id;

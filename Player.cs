@@ -7,9 +7,6 @@ public class Player : MonoBehaviour
     //플레이어 위치 추적용
     public static Vector3 playerPos;
 
-    //멀티플레이 변수
-    bool isMine;
-
     GameManager gameManager;
     UiManager uiManager;
     Weapons weaponLogic;
@@ -20,6 +17,10 @@ public class Player : MonoBehaviour
 
     float moveSpeed;
     Vector3 moveVec;
+
+    //물리 컨트롤
+    Coroutine velocityControllRoutine;
+    [SerializeField] float velocityCutTime;
 
     //캐릭터 스탯
     CharacterData characterData;
@@ -38,17 +39,14 @@ public class Player : MonoBehaviour
     [SerializeField] int basicWeaponId;
 
     //ObjectManager에 호출하여 필요한 레퍼런스 제공
-    public void Initialize(GameManager gameManager, UiManager uiManager, CharacterData data, bool isMine = true)
+    public void Initialize(GameManager gameManager, UiManager uiManager, CharacterData data)
     {
         this.gameManager = gameManager;
         this.uiManager = uiManager;
         characterData = data;
-        this.isMine = isMine;
 
         baseHp = characterData.playerHealth;
         moveSpeed = characterData.playerMoveSpeed;
-
-        weaponLogic.SetIsMine(isMine);
     }
 
     void Awake()
@@ -90,13 +88,10 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        if (!isMine) return;
-
         playerPos = transform.position;
 
-        if (isDie) return;
-
         InputCheck();
+        VelocityControll();
     }
 
     void InputCheck()
@@ -123,6 +118,35 @@ public class Player : MonoBehaviour
         {
             uiManager.InputUpDown(KeyCode.DownArrow);
             return;
+        }
+    }
+
+    void VelocityControll()
+    {
+        if (rigid.velocity == Vector2.zero) return;
+
+        if (velocityControllRoutine == null)
+            StartCoroutine(VelocityCut());
+    }
+
+    IEnumerator VelocityCut()
+    {
+        float count = 0;
+        while (gameObject.activeSelf)
+        {
+            if (GameManager.IsPaused)
+            {
+                yield return null;
+                continue;
+            }
+            count += Time.deltaTime;
+            if (count > velocityCutTime)
+            {
+                rigid.velocity = Vector2.zero;
+                velocityControllRoutine = null;
+                yield break;
+            }
+            yield return null;
         }
     }
 
@@ -180,11 +204,12 @@ public class Player : MonoBehaviour
         uiManager.UpdateHp(curHp, maxHp);
     }
 
-    public void OnDamaged(int dmg)
+    public void OnDamaged(int dmg, bool dotDmg = false)
     {
         if (isDie) return; //이미 죽은 경우 스킵
 
-        dmg -= stat.PlayerdefVal;
+        if(!dotDmg) //도트 데미지가 아니라면 방어력 만큼 데미지 감소
+            dmg -= stat.PlayerdefVal;
 
         if(curHp <= dmg)
         {

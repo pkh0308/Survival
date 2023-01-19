@@ -112,22 +112,6 @@ public class WeaponBase : MonoBehaviour
         Weapons.accumulateDmg(weaponData.WeaponId, val);
     }
 
-    //투사체 회전용 함수
-    //타겟의 위치값을 Vector3 형태로 받아 플레이어와의 각도를 arctan로 계산하여 회전
-    protected void Rotate(Vector3 target, bool isDirection = false)
-    {
-        float diff_x = isDirection ? target.x : target.x - transform.position.x;
-        float diff_y = isDirection ? target.y : target.y - transform.position.y;
-        if (diff_x == 0) diff_x = 0.01f; // DevideByZero 방지
-
-        float angle = Mathf.Atan(diff_x / diff_y) * Mathf.Rad2Deg * -1;
-        Vector3 rotationVec = Vector3.forward * angle;
-        transform.Rotate(rotationVec);
-
-        //타겟의 y좌표가 플레이어보다 아래쪽일 경우 뒤집기
-        if (diff_y < 0) spriteRenderer.flipY = true;
-    }
-
     protected virtual IEnumerator TimeOver()
     {
         float timer = 0;

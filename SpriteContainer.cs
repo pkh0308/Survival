@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
+//UI 이미지 갱신용 저장소
 public class SpriteContainer : MonoBehaviour
 {
     [Header("무기")]

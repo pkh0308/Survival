@@ -348,6 +348,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         stageEnder.SetActive(false);
+        uiManager.ChangeProgressBar();
     }
 
     //아이템 박스 스폰
@@ -377,6 +378,9 @@ public class GameManager : MonoBehaviour
     //아이템 소비
     public void GetItem(int id)
     {
+        //이미 소모된 아이템 재습득 방지
+        if (id == -1) return;
+
         switch(id)
         {
             case ObjectNames.exp_10:
@@ -502,6 +506,7 @@ public class GameManager : MonoBehaviour
     public void BossDie()
     {
         area.SetActive(false);
+        uiManager.ChangeProgressBar();
         StartCoroutine(StageClear());
     }
 

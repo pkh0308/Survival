@@ -113,6 +113,7 @@ public class Enemy : MonoBehaviour
             spriteRenderer.flipX = false;
     }
 
+    //밀치기 효과가 너무 오래가지 않도록 일정 시간 후 velocity 초기화
     void VelocityControll()
     {
         if (rigid.velocity == Vector2.zero) return;
@@ -123,9 +124,23 @@ public class Enemy : MonoBehaviour
 
     IEnumerator VelocityCut()
     {
-        yield return new WaitForSeconds(velocityCutTime);
-        rigid.velocity = Vector2.zero;
-        velocityControllRoutine = null;
+        float count = 0;
+        while(gameObject.activeSelf)
+        {
+            if (GameManager.IsPaused)
+            {
+                yield return null;
+                continue;
+            }
+            count += Time.deltaTime;
+            if(count > velocityCutTime)
+            {
+                rigid.velocity = Vector2.zero;
+                velocityControllRoutine = null;
+                yield break;
+            }
+            yield return null;
+        }
     }
 
     void Pause()
@@ -149,10 +164,21 @@ public class Enemy : MonoBehaviour
         UiManager.showDamage(dmg, transform.position);
 
         if (dmg >= curHp)
+        {
+            curHp = 0;
             StartCoroutine(OnDie());
+            if (type == enemyType.Boss)
+                BossDie();
+        }
         else
             curHp -= dmg;
+
+        if (type == enemyType.Boss)
+            UiManager.updateBossHp(curHp, maxHp);
     }
+
+    //보스 사망 시 개별 처리 필요한 내용 상속받은 클래스에서 작성
+    protected virtual void BossDie() { }
 
     //밀치는 효과가 있는 경우
     public void OnDamaged(int dmg, Vector3 vec)
@@ -166,9 +192,9 @@ public class Enemy : MonoBehaviour
             curHp -= dmg;
 
         if (type == enemyType.Normal) //일반 몹만 밀치기 적용
-        {
             rigid.AddForce(vec, ForceMode2D.Impulse);
-        } 
+        else if(type == enemyType.Boss)
+            UiManager.updateBossHp(curHp, maxHp);
     }
 
     IEnumerator OnDie(bool timeOver = false)

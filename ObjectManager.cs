@@ -60,17 +60,32 @@ public class ObjectManager : MonoBehaviour
     [SerializeField] GameObject zombiePrefab;
     [SerializeField] GameObject zombie_UniquePrefab;
     [SerializeField] GameObject salesmanPrefab;
+    [SerializeField] GameObject slimePrefab;
+    [SerializeField] GameObject cactusPrefab;
+    [SerializeField] GameObject pigPrefab;
     [SerializeField] GameObject monsterTreePrefab;
+    [SerializeField] GameObject bossPigPrefab;
+    [SerializeField] GameObject poisonFlyPrefab;
     GameObject[] zombie;
     GameObject[] zombie_Unique;
     GameObject[] salesman;
     GameObject[] monsterTree;
+    GameObject[] slime;
+    GameObject[] cactus;
+    GameObject[] pig;
+    GameObject[] bossPig;
+    GameObject[] poisonFly;
+
 
     [Header("몬스터 투사체")]
     [SerializeField] GameObject stonePrefab;
     [SerializeField] GameObject phonePrefab;
+    [SerializeField] GameObject poisonShotPrefab;
+    [SerializeField] GameObject poisonAreaPrefab;
     GameObject[] stone;
     GameObject[] phone;
+    GameObject[] poisonShot;
+    GameObject[] poisonArea;
 
     //경험치 젬
     [Header("경험치 젬")]
@@ -109,7 +124,9 @@ public class ObjectManager : MonoBehaviour
     //기타
     [Header("기타")]
     [SerializeField] GameObject bossAreaPrefab;
+    [SerializeField] GameObject bossRushDirPrefab;
     GameObject[] bossArea;
+    GameObject[] bossRushDir;
 
     //UI
     [Header("UI")]
@@ -162,10 +179,17 @@ public class ObjectManager : MonoBehaviour
         zombie_Unique = new GameObject[10];
         salesman = new GameObject[300];
         monsterTree = new GameObject[3];
+        slime = new GameObject[300];
+        cactus = new GameObject[300];
+        pig = new GameObject[300];
+        bossPig = new GameObject[3];
+        poisonFly = new GameObject[3];
 
         //몬스터 투사체
         stone = new GameObject[100];
         phone = new GameObject[100];
+        poisonShot = new GameObject[100];
+        poisonArea = new GameObject[100];
 
         //경험치 젬
         expGemLow = new GameObject[1000];
@@ -188,6 +212,7 @@ public class ObjectManager : MonoBehaviour
 
         //기타
         bossArea = new GameObject[5];
+        bossRushDir = new GameObject[5];
 
         //UI_텍스트
         texts = new TextMeshProUGUI[1000];
@@ -233,7 +258,6 @@ public class ObjectManager : MonoBehaviour
     }
 
     // 스테이지 로딩후 필요 개체들 미리 생성
-    // 오퍼레이터의 경우 operatorStatus 파일을 읽어와서 스테이터스 설정
     void Generate()
     {
         //몬스터
@@ -257,6 +281,31 @@ public class ObjectManager : MonoBehaviour
             monsterTree[idx] = Instantiate(monsterTreePrefab);
             monsterTree[idx].SetActive(false);
         }
+        for (int idx = 0; idx < slime.Length; idx++)
+        {
+            slime[idx] = Instantiate(slimePrefab);
+            slime[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < cactus.Length; idx++)
+        {
+            cactus[idx] = Instantiate(cactusPrefab);
+            cactus[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < pig.Length; idx++)
+        {
+            pig[idx] = Instantiate(pigPrefab);
+            pig[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < bossPig.Length; idx++)
+        {
+            bossPig[idx] = Instantiate(bossPigPrefab);
+            bossPig[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < poisonFly.Length; idx++)
+        {
+            poisonFly[idx] = Instantiate(poisonFlyPrefab);
+            poisonFly[idx].SetActive(false);
+        }
         //몬스터 투사체
         for (int idx = 0; idx < stone.Length; idx++)
         {
@@ -267,6 +316,16 @@ public class ObjectManager : MonoBehaviour
         {
             phone[idx] = Instantiate(phonePrefab);
             phone[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < poisonShot.Length; idx++)
+        {
+            poisonShot[idx] = Instantiate(poisonShotPrefab);
+            poisonShot[idx].SetActive(false);
+        }
+        for (int idx = 0; idx < poisonArea.Length; idx++)
+        {
+            poisonArea[idx] = Instantiate(poisonAreaPrefab);
+            poisonArea[idx].SetActive(false);
         }
 
         //무기 투사체
@@ -406,6 +465,11 @@ public class ObjectManager : MonoBehaviour
             bossArea[idx] = Instantiate(bossAreaPrefab);
             bossArea[idx].SetActive(false);
         }
+        for (int idx = 0; idx < bossRushDir.Length; idx++)
+        {
+            bossRushDir[idx] = Instantiate(bossRushDirPrefab);
+            bossRushDir[idx].SetActive(false);
+        }
 
         //텍스트
         for (int idx = 0; idx < texts.Length; idx++)
@@ -524,12 +588,20 @@ public class ObjectManager : MonoBehaviour
             case ObjectNames.monsterTree:
                 targetPool = monsterTree;
                 break;
-            //몬스터 투사체
-            case ObjectNames.stone:
-                targetPool = stone;
+            case ObjectNames.slime:
+                targetPool = slime;
                 break;
-            case ObjectNames.phone:
-                targetPool = phone;
+            case ObjectNames.cactus:
+                targetPool = cactus;
+                break;
+            case ObjectNames.pig:
+                targetPool = pig;
+                break;
+            case ObjectNames.bossPig:
+                targetPool = bossPig;
+                break;
+            case ObjectNames.poisonFly:
+                targetPool = poisonFly;
                 break;
         }
 
@@ -555,6 +627,12 @@ public class ObjectManager : MonoBehaviour
                 break;
             case ObjectNames.phone:
                 targetPool = phone;
+                break;
+            case ObjectNames.poisonShot:
+                targetPool = poisonShot;
+                break;
+            case ObjectNames.poisonArea:
+                targetPool = poisonArea;
                 break;
         }
 
@@ -626,6 +704,10 @@ public class ObjectManager : MonoBehaviour
             //보스 전투 영역
             case ObjectNames.bossArea:
                 targetPool = bossArea;
+                break;
+            //보스 돌진 방향
+            case ObjectNames.bossRushDir:
+                targetPool = bossRushDir;
                 break;
         }
 

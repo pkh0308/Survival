@@ -21,6 +21,7 @@ public class SoccerBall : WeaponBase
         AcmDmg((int)(weaponData.WeaponAtk * atkPower));
         StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.soccerBall);
 
+        //적에게 부딪힌 뒤 튕겨져 나갈 방향 계산
         Vector3 diff = col.transform.position - transform.position;
         if (Mathf.Abs(diff.x) > Mathf.Abs(diff.y))
         {

@@ -11,6 +11,7 @@ public class MonsterTree : Enemy
         StartCoroutine(OctoShoot());
     }
 
+    //상하좌우 4방향과 그 사이 대각선 방향으로 8발 발사
     IEnumerator OctoShoot()
     {
         directions = new Vector3[8];
@@ -37,7 +38,7 @@ public class MonsterTree : Enemy
             {
                 for (int i = 0; i < directions.Length; i++)
                 {
-                    GameObject bullet = ObjectManager.makeEnemy(bulletId);
+                    GameObject bullet = ObjectManager.makeEnemyBullet(bulletId);
                     bullet.transform.position = transform.position;
                     bullet.GetComponent<EnemyBullet>().Shoot(rangePow, directions[i]);
                 }

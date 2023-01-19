@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using MyMath;
 
 public class Missile : WeaponBase
 {
@@ -7,12 +8,15 @@ public class Missile : WeaponBase
 
     protected override void IndividualInitialize()
     {
+        //무작위 방향으로 발사
         direction.x = Random.Range(-5.0f, 5.0f);
         direction.y = Random.Range(-5.0f, 5.0f);
         direction = direction.normalized * weaponData.WeaponProjectileSpeed;
         rigid.AddForce(direction, ForceMode2D.Impulse);
+
         initialVelocity = rigid.velocity;
-        Rotate(direction, true);
+        transform.Rotate(MyRotation.Rotate(direction, out bool flip));
+        if (flip) spriteRenderer.flipY = true;
 
         StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.missile);
     }

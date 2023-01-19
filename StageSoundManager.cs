@@ -10,14 +10,16 @@ public class StageSoundManager : MonoBehaviour
     //재생 함수 호출용 열거형
     public enum StageBgm { stage_1 = 100, lotteryBgm, lotteryStart }
     public enum StageSfx { getExp = 1000, levelUp, stageClear, gameOver, meat_or_magnet, gold, bomb, lotteryEnd, bossAlert, playerDamaged, playerDeath }
-    public enum WeaponSfx { soccerBall = 1100, shuriken, defender, missile, thunder, explodeMine, explosion }
+    public enum WeaponSfx { soccerBall = 1100, shuriken, defender, missile, thunder, explodeMine, explosion, defenderAttack }
 
     //bgm
+    [Header("Bgm")]
     [SerializeField] AudioClip stage_1;
     [SerializeField] AudioClip lotteryBgm;
     [SerializeField] AudioClip lotteryStart;
 
     //sfx
+    [Header("Sfx")]
     public static Action<int> playSfx;
     [SerializeField] AudioClip getExp;
     [SerializeField] AudioClip levelUp;
@@ -32,6 +34,7 @@ public class StageSoundManager : MonoBehaviour
     [SerializeField] AudioClip playerDamaged;
 
     //weapon
+    [Header("Weapon")]
     public static Action<int> playWeaponSfx; 
     [SerializeField] AudioClip soccerBallSfx;
     [SerializeField] AudioClip shurikenSfx;
@@ -39,6 +42,7 @@ public class StageSoundManager : MonoBehaviour
     [SerializeField] AudioClip missileSfx;
     [SerializeField] AudioClip thunderSfx;
     [SerializeField] AudioClip explodeMineSfx;
+    [SerializeField] AudioClip defenderAttackSfx;
 
     [SerializeField] AudioClip explosionSfx;
 
@@ -199,6 +203,10 @@ public class StageSoundManager : MonoBehaviour
                 break;
             case (int)WeaponSfx.explosion:
                 curSfxSource.clip = explosionSfx;
+                curSfxSource.Play();
+                break;
+            case (int)WeaponSfx.defenderAttack:
+                curSfxSource.clip = defenderAttackSfx;
                 curSfxSource.Play();
                 break;
         }

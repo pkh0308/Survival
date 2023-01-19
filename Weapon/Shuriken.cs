@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using MyMath;
 
 public class Shuriken : WeaponBase
 {
@@ -6,6 +7,7 @@ public class Shuriken : WeaponBase
 
     protected override void IndividualInitialize()
     {
+        //가장 가까운 적을 탐색하여 발사
         Collider2D[] cols = Physics2D.OverlapCircleAll(transform.position, searchDistance, LayerMask.GetMask("Enemy")); 
         if (cols.Length > 0)
         {
@@ -22,9 +24,10 @@ public class Shuriken : WeaponBase
             }
             
             direction = (cols[minIdx].gameObject.transform.position - transform.position).normalized;
-            Rotate(cols[minIdx].gameObject.transform.position);
+            transform.Rotate(MyRotation.Rotate(transform.position, cols[minIdx].gameObject.transform.position, out bool flip));
+            if(flip) spriteRenderer.flipY = true;
         }
-        else
+        else //탐색 영역 내에 적이 없을 경우
         {
             direction = Vector3.right;
             transform.rotation = Quaternion.Euler(0, 0, -90);

@@ -53,7 +53,7 @@ public class UiManager : MonoBehaviour
     [Header("경험치")]
     [SerializeField] Image expBar;
     [SerializeField] TextMeshProUGUI levelText;
-    Vector3 expBarScale;
+    Vector3 expBarScale = Vector3.one;
 
     //무기 획득 관련
     [Header("무기 획득")]
@@ -92,8 +92,13 @@ public class UiManager : MonoBehaviour
     int lotteryTargetIdx;
     Vector2 highlightOffset = new Vector2(40, -40);
 
-    [Header("보스 경고")]
+    [Header("보스")]
     [SerializeField] GameObject bossAlertSet;
+    [SerializeField] GameObject bossIcon;
+    [SerializeField] Image bossHpBar;
+    Vector3 bossHpBarScale = Vector3.one;
+    bool onBossFight;
+    public static Action<int, int> updateBossHp;
 
     //스테이지 클리어 관련
     [Header("스테이지 클리어")]
@@ -121,7 +126,8 @@ public class UiManager : MonoBehaviour
 
         hpPosOffset = new Vector3(0, -60, 0);
         hpBarScale = Vector3.one;
-        expBarScale = Vector3.one;
+
+        updateBossHp = (cur, max) => { UpdateBossHp(cur, max); };
 
         weaponSelectSlots_Bg = new Image[weaponSelectSlots.Length];
         for (int i = 0; i < weaponSelectSlots.Length; i++)
@@ -232,7 +238,7 @@ public class UiManager : MonoBehaviour
         hpBar.rectTransform.localScale = hpBarScale;
     }
 
-    //보스 경고
+    //보스 관련
     public IEnumerator BossAlert(float interval)
     {
         bossAlertSet.SetActive(true);
@@ -240,6 +246,32 @@ public class UiManager : MonoBehaviour
         yield return new WaitForSeconds(interval);
 
         bossAlertSet.SetActive(false);
+    }
+
+    public void ChangeProgressBar()
+    {
+        if(!onBossFight)
+        {
+            onBossFight = true;
+            expBar.gameObject.SetActive(false);
+            bossHpBar.gameObject.SetActive(true);
+            levelText.gameObject.SetActive(false);
+            bossIcon.SetActive(true);
+        }
+        else
+        {
+            onBossFight = false;
+            expBar.gameObject.SetActive(true);
+            bossHpBar.gameObject.SetActive(false);
+            levelText.gameObject.SetActive(true);
+            bossIcon.SetActive(false);
+        }
+    }
+
+    public void UpdateBossHp(int cur, int max)
+    {
+        bossHpBarScale.x = (float)cur / max;
+        bossHpBar.rectTransform.localScale = bossHpBarScale;
     }
 
     //카운트 관련

@@ -10,8 +10,6 @@ using Random = UnityEngine.Random; //System.Random 과 혼선 방지용
 public class Weapons : MonoBehaviour
 {
     ObjectManager objectManager;
-    //멀티플레이용 변수
-    bool isMine;
 
     //캐릭터 스탯
     PlayerStatus baseStat;
@@ -50,6 +48,7 @@ public class Weapons : MonoBehaviour
 
     //수비수
     Coroutine defender;
+    List<GameObject> curDefenders;
     float defenderCount = 0;
 
     //로켓 미사일
@@ -100,6 +99,8 @@ public class Weapons : MonoBehaviour
         acmDmgDic = new Dictionary<int, int>();
         totalDmg = 0;
 
+        curDefenders = new List<GameObject>();
+
         restartWeapons = () => { RestartWeapons(); };
         accumulateDmg = (a, b) => { AccumulateDmg(a, b); };
         getAccumulatedDmg = () => { return GetAccumulatedDmg(); };
@@ -107,7 +108,7 @@ public class Weapons : MonoBehaviour
 
         ReadData();
     }
-
+    
     //csv파일에서 데이터를 읽어온 뒤 weaponDictionary에 저장
     void ReadData()
     {
@@ -186,7 +187,11 @@ public class Weapons : MonoBehaviour
                     list.Add(new AccessoryData(id, int.Parse(datas[1]), datas[2], float.Parse(datas[3]), datas[4]));
 
                     line = accesoryDataReader.ReadLine();
-                    if (line == null) break;
+                    if (line == null)
+                    {
+                        accesoryDic.Add(curId, list.ToArray());
+                        break;
+                    }
                 }
                 if (line == null) break;
             }
@@ -227,11 +232,6 @@ public class Weapons : MonoBehaviour
     public void SetObjectManager(ObjectManager manager)
     {
         objectManager = manager;
-    }
-
-    public void SetIsMine(bool isMine)
-    {
-        this.isMine = isMine;
     }
 
     //무기 획득 or 레벨업
@@ -440,8 +440,6 @@ public class Weapons : MonoBehaviour
     //일시정지 종료 후 무기 코루틴 재시작용
     public void RestartWeapons()
     {
-        if (!isMine) return;
-
         List<int> keys = new List<int>(curWeapons.Keys);
         for(int i = 0; i < keys.Count; i++)
             StartWeaponRoutine(keys[i], false);
@@ -476,8 +474,6 @@ public class Weapons : MonoBehaviour
     //혼선 방지를 위해 해당 무기의 코루틴이 null이 아니면 정지 후 재시작
     void StartWeaponRoutine(int id, bool isNew)
     {
-        if (!isMine) return;
-
         switch(id)
         {
             //일반 무기
@@ -535,8 +531,6 @@ public class Weapons : MonoBehaviour
 
     void StopWeaponRoutine(int id)
     {
-        if (!isMine) return;
-
         Coroutine targetRoutine = null;
         switch (id)
         {
@@ -651,7 +645,7 @@ public class Weapons : MonoBehaviour
         }
     }
 
-    // 수호자
+    //수비수
     IEnumerator Defender(bool isNew = false)
     {
         float defenderSec = curWeapons[ObjectNames.defender].WeaponCooltime * curStat.CoolTimeVal;
@@ -665,12 +659,13 @@ public class Weapons : MonoBehaviour
 
             if(defenderCount > defenderSec)
             {
+                curDefenders.Clear();
                 for (int i = 0; i < maxProj; i++)
                 {
-                    GameObject def = objectManager.MakeWeaponProj(ObjectNames.defender);
-                    def.transform.position = transform.position + (Vector3.up * 2);
-                    def.transform.RotateAround(transform.position, Vector3.forward, rotateOffset * i);
-                    def.GetComponent<WeaponBase>().Initialize(curWeapons[ObjectNames.defender],
+                    curDefenders.Add(objectManager.MakeWeaponProj(ObjectNames.defender));
+                    curDefenders[i].transform.position = transform.position + (Vector3.up * 2);
+                    curDefenders[i].transform.RotateAround(transform.position, Vector3.forward, rotateOffset * i);
+                    curDefenders[i].GetComponent<WeaponBase>().Initialize(curWeapons[ObjectNames.defender],
                                                               curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
                 }
                 StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.defender);
@@ -795,7 +790,7 @@ public class Weapons : MonoBehaviour
             if(quantumBallCount > quantumBallSec)
             {
                 for (int i = 0; i < maxProj; i++)
-                    CreateWeaponProj(ObjectNames.quantumBall);
+                    CreateWeaponProj(ObjectNames.quantumBall, true);
 
                 quantumBallCount = 0;
             }
@@ -811,7 +806,7 @@ public class Weapons : MonoBehaviour
         while (!GameManager.IsPaused)
         {
             shadowEdgeCount += Time.deltaTime;
-            if(shadowEdgeCount > projInterval)
+            if(shadowEdgeCount > 0.3f) //쿨타임 영향을 안받게 하기 위해 고정수치 사용
             {
                 CreateWeaponProj(ObjectNames.shadowEdge, true);
                 shadowEdgeCount = 0;
@@ -825,6 +820,10 @@ public class Weapons : MonoBehaviour
     {
         if(isNew) //영구 유지이므로 최초 실행시에만 생성
         {
+            //기존 디펜더 제거
+            foreach (var defender in curDefenders)
+                defender.SetActive(false);
+
             int maxProj = curWeapons[ObjectNames.guardian].WeaponProjectileCount + curStat.ProjCountVal;
             float rotateOffset = 360 / maxProj;
 

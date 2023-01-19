@@ -1,5 +1,7 @@
 using UnityEngine;
 
+//오브젝트 회전용 함수 선언 네임스페이스
+//회전 로직이 필요한 클래스에서 참조하여 사용
 namespace MyMath
 {
     public class MyRotation

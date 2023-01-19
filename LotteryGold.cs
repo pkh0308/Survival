@@ -10,7 +10,6 @@ public class LotteryGold : MonoBehaviour
     public int Gold { get { return gold; } }
     [SerializeField] int minGold;
     [SerializeField] int maxGold;
-    [SerializeField] int devider;
     bool isLottering;
 
     void Awake()
@@ -31,8 +30,8 @@ public class LotteryGold : MonoBehaviour
     void Update()
     {
         if (!isLottering) return;
-
-        gold += Random.Range(minGold, maxGold) / devider;
+        
+        gold += Random.Range(minGold, maxGold);
         goldText.text = string.Format("{0:n0}", gold);
     }
 

@@ -1,4 +1,4 @@
-﻿//ObjectManager로 오브젝트 생성용 변수 모음집
+﻿//오브젝트 생성용 변수 모음집
 //아이디 추가 시 갱신 요망
 public class ObjectNames
 {
@@ -75,13 +75,25 @@ public class ObjectNames
     public const int zombie_Unique = 100002;
     public const int salesman = 100011;
     public const int salesman_Unique = 100012;
+    public const int slime = 100021;
+    public const int slime_Unique = 100022;
+    public const int cactus = 100031;
+    public const int cactus_Unique = 100032;
+    public const int pig = 100041;
+    public const int pig_Unique = 100042;
+
     public const int monsterTree = 120001;
+    public const int bossPig = 130001;
+    public const int poisonFly = 140001;
     public const int bossAlert = 900001;
     public const int bossArea = 900011;
+    public const int bossRushDir = 900021;
 
     //몬스터 투사체
     public const int stone = 200001;
     public const int phone = 200011;
+    public const int poisonShot = 200021;
+    public const int poisonArea = 200022;
 
     //기타
     public const string text = "Text";

@@ -4,15 +4,15 @@ using MyMath;
 
 public class EnemyBullet : MonoBehaviour
 {
-    [SerializeField] float projSpeed;
-    [SerializeField] float timeOutSec;
-    int dmg;
-    Rigidbody2D rigid;
-    SpriteRenderer spriteRenderer;
+    [SerializeField] protected float projSpeed;
+    [SerializeField] protected float timeOutSec;
+    protected int dmg;
+    protected Rigidbody2D rigid;
+    protected SpriteRenderer spriteRenderer;
 
     //일시정지 대응
-    bool isPaused;
-    Vector2 beforeVelocity;
+    protected bool isPaused;
+    protected Vector2 beforeVelocity;
 
     void Awake()
     {
@@ -48,6 +48,7 @@ public class EnemyBullet : MonoBehaviour
         rigid.velocity = beforeVelocity;
     }
 
+    //입력받은 방향으로 투척
     public void Shoot(int dmg, Vector3 dir)
     {
         this.dmg = dmg;
@@ -59,7 +60,7 @@ public class EnemyBullet : MonoBehaviour
         StartCoroutine(TimeOver());
     }
 
-    void OnTriggerEnter2D(Collider2D col)
+    protected virtual void OnTriggerEnter2D(Collider2D col)
     {
         if (!col.CompareTag(Tags.player))
             return;
@@ -68,7 +69,8 @@ public class EnemyBullet : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    IEnumerator TimeOver()
+    //일정 시간 비행 후 비활성화
+    protected virtual IEnumerator TimeOver()
     {
         float count = 0;
         while(gameObject.activeSelf)

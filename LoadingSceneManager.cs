@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+//씬 관리 및 로딩스크린 노출용 클래스
 public class LoadingSceneManager : MonoBehaviour
 {
     [SerializeField] GameObject loadingScene;
@@ -27,6 +28,7 @@ public class LoadingSceneManager : MonoBehaviour
     void Awake()
     {
         Inst = this;
+        Application.targetFrameRate = 60;
 
         loadingScene.SetActive(true);
         LoadLobby();

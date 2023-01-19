@@ -28,6 +28,7 @@ public class Defender : WeaponBase
             return;
         }
         //적 피격 로직 호출
+        StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.defenderAttack);
         col.GetComponent<Enemy>().OnDamaged((int)(weaponData.WeaponAtk * atkPower), 
                                             (col.transform.position - Player.playerPos).normalized * knuckbackOffset);
         AcmDmg((int)(weaponData.WeaponAtk * atkPower));
