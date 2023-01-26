@@ -289,6 +289,8 @@ public class Weapons : MonoBehaviour
         
         curStat.SetStatus(id, baseStat, curAccessories[id].AccessoryValue);
         Player.updateStatus(curStat, id);
+        //변경된 스택 적용을 위해 재시작
+        RestartWeapons();
         //악세사리가 최고 레벨일 경우
         if (curAccessories[id].AccessoryLevel == accesoryDic[id].Length)
             curMaxAccessories++;

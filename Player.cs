@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Player : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class Player : MonoBehaviour
 
     float moveSpeed;
     Vector3 moveVec;
+    Vector3 targetPos;
 
     //물리 컨트롤
     Coroutine velocityControllRoutine;
@@ -61,6 +63,7 @@ public class Player : MonoBehaviour
 
         stat = PlayerStatusManager.getStatus();
         moveVec = Vector3.zero;
+        targetPos = Vector3.forward;
     }
 
     // Start is called before the first frame update
@@ -157,6 +160,7 @@ public class Player : MonoBehaviour
         if (GameManager.IsPaused == false)
         {
             Move();
+            MouseMove();
         }
     }
 
@@ -169,6 +173,26 @@ public class Player : MonoBehaviour
         else if(moveVec.x > 0) spriteRender.flipX = false;
 
         rigid.transform.Translate(moveSpeed * stat.PlayerMoveSpeedVal * Time.fixedDeltaTime * moveVec);
+    }
+
+    void MouseMove()
+    {
+        if (EventSystem.current.IsPointerOverGameObject()) return;
+
+        if (Input.GetMouseButton(0))
+        {
+            targetPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            targetPos.z = 0;
+
+            if (targetPos.x < transform.position.x) spriteRender.flipX = true;
+            else if (targetPos.x > transform.position.x) spriteRender.flipX = false;
+        }
+        
+        if (targetPos == Vector3.forward) return;
+        
+        transform.position =  Vector3.MoveTowards(transform.position, targetPos, moveSpeed * stat.PlayerMoveSpeedVal * Time.fixedDeltaTime);
+        if (Vector3.Distance(transform.position, targetPos) < 0.1f)
+            targetPos = Vector3.forward;
     }
 
     //스테이터스 정보 갱신
