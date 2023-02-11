@@ -22,9 +22,8 @@ public class BossRushDir : MonoBehaviour
         if (GameManager.IsPaused) return;
 
         transform.position = boss.transform.position;
-        curRotationVec = MyRotation.Rotate(transform.position, Player.playerPos, out bool flip);
+        curRotationVec = MyRotation.Rotate(transform.position, Player.playerPos);
         transform.Rotate(curRotationVec - pastRotationVec);
-        spriteRenderer.flipY = flip;
 
         pastRotationVec = curRotationVec;
     }

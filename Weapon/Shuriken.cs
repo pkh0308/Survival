@@ -24,8 +24,7 @@ public class Shuriken : WeaponBase
             }
             
             direction = (cols[minIdx].gameObject.transform.position - transform.position).normalized;
-            transform.Rotate(MyRotation.Rotate(transform.position, cols[minIdx].gameObject.transform.position, out bool flip));
-            if(flip) spriteRenderer.flipY = true;
+            transform.Rotate(MyRotation.Rotate(transform.position, cols[minIdx].gameObject.transform.position));
         }
         else //탐색 영역 내에 적이 없을 경우
         {

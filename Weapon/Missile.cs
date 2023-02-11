@@ -15,8 +15,7 @@ public class Missile : WeaponBase
         rigid.AddForce(direction, ForceMode2D.Impulse);
 
         initialVelocity = rigid.velocity;
-        transform.Rotate(MyRotation.Rotate(direction, out bool flip));
-        if (flip) spriteRenderer.flipY = true;
+        transform.Rotate(MyRotation.Rotate(direction));
 
         StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.missile);
     }

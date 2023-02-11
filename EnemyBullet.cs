@@ -54,8 +54,7 @@ public class EnemyBullet : MonoBehaviour
         this.dmg = dmg;
 
         rigid.AddForce(dir * projSpeed, ForceMode2D.Impulse);
-        transform.Rotate(MyRotation.Rotate(dir, out bool flip));
-        spriteRenderer.flipY = flip;
+        transform.Rotate(MyRotation.Rotate(dir));
 
         StartCoroutine(TimeOver());
     }
