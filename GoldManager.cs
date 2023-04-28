@@ -4,7 +4,17 @@ using UnityEngine;
 
 public class GoldManager
 {
-    //싱글톤 구현
+    // 생성자 및 소멸자
+    private GoldManager()
+    {
+        gold = PlayerPrefs.HasKey(nameof(gold)) ? PlayerPrefs.GetInt(nameof(gold)) : 0;
+    }
+    ~GoldManager()
+    {
+        PlayerPrefs.SetInt(nameof(gold), gold);
+    }
+
+    // 싱글톤 구현
     private static GoldManager instance;
     public static GoldManager Instance
     {
@@ -19,17 +29,6 @@ public class GoldManager
 
     int gold;
     public int Gold { get { return gold; } }
-
-    //생성자 및 소멸자
-    public GoldManager()
-    {
-        gold = PlayerPrefs.HasKey(nameof(gold)) ? PlayerPrefs.GetInt(nameof(gold)) : 0;
-    }
-
-    ~GoldManager()
-    {
-        PlayerPrefs.SetInt(nameof(gold), gold);
-    }
 
     //외부 사용 함수
     public void PlusGold(int plus)
