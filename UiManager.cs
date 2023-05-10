@@ -155,7 +155,7 @@ public class UiManager : MonoBehaviour
         dmgText.text = string.Format("{0:n0}", dmg);
         dmgText.transform.position = pos;
 
-        yield return new WaitForSeconds(1.0f);
+        yield return WfsManager.Instance.GetWaitForSeconds(1.0f);
         dmgText.gameObject.SetActive(false);
     }
 
@@ -243,7 +243,7 @@ public class UiManager : MonoBehaviour
     {
         bossAlertSet.SetActive(true);
         soundManager.PlaySfx((int)StageSoundManager.StageSfx.bossAlert);
-        yield return new WaitForSeconds(interval);
+        yield return WfsManager.Instance.GetWaitForSeconds(interval);
 
         bossAlertSet.SetActive(false);
     }
@@ -301,24 +301,26 @@ public class UiManager : MonoBehaviour
     public void WeaponSelect()
     {
         //3개의 버튼에 랜덤 무기 노출
-        levelupDatas = weaponLogic.GetRandomWeaponData().ToArray();
+        levelupDatas = new DataForLevelUp[(int)Weapons.WeaponVar.NumOfLevelUpWeapon];
+        weaponLogic.GetRandomWeaponData(levelupDatas);
         for (int i = 0; i < levelupDatas.Length; i++)
         {
             weaponImages[i].sprite = SpriteContainer.getSprite(levelupDatas[i].id);
             weaponName[i].text = levelupDatas[i].name;
             weaponDesc[i].text = levelupDatas[i].description;
             //업그레이드 무기일 경우
-            if(levelupDatas[i].id % 10 == 9)
+            if(levelupDatas[i].id % 10 == (int)Weapons.WeaponVar.UpgradeWeapon)
             {
-                for (int j = 0; j < 5; j++)
+                int middle = (int)Weapons.WeaponVar.MaxLevelOfWeapon / 2;
+                for (int j = 0; j < (int)Weapons.WeaponVar.MaxLevelOfWeapon; j++)
                 {
-                    if (j == 2)
+                    if (j == middle) // 가운데 별만 활성화
                     {
                         levelUpStars[i][j].sprite = SpriteContainer.getSprite(ObjectNames.legandaryStar);
                         levelUpStars[i][j].gameObject.SetActive(true);
                         continue;
                     }
-                    levelUpStars[i][j].gameObject.SetActive(false);
+                    levelUpStars[i][j].gameObject.SetActive(false); // 가운데 외 비활성화
                 }
                 weaponSelectSlots_Bg[i].sprite = SpriteContainer.getSprite(ObjectNames.weaponSlotLegandary);
             }
@@ -326,15 +328,15 @@ public class UiManager : MonoBehaviour
             {
                 if (levelupDatas[i].maxLevel == 1)
                 {
-                    for (int j = 0; j < 5; j++)
+                    for (int j = 0; j < (int)Weapons.WeaponVar.MaxLevelOfWeapon; j++)
                     {
-                        if (j == 2)
+                        if (j == 2) // 가운데 별만 활성화
                         {
                             levelUpStars[i][j].sprite = SpriteContainer.getSprite(ObjectNames.normalStar);
                             levelUpStars[i][j].gameObject.SetActive(true);
                             continue;
                         }
-                        levelUpStars[i][j].gameObject.SetActive(false);
+                        levelUpStars[i][j].gameObject.SetActive(false); // 가운데 외 비활성화
                     }
                 }
                 else if (levelupDatas[i].maxLevel == 3)
@@ -370,7 +372,7 @@ public class UiManager : MonoBehaviour
             weaponSelectSlots[i].SetActive(true);
         }
         //획득 또는 업그레이드 가능한 무기가 3개 미만일 경우
-        for (int i = levelupDatas.Length; i < 3; i++)
+        for (int i = levelupDatas.Length; i < (int)Weapons.WeaponVar.NumOfLevelUpWeapon; i++)
         {
             weaponSelectSlots[i].SetActive(false);
         }
@@ -417,11 +419,11 @@ public class UiManager : MonoBehaviour
     //무기, 악세사리 목록 업데이트
     public void UpdateWeaponAccList(int id)
     {
-        if(id < 3000) //무기
+        if(id < (int)Weapons.WeaponVar.WeaponBoundary) //무기
         {
-            if(id % 10 == 9) //업그레이드 무기일 경우
+            if(id % 10 == (int)Weapons.WeaponVar.UpgradeWeapon) //업그레이드 무기일 경우
             {
-                int beforeId = id / 10 * 10 + 1;
+                int beforeId = id / 10 * 10 + 1; // 업그레이드 무기의 기본형 ID
                 weaponIcons[weaponIconDic[beforeId]].sprite = SpriteContainer.getSprite(id);
                 return;
             }
@@ -495,7 +497,7 @@ public class UiManager : MonoBehaviour
         soundManager.PlayBgm((int)StageSoundManager.StageBgm.lotteryStart);
         //애니메이션 시간동안 대기
         lotteryHighlightAnimation.SetActive(true);
-        yield return new WaitForSeconds(2.5f);
+        yield return WfsManager.Instance.GetWaitForSeconds(2.5f);
 
         lotteryGold.LotteryStop();
         lotteryHighlightAnimation.SetActive(false);
@@ -504,7 +506,7 @@ public class UiManager : MonoBehaviour
 
         soundManager.StopBgm();
         soundManager.PlaySfx((int)StageSoundManager.StageSfx.lotteryEnd);
-        yield return new WaitForSeconds(0.5f);
+        yield return WfsManager.Instance.GetWaitForSeconds(0.5f);
 
         lotteryResultIcon.sprite = SpriteContainer.getSprite(lotteryTargetData.id);
         lotteryResName.text = lotteryTargetData.name;

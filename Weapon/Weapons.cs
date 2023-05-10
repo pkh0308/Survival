@@ -9,6 +9,19 @@ using Random = UnityEngine.Random; //System.Random 과 혼선 방지용
 
 public class Weapons : MonoBehaviour
 {
+    // 2023.05.10 추가) 무기/악세 관련 값 관리용 열거형
+    // 기존에 상수로 기재했던 부분 대체
+    public enum WeaponVar
+    {
+        NumOfLevelUpWeapon = 3,
+        MaxLevelOfWeapon = 5,
+        MaxLevelOfAcc = 5,
+        NumOfMaxWeapon = 6,
+        NumOfMaxAcc = 6,
+        UpgradeWeapon = 9,
+        WeaponBoundary = 3000
+    }
+
     ObjectManager objectManager;
 
     //캐릭터 스탯
@@ -125,7 +138,7 @@ public class Weapons : MonoBehaviour
             while (line.Length > 1)
             {
                 int id = int.Parse(line.Split(',')[0]);
-                if(id % 10 == 9) //업그레이드 무기일 경우
+                if(id % 10 == (int)WeaponVar.UpgradeWeapon) //업그레이드 무기일 경우
                 {
                     string[] datas = line.Split(',');
                     // 0: id, 1: name, 2: level, 3: atk, 4: scale, 5:cooltime, 6:count, 7: projectileSpeed, 8: remainTime, 9:description
@@ -238,13 +251,13 @@ public class Weapons : MonoBehaviour
     public void GetWeapon(int id)
     {
         //악세사리일 경우 악세사리 획득 로직 호출
-        if (id > 3000) 
+        if (id > (int)WeaponVar.WeaponBoundary) 
         {
             GetAccesssory(id);
             return;
         }
 
-        if(id % 10 == 9) //업그레이드 무기일 경우
+        if(id % 10 == (int)WeaponVar.UpgradeWeapon) //업그레이드 무기일 경우
         {
             //기존 무기 삭제 및 코루틴 중지
             int beforeId = id / 10 * 10 + 1;
@@ -296,61 +309,73 @@ public class Weapons : MonoBehaviour
             curMaxAccessories++;
     }
 
-    //레벨업 시 호출
-    public List<DataForLevelUp> GetRandomWeaponData()
+    // 레벨업 시 호출
+    // 2023.05.10 수정) 배열을 매개변수로 받아 직접 수정하는 방식으로 수정
+    public void GetRandomWeaponData(DataForLevelUp[] datas)
     {
-        List<DataForLevelUp> datas = new List<DataForLevelUp>();
+        int curCount = 0;
         //무기, 악세사리 키 병합
         List<int> keys = new List<int>();
-        if(curMaxWeapons < 6) 
+        if(curMaxWeapons < (int)WeaponVar.NumOfMaxWeapon) 
             keys.AddRange(weaponDic.Keys);
-        if (curMaxAccessories < 6) 
+        if (curMaxAccessories < (int)WeaponVar.NumOfMaxWeapon) 
             keys.AddRange(accesoryDic.Keys);  
 
         //모든 무기와 악세사리가 최고레벨일 경우 골드/회복 옵션 노출
         if (keys.Count == 0)
         {
             //체력 회복, 골드 획득 옵션
-            datas.Add(new DataForLevelUp(weaponDic[ObjectNames.meat_50][0]));
-            datas.Add(new DataForLevelUp(weaponDic[ObjectNames.gold_70][0]));
-            return datas;
+            datas[0] = new DataForLevelUp(weaponDic[ObjectNames.meat_50][0]);
+            datas[1] = new DataForLevelUp(weaponDic[ObjectNames.gold_70][0]);
+            return;
         }
+
         //레벨업 가능한 무기가 있을 경우 목록에서 골드/회복 옵션 삭제
         keys.Remove(ObjectNames.meat_50);
         keys.Remove(ObjectNames.gold_70);
 
-        while (datas.Count < 3)
+        while (curCount < (int)WeaponVar.NumOfLevelUpWeapon)
         {
             int id = keys[Random.Range(0, keys.Count)];
-            if (id < 3000) //무기
+            if (id < (int)WeaponVar.WeaponBoundary) //무기
             {
                 if (curWeapons.TryGetValue(id, out WeaponData w_data) == false) //신규 획득
-                    datas.Add(new DataForLevelUp(weaponDic[id][0], weaponDic[id].Length));
+                {
+                    datas[curCount] = new DataForLevelUp(weaponDic[id][0], weaponDic[id].Length);
+                    curCount++;
+                }
                 else if (w_data.WeaponLevel < weaponDic[id].Length)  //보유중인 무기 레벨업
-                    datas.Add(new DataForLevelUp(weaponDic[id][w_data.WeaponLevel], weaponDic[id].Length));
+                {
+                    datas[curCount] = new DataForLevelUp(weaponDic[id][w_data.WeaponLevel], weaponDic[id].Length);
+                    curCount++;
+                }
                 else //보유중인 무기이며, 최대 레벨일 경우
                 {
                     int tempId = (id / 10 * 10) + 9; //업그레이드 무기 id
-                    if (!legendaryWeaponDic.ContainsKey(tempId))  //업그레이드 무기가 없을 경우
+                    if (!legendaryWeaponDic.ContainsKey(tempId))  //해당 무기의 업그레이드 무기가 없다면 스킵
                         continue;
 
-                    if(curAccessories.ContainsKey(upgradeDic[tempId].combineId))
-                        datas.Add(new DataForLevelUp(legendaryWeaponDic[tempId]));
+                    if(curAccessories.ContainsKey(upgradeDic[tempId].combineId)) //
+                    {
+                        datas[curCount] = new DataForLevelUp(legendaryWeaponDic[tempId]);
+                        curCount++;
+                    } 
                 }
             }
             else // 악세사리
             {
                 if (curAccessories.TryGetValue(id, out AccessoryData a_data) == false)
-                    datas.Add(new DataForLevelUp(accesoryDic[id][0], accesoryDic[id].Length));
+                    datas[curCount] = new DataForLevelUp(accesoryDic[id][0], accesoryDic[id].Length);
                 else if (a_data.AccessoryLevel < accesoryDic[id].Length)
-                    datas.Add(new DataForLevelUp(accesoryDic[id][a_data.AccessoryLevel], accesoryDic[id].Length));
+                    datas[curCount] = new DataForLevelUp(accesoryDic[id][a_data.AccessoryLevel], accesoryDic[id].Length);
+                
+                curCount++;
             }
 
             keys.Remove(id);
             //레벨업 가능한 무기나 악세사리가 없을 경우 루프 탈출
             if (keys.Count < 1) break;
         }
-        return datas;
     }
 
     //보물상자 획득 시 데이터 전달
@@ -369,9 +394,9 @@ public class Weapons : MonoBehaviour
 
         //무기, 악세사리 키 병합
         List<int> keys = new List<int>();
-        if (curMaxWeapons < 6)
+        if (curMaxWeapons < (int)WeaponVar.NumOfMaxWeapon)
             keys.AddRange(curWeapons.Keys);
-        if (curMaxAccessories < 6)
+        if (curMaxAccessories < (int)WeaponVar.NumOfMaxAcc)
             keys.AddRange(curAccessories.Keys);
 
         //모든 무기와 악세사리가 최고레벨일 경우 골드/회복 옵션 노출
@@ -390,9 +415,9 @@ public class Weapons : MonoBehaviour
         while(datas.Count < ObjectNames.maxLotterySlot)
         {
             int id = keys[Random.Range(0, keys.Count)];
-            if (id < 3000) //무기
+            if (id < (int)WeaponVar.WeaponBoundary) //무기
             {
-                if(id % 10 == 9) //업그레이드 무기일 경우 제외
+                if(id % 10 == (int)WeaponVar.UpgradeWeapon) //업그레이드 무기일 경우 제외
                 {
                     keys.Remove(id);
                     continue;

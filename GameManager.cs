@@ -21,7 +21,6 @@ public class GameManager : MonoBehaviour
     bool onLottery;
 
     //타이머 관련
-    WaitForSeconds oneSec;
     int seconds;
     Coroutine timerRoutine;
 
@@ -53,12 +52,10 @@ public class GameManager : MonoBehaviour
     Dictionary<int, int> itemDic;
     [SerializeField] GameObject magnetArea;
     [SerializeField] GameObject bombArea;
-    WaitForSeconds onoffInterval;
 
     //아이템 박스 스폰 관련
     [Header("아이템 박스")]
     Coroutine spawnItemBoxRoutine;
-    WaitForSeconds spawnItemBoxInterval;
     Vector3 spawnItemBoxOffset;
     [SerializeField] float spawnItemBoxDistance;
     [SerializeField] float spawnItemBoxTime;
@@ -66,7 +63,6 @@ public class GameManager : MonoBehaviour
     //레벨업 관련
     [Header("레벨업")]
     [SerializeField] float levelUpInterval;
-    WaitForSeconds levelUpSeconds;
     Coroutine levelUpRoutine;
 
     //카운트 관련
@@ -75,12 +71,15 @@ public class GameManager : MonoBehaviour
     public static Action<int> goldCountPlus;
     int goldCount;
 
+    // WaitForSeconds
+    float stageClearInterval = 3.0f;
+    float gameOverInterval = 1.5f;
+    float onOffInterval = 0.1f;
+    float oneSecond = 1.0f;
+
     void Awake()
     {
-        oneSec = new WaitForSeconds(1.0f);
         seconds = 0;
-
-        levelUpSeconds = new WaitForSeconds(levelUpInterval);
 
         isPaused = false;
         onLevelUp = false;
@@ -90,7 +89,6 @@ public class GameManager : MonoBehaviour
         maxExp = Enumerable.Repeat<int>(100, 100).ToArray();
 
         itemDic = new Dictionary<int, int>();
-        onoffInterval = new WaitForSeconds(0.1f);
 
         killCountPlus = () => { UpdateKillCount(); };
         goldCountPlus = (a) => { UpdateGoldCount(a); };
@@ -99,8 +97,6 @@ public class GameManager : MonoBehaviour
         curStageIdx = LoadingSceneManager.Inst.CurStageIdx;
         curSpawnIdx = 0;
         bossDie = () => { BossDie(); };
-
-        spawnItemBoxInterval = new WaitForSeconds(spawnItemBoxTime);
 
         ReadSpawnData();
         ReadItemData();
@@ -223,7 +219,7 @@ public class GameManager : MonoBehaviour
         {
             if (gameOver) yield break;
 
-            yield return oneSec;
+            yield return WfsManager.Instance.GetWaitForSeconds(oneSecond);
             seconds++;
             uiManager.UpdateTimer(seconds);
         }
@@ -354,7 +350,8 @@ public class GameManager : MonoBehaviour
     //아이템 박스 스폰
     IEnumerator SpawnItemBox()
     {
-        yield return spawnItemBoxInterval;
+        // 초기 쿨타임
+        yield return WfsManager.Instance.GetWaitForSeconds(spawnItemBoxTime);
 
         GameObject itemBox;
         while(!isPaused)
@@ -371,7 +368,7 @@ public class GameManager : MonoBehaviour
                 spawnItemBoxOffset.y = (vMin + vMax) / 2;
             itemBox.transform.position = spawnOffset;
 
-            yield return spawnItemBoxInterval;
+            yield return WfsManager.Instance.GetWaitForSeconds(spawnItemBoxTime);
         }
     }
 
@@ -435,7 +432,7 @@ public class GameManager : MonoBehaviour
     IEnumerator AreaOnOff(GameObject obj)
     {
         obj.SetActive(true);
-        yield return onoffInterval;
+        yield return WfsManager.Instance.GetWaitForSeconds(onOffInterval);
         obj.SetActive(false);
     }
 
@@ -481,7 +478,7 @@ public class GameManager : MonoBehaviour
         curExp -= maxExp[maxExpIdx]; 
         maxExpIdx++;
         soundManager.PlaySfx((int)StageSoundManager.StageSfx.levelUp);
-        yield return levelUpSeconds;
+        yield return WfsManager.Instance.GetWaitForSeconds(levelUpInterval);
 
         if (gameOver) yield break;
         Pause();
@@ -515,7 +512,7 @@ public class GameManager : MonoBehaviour
     {
         gameOver = true;
 
-        yield return new WaitForSeconds(3.0f);
+        yield return WfsManager.Instance.GetWaitForSeconds(stageClearInterval);
         isPaused = true;
         uiManager.StageClear(killCount, goldCount);
     }
@@ -530,7 +527,7 @@ public class GameManager : MonoBehaviour
     {
         gameOver = true;
 
-        yield return new WaitForSeconds(1.5f);
+        yield return WfsManager.Instance.GetWaitForSeconds(gameOverInterval);
         isPaused = true;
         uiManager.GameOver(killCount, goldCount);
     }
