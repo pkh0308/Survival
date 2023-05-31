@@ -20,7 +20,6 @@ public class StageSoundManager : MonoBehaviour
 
     //sfx
     [Header("Sfx")]
-    public static Action<int> playSfx;
     [SerializeField] AudioClip getExp;
     [SerializeField] AudioClip levelUp;
     [SerializeField] AudioClip stageClear;
@@ -32,10 +31,10 @@ public class StageSoundManager : MonoBehaviour
     [SerializeField] AudioClip bossAlert;
     [SerializeField] AudioClip playerDeath;
     [SerializeField] AudioClip playerDamaged;
+    public static Action<int> playSfx;
 
     //weapon
     [Header("Weapon")]
-    public static Action<int> playWeaponSfx; 
     [SerializeField] AudioClip soccerBallSfx;
     [SerializeField] AudioClip shurikenSfx;
     [SerializeField] AudioClip defenderSfx;
@@ -43,8 +42,8 @@ public class StageSoundManager : MonoBehaviour
     [SerializeField] AudioClip thunderSfx;
     [SerializeField] AudioClip explodeMineSfx;
     [SerializeField] AudioClip defenderAttackSfx;
-
     [SerializeField] AudioClip explosionSfx;
+    public static Action<int> playWeaponSfx;
 
     void Awake()
     {
