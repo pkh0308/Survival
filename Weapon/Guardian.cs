@@ -36,7 +36,7 @@ public class Guardian : WeaponBase
             return;
         }
         //적 타격(넉백 포함)
-        StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.defenderAttack);
+        SoundManager.playWeaponSfx(SoundManager.WeaponSfx.defenderAttack);
         col.GetComponent<Enemy>().OnDamaged((int)(weaponData.WeaponAtk * atkPower),
                                             (col.transform.position - Player.playerPos).normalized * knuckbackOffset);
         AcmDmg((int)(weaponData.WeaponAtk * atkPower));

@@ -10,7 +10,6 @@ public class GameManager : MonoBehaviour
     [Header("컴포넌트")]
     [SerializeField] ObjectManager objectManager;
     [SerializeField] UiManager uiManager;
-    [SerializeField] StageSoundManager soundManager;
     [SerializeField] GameObject stageEnder;
 
     //상태 표시용 bool값
@@ -384,7 +383,7 @@ public class GameManager : MonoBehaviour
             case ObjectNames.exp_50:
             case ObjectNames.exp_250:
             {
-                soundManager.PlaySfx((int)StageSoundManager.StageSfx.getExp);
+                SoundManager.playSfx(SoundManager.Sfx.getExp);
                 curExp += itemDic[id];
                 //대기중일 경우 레벨업 루틴은 스킵
                 if (!onLevelUp && maxExp[maxExpIdx] <= curExp)
@@ -394,7 +393,7 @@ public class GameManager : MonoBehaviour
             }
             case ObjectNames.meat_50:
             {
-                soundManager.PlaySfx((int)StageSoundManager.StageSfx.meat_or_magnet);
+                SoundManager.playSfx(SoundManager.Sfx.meat_or_magnet);
                 Player.getHeal(itemDic[id]);
                 break;
             }
@@ -403,7 +402,7 @@ public class GameManager : MonoBehaviour
             case ObjectNames.gold_50:
             case ObjectNames.gold_100:
             {
-                soundManager.PlaySfx((int)StageSoundManager.StageSfx.gold);
+                SoundManager.playSfx(SoundManager.Sfx.gold);
                 goldCount += itemDic[id];
                 GoldManager.Instance.PlusGold(itemDic[id]);
                 uiManager.UpdateGoldCount(goldCount);
@@ -411,13 +410,13 @@ public class GameManager : MonoBehaviour
             }
             case ObjectNames.magnet:
             {
-                soundManager.PlaySfx((int)StageSoundManager.StageSfx.meat_or_magnet);
+                SoundManager.playSfx(SoundManager.Sfx.meat_or_magnet);
                 StartCoroutine(AreaOnOff(magnetArea));
                 break;
             }
             case ObjectNames.bomb:
             {
-                soundManager.PlaySfx((int)StageSoundManager.StageSfx.bomb);
+                SoundManager.playSfx(SoundManager.Sfx.bomb);
                 StartCoroutine(AreaOnOff(bombArea));
                 break;
             }
@@ -477,7 +476,7 @@ public class GameManager : MonoBehaviour
         onLevelUp = true; 
         curExp -= maxExp[maxExpIdx]; 
         maxExpIdx++;
-        soundManager.PlaySfx((int)StageSoundManager.StageSfx.levelUp);
+        SoundManager.playSfx(SoundManager.Sfx.levelUp);
         yield return WfsManager.Instance.GetWaitForSeconds(levelUpInterval);
 
         if (gameOver) yield break;

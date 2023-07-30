@@ -35,7 +35,7 @@ public class Thunder : WeaponBase
                 Weapons.accumulateDmg(weaponData.WeaponId, dmg);
             }
         }
-        StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.thunder);
+        SoundManager.playWeaponSfx(SoundManager.WeaponSfx.thunder);
 
         yield return new WaitForSeconds(0.5f);
         gameObject.SetActive(false);

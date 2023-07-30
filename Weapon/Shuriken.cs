@@ -34,7 +34,7 @@ public class Shuriken : WeaponBase
 
         rigid.AddForce(direction * weaponData.WeaponProjectileSpeed * projSpeed, ForceMode2D.Impulse);
         initialVelocity = rigid.velocity;
-        StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.shuriken);
+        SoundManager.playWeaponSfx(SoundManager.WeaponSfx.shuriken);
     }
 
     void OnTriggerEnter2D(Collider2D col)

@@ -99,7 +99,7 @@ public class ObjectNames
     public const string text = "Text";
     public const int weaponSlotNormal = 10001;
     public const int weaponSlotLegandary = 10002;
-    public const int blackStar = 10011;
-    public const int normalStar = 10012;
-    public const int legandaryStar = 10013;
+    public const int blackStar = 10003;
+    public const int normalStar = 10004;
+    public const int legandaryStar = 10005;
 }

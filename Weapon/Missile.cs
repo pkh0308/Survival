@@ -17,7 +17,7 @@ public class Missile : WeaponBase
         initialVelocity = rigid.velocity;
         transform.Rotate(MyRotation.Rotate(direction));
 
-        StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.missile);
+        SoundManager.playWeaponSfx(SoundManager.WeaponSfx.missile);
     }
 
     //적에게 닿을 시 Explode() 호출
@@ -61,7 +61,7 @@ public class Missile : WeaponBase
         coll.enabled = false;
         rigid.velocity = Vector2.zero;
         spriteRenderer.enabled = false;
-        StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.explosion);
+        SoundManager.playWeaponSfx(SoundManager.WeaponSfx.explosion);
 
         GameObject explosion = ObjectManager.makeObj(ObjectNames.explosion);
         explosion.GetComponent<Explosion>().Initialize((int)(weaponData.WeaponAtk * atkPower), weaponData.WeaponId, weaponData.WeaponScale * atkScale);

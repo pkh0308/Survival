@@ -9,7 +9,7 @@ public class ExplodeMine : WeaponBase
         direction.y = Random.Range(-5.0f, 5.0f);
         transform.position = direction;
 
-        StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.explodeMine);
+        SoundManager.playWeaponSfx(SoundManager.WeaponSfx.explodeMine);
     }
 
     //적에게 닿을 시 Explode() 호출
@@ -55,7 +55,7 @@ public class ExplodeMine : WeaponBase
         explosion.GetComponent<Explosion>().Initialize((int)(weaponData.WeaponAtk * atkPower), weaponData.WeaponId, weaponData.WeaponScale * atkScale);
         explosion.transform.position = transform.position;
         explosion.SetActive(true);
-        StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.explosion);
+        SoundManager.playWeaponSfx(SoundManager.WeaponSfx.explosion);
 
         gameObject.SetActive(false);
     }

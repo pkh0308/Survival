@@ -10,7 +10,7 @@ public class SoccerBall : WeaponBase
         rigid.AddForce(direction, ForceMode2D.Impulse);
         initialVelocity = rigid.velocity;
 
-        StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.soccerBall);
+        SoundManager.playWeaponSfx((int)SoundManager.WeaponSfx.soccerBall);
     }
 
     void OnTriggerEnter2D(Collider2D col)
@@ -19,7 +19,7 @@ public class SoccerBall : WeaponBase
 
         col.GetComponent<Enemy>().OnDamaged((int)(weaponData.WeaponAtk * atkPower));
         AcmDmg((int)(weaponData.WeaponAtk * atkPower));
-        StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.soccerBall);
+        SoundManager.playWeaponSfx((int)SoundManager.WeaponSfx.soccerBall);
 
         //적에게 부딪힌 뒤 튕겨져 나갈 방향 계산
         Vector3 diff = col.transform.position - transform.position;

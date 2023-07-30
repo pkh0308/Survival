@@ -12,7 +12,6 @@ public class UiManager : MonoBehaviour
     [Header("컴포넌트 연결")]
     [SerializeField] GameManager gameManager;
     [SerializeField] ObjectManager objectManager;
-    [SerializeField] StageSoundManager soundManager;
     Weapons weaponLogic;
 
     //타이머 관련
@@ -220,7 +219,7 @@ public class UiManager : MonoBehaviour
         for(int i = 0; i < arr.GetLength(0); i++)
         {
             statisticsBars[i].rectTransform.localScale = total == 0 ? Vector3.one : new Vector3((float)arr[i, 1] / total, 1, 1);
-            statisticsIcons[i].sprite = SpriteContainer.getSprite(arr[i, 0]);
+            statisticsIcons[i].sprite = SpriteManager.getSprite(arr[i, 0]);
             statisticsTexts[i].text = string.Format("{0:n0}", arr[i, 1]);
             statisticsSlots[i].SetActive(true);
         }
@@ -242,7 +241,7 @@ public class UiManager : MonoBehaviour
     public IEnumerator BossAlert(float interval)
     {
         bossAlertSet.SetActive(true);
-        soundManager.PlaySfx((int)StageSoundManager.StageSfx.bossAlert);
+        SoundManager.playSfx(SoundManager.Sfx.bossAlert);
         yield return WfsManager.Instance.GetWaitForSeconds(interval);
 
         bossAlertSet.SetActive(false);
@@ -305,7 +304,7 @@ public class UiManager : MonoBehaviour
         weaponLogic.GetRandomWeaponData(levelupDatas);
         for (int i = 0; i < levelupDatas.Length; i++)
         {
-            weaponImages[i].sprite = SpriteContainer.getSprite(levelupDatas[i].id);
+            weaponImages[i].sprite = SpriteManager.getSprite(levelupDatas[i].id);
             weaponName[i].text = levelupDatas[i].name;
             weaponDesc[i].text = levelupDatas[i].description;
             //업그레이드 무기일 경우
@@ -316,13 +315,13 @@ public class UiManager : MonoBehaviour
                 {
                     if (j == middle) // 가운데 별만 활성화
                     {
-                        levelUpStars[i][j].sprite = SpriteContainer.getSprite(ObjectNames.legandaryStar);
+                        levelUpStars[i][j].sprite = SpriteManager.getSprite(ObjectNames.legandaryStar);
                         levelUpStars[i][j].gameObject.SetActive(true);
                         continue;
                     }
                     levelUpStars[i][j].gameObject.SetActive(false); // 가운데 외 비활성화
                 }
-                weaponSelectSlots_Bg[i].sprite = SpriteContainer.getSprite(ObjectNames.weaponSlotLegandary);
+                weaponSelectSlots_Bg[i].sprite = SpriteManager.getSprite(ObjectNames.weaponSlotLegandary);
             }
             else
             {
@@ -332,7 +331,7 @@ public class UiManager : MonoBehaviour
                     {
                         if (j == 2) // 가운데 별만 활성화
                         {
-                            levelUpStars[i][j].sprite = SpriteContainer.getSprite(ObjectNames.normalStar);
+                            levelUpStars[i][j].sprite = SpriteManager.getSprite(ObjectNames.normalStar);
                             levelUpStars[i][j].gameObject.SetActive(true);
                             continue;
                         }
@@ -347,9 +346,9 @@ public class UiManager : MonoBehaviour
                     for (int j = 1; j < levelUpStars[i].Length - 1; j++)
                     {
                         if (j <= levelupDatas[i].level)
-                            levelUpStars[i][j].sprite = SpriteContainer.getSprite(ObjectNames.normalStar);
+                            levelUpStars[i][j].sprite = SpriteManager.getSprite(ObjectNames.normalStar);
                         else
-                            levelUpStars[i][j].sprite = SpriteContainer.getSprite(ObjectNames.blackStar);
+                            levelUpStars[i][j].sprite = SpriteManager.getSprite(ObjectNames.blackStar);
 
                         levelUpStars[i][j].gameObject.SetActive(true);
                     }
@@ -359,14 +358,14 @@ public class UiManager : MonoBehaviour
                     for (int j = 0; j < levelUpStars[i].Length; j++)
                     {
                         if (j < levelupDatas[i].level)
-                            levelUpStars[i][j].sprite = SpriteContainer.getSprite(ObjectNames.normalStar);
+                            levelUpStars[i][j].sprite = SpriteManager.getSprite(ObjectNames.normalStar);
                         else
-                            levelUpStars[i][j].sprite = SpriteContainer.getSprite(ObjectNames.blackStar);
+                            levelUpStars[i][j].sprite = SpriteManager.getSprite(ObjectNames.blackStar);
 
                         levelUpStars[i][j].gameObject.SetActive(true);
                     }
                 }
-                weaponSelectSlots_Bg[i].sprite = SpriteContainer.getSprite(ObjectNames.weaponSlotNormal);
+                weaponSelectSlots_Bg[i].sprite = SpriteManager.getSprite(ObjectNames.weaponSlotNormal);
             }
 
             weaponSelectSlots[i].SetActive(true);
@@ -424,7 +423,7 @@ public class UiManager : MonoBehaviour
             if(id % 10 == (int)Weapons.WeaponVar.UpgradeWeapon) //업그레이드 무기일 경우
             {
                 int beforeId = id / 10 * 10 + 1; // 업그레이드 무기의 기본형 ID
-                weaponIcons[weaponIconDic[beforeId]].sprite = SpriteContainer.getSprite(id);
+                weaponIcons[weaponIconDic[beforeId]].sprite = SpriteManager.getSprite(id);
                 return;
             }
 
@@ -433,7 +432,7 @@ public class UiManager : MonoBehaviour
                 if (weaponIcons[i].gameObject.activeSelf)
                     continue;
 
-                weaponIcons[i].sprite = SpriteContainer.getSprite(id);
+                weaponIcons[i].sprite = SpriteManager.getSprite(id);
                 weaponIconDic.Add(id, i);
                 weaponIcons[i].gameObject.SetActive(true);
                 break;
@@ -446,7 +445,7 @@ public class UiManager : MonoBehaviour
                 if (accessoryIcons[i].gameObject.activeSelf)
                     continue;
 
-                accessoryIcons[i].sprite = SpriteContainer.getSprite(id);
+                accessoryIcons[i].sprite = SpriteManager.getSprite(id);
                 accessoryIcons[i].gameObject.SetActive(true);
                 break;
             }
@@ -464,7 +463,7 @@ public class UiManager : MonoBehaviour
         for (int i = 0; i < lotterySlotIcons.Length; i++)
         {
             idx = Random.Range(0, datas.Length);
-            lotterySlotIcons[i].sprite = SpriteContainer.getSprite(datas[idx].id);
+            lotterySlotIcons[i].sprite = SpriteManager.getSprite(datas[idx].id);
 
             if (i == lotteryTargetIdx)
                 lotteryTargetData = datas[idx];
@@ -475,14 +474,14 @@ public class UiManager : MonoBehaviour
         if (id > 0) 
         {
             idx = Random.Range(0, lotterySlotIcons.Length);
-            lotterySlotIcons[idx].sprite = SpriteContainer.getSprite(id);
+            lotterySlotIcons[idx].sprite = SpriteManager.getSprite(id);
             lotteryTargetIdx = idx;
             lotteryTargetData = datas[0];
         }
 
         lotteryStartBtn.SetActive(true);
         lotterySet.SetActive(true);
-        soundManager.PlayBgm((int)StageSoundManager.StageBgm.lotteryBgm);
+        SoundManager.playBgm(SoundManager.StageBgm.lotteryBgm);
     }
 
     public void Btn_StartLottery()
@@ -494,7 +493,7 @@ public class UiManager : MonoBehaviour
 
     IEnumerator Lottery()
     {
-        soundManager.PlayBgm((int)StageSoundManager.StageBgm.lotteryStart);
+        SoundManager.playBgm(SoundManager.StageBgm.lotteryStart);
         //애니메이션 시간동안 대기
         lotteryHighlightAnimation.SetActive(true);
         yield return WfsManager.Instance.GetWaitForSeconds(2.5f);
@@ -504,11 +503,11 @@ public class UiManager : MonoBehaviour
         lotteryHighlight.rectTransform.anchoredPosition = lotterySlots[lotteryTargetIdx].anchoredPosition + highlightOffset;
         lotteryHighlight.gameObject.SetActive(true);
 
-        soundManager.StopBgm();
-        soundManager.PlaySfx((int)StageSoundManager.StageSfx.lotteryEnd);
+        SoundManager.stopBgm();
+        SoundManager.playSfx(SoundManager.Sfx.lotteryEnd);
         yield return WfsManager.Instance.GetWaitForSeconds(0.5f);
 
-        lotteryResultIcon.sprite = SpriteContainer.getSprite(lotteryTargetData.id);
+        lotteryResultIcon.sprite = SpriteManager.getSprite(lotteryTargetData.id);
         lotteryResName.text = lotteryTargetData.name;
         lotteryResDesc.text = lotteryTargetData.description; 
         //업그레이드 무기
@@ -518,13 +517,13 @@ public class UiManager : MonoBehaviour
             {
                 if(i == 2)
                 {
-                    lotteryResStars[i].sprite = SpriteContainer.getSprite(ObjectNames.legandaryStar);
+                    lotteryResStars[i].sprite = SpriteManager.getSprite(ObjectNames.legandaryStar);
                     lotteryResStars[i].gameObject.SetActive(true);
                     continue;
                 }
                 lotteryResStars[i].gameObject.SetActive(false);
             }
-            lotteryResSlot.sprite = SpriteContainer.getSprite(ObjectNames.weaponSlotLegandary);
+            lotteryResSlot.sprite = SpriteManager.getSprite(ObjectNames.weaponSlotLegandary);
         }
         else //일반 무기 or 악세사리
         {
@@ -537,9 +536,9 @@ public class UiManager : MonoBehaviour
                 for(int i = 1; i < lotteryResStars.Length - 1; i++)
                 {
                     if (i <= lotteryTargetData.level) 
-                        lotteryResStars[i].sprite = SpriteContainer.getSprite(ObjectNames.normalStar);
+                        lotteryResStars[i].sprite = SpriteManager.getSprite(ObjectNames.normalStar);
                     else
-                        lotteryResStars[i].sprite = SpriteContainer.getSprite(ObjectNames.blackStar);
+                        lotteryResStars[i].sprite = SpriteManager.getSprite(ObjectNames.blackStar);
 
                     lotteryResStars[i].gameObject.SetActive(true);
                 }
@@ -549,15 +548,15 @@ public class UiManager : MonoBehaviour
                 for (int i = 0; i < lotteryResStars.Length; i++)
                 {
                     if (i < lotteryTargetData.level)
-                        lotteryResStars[i].sprite = SpriteContainer.getSprite(ObjectNames.normalStar);
+                        lotteryResStars[i].sprite = SpriteManager.getSprite(ObjectNames.normalStar);
                     else
-                        lotteryResStars[i].sprite = SpriteContainer.getSprite(ObjectNames.blackStar);
+                        lotteryResStars[i].sprite = SpriteManager.getSprite(ObjectNames.blackStar);
 
                     lotteryResStars[i].gameObject.SetActive(true);
                 }
             }
 
-            lotteryResSlot.sprite = SpriteContainer.getSprite(ObjectNames.weaponSlotNormal);
+            lotteryResSlot.sprite = SpriteManager.getSprite(ObjectNames.weaponSlotNormal);
         }
         lotteryResultSet.SetActive(true);
     }
@@ -576,7 +575,7 @@ public class UiManager : MonoBehaviour
         //일시정지 해제 및 무기 코루틴 재시작
         gameManager.PauseOff();
         weaponLogic.RestartWeapons();
-        soundManager.PlayBgm((int)StageSoundManager.StageBgm.stage_1);
+        SoundManager.playBgm(SoundManager.StageBgm.stage_1);
     }
 
     public void InputEnter()
@@ -616,7 +615,8 @@ public class UiManager : MonoBehaviour
     //스테이지 클리어
     public void StageClear(int kill, int money)
     {
-        soundManager.PlaySfx((int)StageSoundManager.StageSfx.stageClear);
+        SoundManager.stopBgm();
+        SoundManager.playSfx(SoundManager.Sfx.stageClear);
         weaponLogic.AllStop();
         killCountText_stageClear.text = string.Format("{0:n0}", kill);
         moneyCountText_stageClear.text = string.Format("{0:n0}", money);
@@ -632,7 +632,8 @@ public class UiManager : MonoBehaviour
     //게임 오버
     public void GameOver(int kill, int money)
     {
-        soundManager.PlaySfx((int)StageSoundManager.StageSfx.gameOver);
+        SoundManager.stopBgm();
+        SoundManager.playSfx(SoundManager.Sfx.gameOver);
         weaponLogic.AllStop();
         killCountText_gameover.text = string.Format("{0:n0}", kill);
         moneyCountText_gameover.text = string.Format("{0:n0}", money);

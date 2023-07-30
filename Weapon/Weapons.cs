@@ -695,7 +695,7 @@ public class Weapons : MonoBehaviour
                     curDefenders[i].GetComponent<WeaponBase>().Initialize(curWeapons[ObjectNames.defender],
                                                               curStat.AtkPowerVal, curStat.AtkScaleVal, curStat.ProjSpeedVal, curStat.AtkRemainTimeVal);
                 }
-                StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.defender);
+                SoundManager.playWeaponSfx(SoundManager.WeaponSfx.defender);
                 defenderCount = 0;
             }
             yield return null;
@@ -869,7 +869,7 @@ public class Weapons : MonoBehaviour
         {
             guardianCount += Time.deltaTime;
             if (guardianCount > guardianSec)
-                StageSoundManager.playWeaponSfx((int)StageSoundManager.WeaponSfx.defender);
+                SoundManager.playWeaponSfx(SoundManager.WeaponSfx.defender);
             yield return null;
         }
     }

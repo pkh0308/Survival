@@ -6,9 +6,6 @@ using TMPro;
 
 public class LobbyManager : MonoBehaviour
 {
-    [SerializeField] LobbySoundManager soundManager;
-    [SerializeField] LobbySpriteContainer spriteContainer;
-
     [SerializeField] GameObject enhancementSet;
     [SerializeField] GameObject exitSet;
 
@@ -44,8 +41,8 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI enhancePriceText;
     [SerializeField] GameObject enhanceBtn;
 
-    //치트 관련
-    //빌드 전 반드시 삭제 요망
+    // 치트 관련
+    // 배포 시 반드시 삭제 요망
     [SerializeField] GameObject cheatSet;
 
     void Awake()
@@ -125,9 +122,10 @@ public class LobbyManager : MonoBehaviour
     {
         for(int i = 0; i < playerInfoList.Count; i++)
         {
-            playerImgs[i].sprite = spriteContainer.GetPlayerSprite(playerInfoList[i].charId);
             playerNames[i].text = playerInfoList[i].charName;
-            playerWeaponImgs[i].sprite = spriteContainer.GetWeaponSprite(playerInfoList[i].weaponId);
+
+            playerImgs[i].sprite = SpriteManager.getSprite(playerInfoList[i].charId);
+            playerWeaponImgs[i].sprite = SpriteManager.getSprite(playerInfoList[i].weaponId);
         }
     }
 
@@ -135,7 +133,8 @@ public class LobbyManager : MonoBehaviour
     //모드 선택
     public void Btn_GameStart()
     {
-        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
+        SoundManager.playSfx(SoundManager.Sfx.btnClick);
+        UpdateCharacterInfo();
         characterSelectSet.SetActive(true);
     }
     
@@ -144,7 +143,7 @@ public class LobbyManager : MonoBehaviour
     {
         if (charId == 0) return;
 
-        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
+        SoundManager.playSfx(SoundManager.Sfx.btnClick);
         characterSelectSet.SetActive(false);
 
         stageSelectSet.SetActive(true);
@@ -157,7 +156,7 @@ public class LobbyManager : MonoBehaviour
 
     public void Btn_characterSelectExit()
     {
-        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
+        SoundManager.playSfx(SoundManager.Sfx.btnClick);
         characterSelectSet.SetActive(false);
         charId = 0;
     }
@@ -165,7 +164,7 @@ public class LobbyManager : MonoBehaviour
     //스테이지 선택
     public void Btn_StageSelectExit()
     {
-        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
+        SoundManager.playSfx(SoundManager.Sfx.btnClick);
         stageSelectSet.SetActive(false);
         charId = 0;
         stageId = 0;
@@ -182,7 +181,7 @@ public class LobbyManager : MonoBehaviour
     {
         if (stageId == 0) return;
 
-        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
+        SoundManager.playSfx(SoundManager.Sfx.btnClick);
         //플레이어 스탯 전달
         //0: atkPower, 1:atkScale, 2:projSpeed, 3: cooltime, 4: projCount, 5: atkRemainTime, 6:playerHealth, 7: playerDef, 8: playerMoveSpeed
         PlayerStatus status = new PlayerStatus(
@@ -222,7 +221,7 @@ public class LobbyManager : MonoBehaviour
 
     void UpdateEnhanceInfo(int id)
     {
-        enhanceIcon.sprite = spriteContainer.GetEnhancementSprite(enhanceDic[id].spriteId);
+        enhanceIcon.sprite = SpriteManager.getSprite(enhanceDic[id].spriteId);
         enhanceNameText.text = enhanceDic[id].nameText;
         enhanceDescText.text = enhanceDic[id].descText;
         enhancePriceText.text = enhanceDic[id].price == 0 ? "Max" : string.Format("{0:n0}", enhanceDic[id].price);
@@ -249,7 +248,7 @@ public class LobbyManager : MonoBehaviour
 
     public void Btn_EnhancementOpen()
     {
-        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
+        SoundManager.playSfx(SoundManager.Sfx.btnClick);
         if (enhancementSet.activeSelf)
         {
             enhancementSet.SetActive(false);
@@ -274,13 +273,13 @@ public class LobbyManager : MonoBehaviour
         //구매 실패 처리
         if (GoldManager.Instance.Purchase(enhanceDic[curEnhanceId].price) == false)
         {
-            soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
+            SoundManager.playSfx(SoundManager.Sfx.btnClick);
             purchaseFailSet.SetActive(true);
             return;
         }
 
         //UI, Prefs 변수 갱신
-        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.upgrade);
+        SoundManager.playSfx(SoundManager.Sfx.statUpgrade);
         UpdateGold();
         Prefers.Instance.UpdatePref(enhanceDic[curEnhanceId].nameText);
         
@@ -290,14 +289,14 @@ public class LobbyManager : MonoBehaviour
 
     public void Btn_PurchaseFail()
     {
-        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
+        SoundManager.playSfx(SoundManager.Sfx.btnClick);
         purchaseFailSet.SetActive(false);
     }
 
     //종료 버튼 관련
     public void Btn_Exit()
     {
-        soundManager.PlaySfx((int)LobbySoundManager.LobbySfx.btnClick);
+        SoundManager.playSfx(SoundManager.Sfx.btnClick);
         if (exitSet.activeSelf)
             exitSet.SetActive(false);
         else

@@ -245,14 +245,14 @@ public class Player : MonoBehaviour
 
         curHp -= dmg;
         uiManager.UpdateHp(curHp, maxHp);
-        StageSoundManager.playSfx((int)StageSoundManager.StageSfx.playerDamaged);
+        SoundManager.playSfx(SoundManager.Sfx.playerDamaged);
     }
 
     void OnDie()
     {
         isDie = true;
         weaponLogic.StopAllCoroutines();
-        StageSoundManager.playSfx((int)StageSoundManager.StageSfx.playerDeath);
+        SoundManager.playSfx(SoundManager.Sfx.playerDeath);
         anim.SetTrigger("OnDie");
         gameManager.PlayerDie();
     }

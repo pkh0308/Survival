@@ -136,6 +136,9 @@ public class ObjectManager : MonoBehaviour
 
     GameObject[] targetPool;
 
+    public static Action startCharacter;
+    public static Action generate;
+
     public static Func<int, GameObject> dropExp;
     public static Func<int, GameObject> makeWeaponProj;
     public static Func<int, GameObject> makeEnemy;
@@ -147,6 +150,9 @@ public class ObjectManager : MonoBehaviour
     {
         playerCharacterId = PlayerStatusManager.getCharacterId();
         characterDic = new Dictionary<int, CharacterData>();
+
+        startCharacter = () => { StartCharacter(playerCharacterId); };
+        generate = () => { Generate(); };
 
         dropExp = (a) => { return DropExp(a); };
         makeWeaponProj = (id) => { return MakeWeaponProj(id); };
@@ -222,10 +228,7 @@ public class ObjectManager : MonoBehaviour
 
     void Start()
     {
-        LoadingSceneManager.Inst.SetActiveSceneToPlayerScene();
-        StartCharacter(playerCharacterId);
-        LoadingSceneManager.Inst.SetActiveSceneToCurStage();
-        Generate();
+
     }
 
     void ReadCharacterData()
